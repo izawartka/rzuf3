@@ -1,0 +1,147 @@
+#include "slider.h"
+
+RZUF3_Slider::RZUF3_Slider(int min, int max, int value)
+{
+	mp_options.min = min;
+	mp_options.max = max;
+	mp_options.value = value;
+}
+
+RZUF3_Slider::RZUF3_Slider(RZUF3_SliderOptions options)
+{
+	mp_options = options;
+}
+
+RZUF3_Slider::~RZUF3_Slider()
+{
+
+}
+
+void RZUF3_Slider::init()
+{
+	m_min = mp_options.min;
+	m_max = mp_options.max;
+	m_style = mp_options.style;
+	setValue(mp_options.value);
+
+	RZUF3_Object* obj = getObject();
+
+	m_clickable = new RZUF3_Clickable();
+	obj->addScript(m_clickable);
+
+	updateStyle();
+
+	m_objEventsManager = obj->getEventsManager();
+	m_renderer = obj->getScene()->getRenderer();
+
+	_ADD_LISTENER(m_objEventsManager, MousePressed);
+	_ADD_LISTENER(m_objEventsManager, UISetValue);
+
+	RZUF3_EventsManager* eventsManager = obj->getScene()->getEventsManager();
+	_ADD_LISTENER(eventsManager, Draw);
+}
+
+void RZUF3_Slider::deinit()
+{
+	_REMOVE_LISTENER(m_objEventsManager, MousePressed);
+	_REMOVE_LISTENER(m_objEventsManager, UISetValue);
+
+	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	_REMOVE_LISTENER(eventsManager, Draw);
+}
+
+void RZUF3_Slider::setStyle(RZUF3_SliderStyle style)
+{
+	m_style = style;
+	updateStyle();
+}
+
+void RZUF3_Slider::setMin(int min)
+{
+	m_min = min;
+	if(m_value < m_min) setValue(m_min);
+}
+
+void RZUF3_Slider::setMax(int max)
+{
+	m_max = max;
+	if(m_value > m_max) setValue(m_max);
+}
+
+void RZUF3_Slider::setValue(int value)
+{
+	m_value = value;
+	if(m_value < m_min) m_value = m_min;
+	if(m_value > m_max) m_value = m_max;
+
+	if (!m_objEventsManager) return;
+
+	RZUF3_UIValueChangeEvent objEvent(m_value);
+	m_objEventsManager->dispatchEvent(&objEvent);
+}
+
+RZUF3_SliderStyle RZUF3_Slider::getStyle() const
+{
+	return m_style;
+}
+
+int RZUF3_Slider::getValue() const
+{
+	return m_value;
+}
+
+void RZUF3_Slider::onMousePressed(RZUF3_MousePressedEvent* event)
+{
+	if(event->getButton() != SDL_BUTTON_LEFT) return;
+
+	double fraction = (double)event->getX() / m_style.width;
+	double floatValue = m_min + fraction * (m_max - m_min);
+	setValue(std::round(floatValue));
+}
+
+void RZUF3_Slider::onUISetValue(RZUF3_UISetValueEvent* event)
+{
+	setValue(event->getValue());
+}
+
+void RZUF3_Slider::onDraw(RZUF3_DrawEvent* event)
+{
+	int thumbOutSize = (m_style.thumbSize - m_style.sliderSize) / 2;
+	int sliderOffset = std::max(thumbOutSize, 0);
+	int thumbOffset = std::min(thumbOutSize, 0);
+	int sliderHalfSize = m_style.sliderSize / 2;
+	int thumbHalfSize = m_style.thumbSize / 2;
+
+	SDL_Rect sliderRect = {
+		sliderOffset,
+		sliderOffset,
+		m_style.width,
+		m_style.sliderSize
+	};
+
+	m_renderer->fillRect(m_object, sliderRect, m_style.sliderColor);
+
+	double fraction = (double)(m_value - m_min) / (m_max - m_min);
+	int thumbPosX = fraction * (m_style.width - m_style.sliderSize);
+
+	RZUF3_Pos thumbPos = {
+		thumbPosX + thumbHalfSize - thumbOffset,
+		thumbHalfSize - thumbOffset
+	};
+
+	m_renderer->fillCircle(m_object, thumbPos, thumbHalfSize, m_style.thumbColor);
+}
+
+void RZUF3_Slider::updateStyle()
+{
+	int sliderOffset = std::max(m_style.thumbSize - m_style.sliderSize, 0) / 2;
+
+	SDL_Rect rect = {
+		0,
+		0,
+		m_style.width + sliderOffset*2,
+		std::max(m_style.sliderSize, m_style.thumbSize)
+	};
+
+	m_clickable->setRect(rect);
+}
