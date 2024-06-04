@@ -5,5 +5,8 @@ RZUF3 is a simple and efficient game framework based on SDL2. It allows for buil
 ## Sample Project:
 You can find a repository of a sample project [here](https://github.com/izawartka/siudemka). It can serve as a good base for your own project.
 
+### Dependencies
+RZUF3 requires the following libraries: `SDL2`, `SDL2_image`, `SDL2_ttf`, `spdlog`, `yaml-cpp`. More info in the [sample project](https://github.com/izawartka/siudemka) repository.
+
 ### Author:
 masuo / izawartka

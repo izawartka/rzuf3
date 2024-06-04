@@ -4,8 +4,6 @@
 #include "asset_definition.h"
 #include "renderer.h"
 
-#define RZUF3_ASSETS_DIRECTORY "assets/"
-
 class RZUF3_Asset;
 struct RZUF3_AssetDefinition;
 class RZUF3_Renderer;

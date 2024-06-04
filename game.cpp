@@ -172,6 +172,20 @@ RZUF3_Scene* RZUF3_Game::getScene()
 	return this->m_scene;
 }
 
+bool RZUF3_Game::setWindowIcon(std::string filepath)
+{
+	SDL_Surface* icon = IMG_Load(filepath.c_str());
+	if (icon == nullptr)
+	{
+		spdlog::error("Failed to load icon: {}", IMG_GetError());
+		return false;
+	}
+
+	SDL_SetWindowIcon(m_window, icon);
+	SDL_FreeSurface(icon);
+	return true;
+}
+
 void RZUF3_Game::update(double dt)
 {
 	if (m_scene != nullptr)

@@ -17,6 +17,7 @@ public:
 	void clean();
 	void setScene(RZUF3_SceneDefinition* sceneDefinition);
 	RZUF3_Scene* getScene();
+	bool setWindowIcon(std::string filepath);
 
 	void update(double dt);
 	void render(double dt);

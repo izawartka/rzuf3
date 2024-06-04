@@ -31,6 +31,14 @@ void RZUF3_Renderer::drawTexture(RZUF3_Object* parentObject, SDL_Texture* textur
 	SDL_RenderCopy(m_renderer, texture, srcRect, &dstRect);
 }
 
+void RZUF3_Renderer::drawTextureOpaque(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect, Uint8 opacity)
+{
+	translateRect(parentObject, dstRect);
+	SDL_SetTextureAlphaMod(texture, opacity);
+	SDL_RenderCopy(m_renderer, texture, srcRect, &dstRect);
+	SDL_SetTextureAlphaMod(texture, 255);
+}
+
 void RZUF3_Renderer::fillCircle(RZUF3_Object* parentObject, RZUF3_Pos pos, int radius, SDL_Color color)
 {
 	translatePos(parentObject, pos);
