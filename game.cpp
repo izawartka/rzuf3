@@ -1,4 +1,3 @@
-#pragma once
 #include "game.h"
 #include "scene_definition.h"
 #include "scene.h"

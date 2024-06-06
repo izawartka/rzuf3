@@ -147,7 +147,7 @@ void RZUF3_Clickable::removeOnHoverCursor()
 void RZUF3_Clickable::updateOnHoverCusror()
 {
 	if(m_onHoverCursor != nullptr) return;
-	if(m_onHoverCursor < 0) return;
+	if(m_onHoverCursorId < 0) return;
 
 	m_onHoverCursor = SDL_CreateSystemCursor(m_onHoverCursorId);
 
