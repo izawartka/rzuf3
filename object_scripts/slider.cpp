@@ -22,22 +22,19 @@ void RZUF3_Slider::init()
 	m_min = mp_options.min;
 	m_max = mp_options.max;
 	m_style = mp_options.style;
-	setValue(mp_options.value);
-
-	RZUF3_Object* obj = getObject();
+	m_renderer = m_object->getScene()->getRenderer();
 
 	m_clickable = new RZUF3_Clickable();
-	obj->addScript(m_clickable);
+	m_object->addScript(m_clickable);
 
 	updateStyle();
+	setValue(mp_options.value);
 
-	m_objEventsManager = obj->getEventsManager();
-	m_renderer = obj->getScene()->getRenderer();
-
+	m_objEventsManager = m_object->getEventsManager();
 	_ADD_LISTENER(m_objEventsManager, MousePressed);
 	_ADD_LISTENER(m_objEventsManager, UISetValue);
 
-	RZUF3_EventsManager* eventsManager = obj->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = m_object->getScene()->getEventsManager();
 	_ADD_LISTENER(eventsManager, Draw);
 }
 
@@ -45,9 +42,16 @@ void RZUF3_Slider::deinit()
 {
 	_REMOVE_LISTENER(m_objEventsManager, MousePressed);
 	_REMOVE_LISTENER(m_objEventsManager, UISetValue);
+	m_objEventsManager = nullptr;
 
 	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Draw);
+
+	m_object->removeScript(m_clickable);
+	delete m_clickable;
+	m_clickable = nullptr;
+
+	m_renderer = nullptr;
 }
 
 void RZUF3_Slider::setStyle(RZUF3_SliderStyle style)
@@ -74,7 +78,7 @@ void RZUF3_Slider::setValue(int value)
 	if(m_value < m_min) m_value = m_min;
 	if(m_value > m_max) m_value = m_max;
 
-	if (!m_objEventsManager) return;
+	if (m_objEventsManager == nullptr) return;
 
 	RZUF3_UIValueChangeEvent objEvent(m_value);
 	m_objEventsManager->dispatchEvent(&objEvent);

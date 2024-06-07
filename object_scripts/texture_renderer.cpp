@@ -23,10 +23,10 @@ RZUF3_TextureRenderer::~RZUF3_TextureRenderer()
 void RZUF3_TextureRenderer::init()
 {
 	this->m_textureFilepath = mp_options.filepath;
-	this->m_texture = nullptr;
 	this->m_dstRect = {mp_options.x, mp_options.y, 0, 0};
 	this->m_srcRect = this->mp_options.srcRect;
 	this->m_renderer = this->getObject()->getScene()->getRenderer();
+
 	this->updateTexture();
 
 	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
@@ -35,10 +35,12 @@ void RZUF3_TextureRenderer::init()
 
 void RZUF3_TextureRenderer::deinit()
 {
-	removeTexture();
-
 	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Draw);
+
+	removeTexture();
+
+	m_renderer = nullptr;
 }
 
 void RZUF3_TextureRenderer::setFilepath(std::string filepath)

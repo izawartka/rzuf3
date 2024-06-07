@@ -45,20 +45,22 @@ void RZUF3_Checkbox::init()
 
 void RZUF3_Checkbox::deinit()
 {
-	RZUF3_Object* obj = getObject();
-
-	obj->removeScript(m_textRenderer);
-	delete m_textRenderer;
-
-	obj->removeScript(m_clickable);
-	delete m_clickable;
-
-	RZUF3_EventsManager* objEventsManager = obj->getEventsManager();
+	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_REMOVE_LISTENER(objEventsManager, MouseDown);
 	_REMOVE_LISTENER(objEventsManager, UISetValue);
 
-	RZUF3_EventsManager* eventsManager = obj->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = m_object->getScene()->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Draw);
+
+	m_object->removeScript(m_textRenderer);
+	delete m_textRenderer;
+	m_textRenderer = nullptr;
+
+	m_object->removeScript(m_clickable);
+	delete m_clickable;
+	m_clickable = nullptr;
+
+	m_renderer = nullptr;
 }
 
 void RZUF3_Checkbox::setStyle(RZUF3_CheckboxStyle style)

@@ -57,12 +57,13 @@ bool RZUF3_Scene::addObject(RZUF3_ObjectDefinition objectDef)
 {
 	if(this->m_objects.find(objectDef.name) != this->m_objects.end())
 	{
-		spdlog::error("Object with name {} already exists in scene {}", objectDef.name, this->m_name);
+		spdlog::error("Object with name {} already exists in the scene", objectDef.name);
 		return false;
 	}
 
 	RZUF3_Object* object = new RZUF3_Object(objectDef, this);
-	this->m_objects.insert(std::pair<std::string, RZUF3_Object*>(objectDef.name, object));
+	this->m_objects.insert(std::pair(objectDef.name, object));
+
 	return true;
 }
 
@@ -70,7 +71,7 @@ void RZUF3_Scene::removeObject(std::string name)
 {
 	if(this->m_objects.find(name) == this->m_objects.end())
 	{
-		spdlog::warn("Object with name {} does not exist in scene {}", name, this->m_name);
+		spdlog::warn("Object with name {} does not exist in the scene", name);
 		return;
 	}
 

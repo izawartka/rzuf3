@@ -9,7 +9,9 @@ RZUF3_Object::RZUF3_Object(RZUF3_ObjectDefinition objectDefinition, RZUF3_Scene*
 	this->m_name = objectDefinition.name;
 	this->m_scene = scene;
 	this->m_scripts = std::vector<RZUF3_ObjectScript*>();
-	this->m_pos = objectDefinition.pos;
+
+	setParent(objectDefinition.parentName);
+	setPos(objectDefinition.pos);
 
 	for(auto script : objectDefinition.scripts)
 	{
@@ -67,6 +69,55 @@ void RZUF3_Object::removeScript(RZUF3_ObjectScript* script)
 	(*it)->deinit();
 	(*it)->detach();
 	m_scripts.erase(it);
+}
+
+void RZUF3_Object::setPos(RZUF3_Pos pos)
+{
+	m_pos = pos;
+
+	updateAbsolutePos();
+
+	for (auto& child : m_children)
+	{
+		child.second->updateAbsolutePos();
+	}
+}
+
+void RZUF3_Object::updateAbsolutePos()
+{
+	m_absPos = m_pos;
+
+	if (m_parent == nullptr) return;
+
+	RZUF3_Pos parentPos = m_parent->getAbsolutePos();
+	m_absPos.x += parentPos.x;
+	m_absPos.y += parentPos.y;
+}
+
+bool RZUF3_Object::setParent(RZUF3_Object* parent)
+{
+	if (m_parent != nullptr) {
+		m_parent->m_children.erase(m_name);
+	}
+
+	m_parent = parent;
+	m_parent->m_children.insert(std::pair(m_name, this));
+
+	return parent != nullptr;
+}
+
+bool RZUF3_Object::setParent(std::string parentName)
+{
+	if (parentName.empty()) return false;
+
+	RZUF3_Object* parent = m_scene->getObject(parentName);
+
+	if (!parent) {
+		spdlog::error("Parent object {} does not exist in scene");
+		return false;
+	}
+
+	return setParent(parent);
 }
 
 RZUF3_EventsManager* RZUF3_Object::getEventsManager()

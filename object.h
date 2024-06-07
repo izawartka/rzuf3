@@ -23,7 +23,14 @@ public:
 	RZUF3_Scene* getScene() { return m_scene; }
 	std::string getName() { return m_name; }
 	RZUF3_Pos getPos() const { return m_pos; }
-	void setPos(RZUF3_Pos pos) { m_pos = pos; }
+	RZUF3_Pos getAbsolutePos() const { return m_absPos; }
+	std::map<std::string, RZUF3_Object*> getChildren() { return m_children; }
+	RZUF3_Object* getParent() { return m_parent; }
+
+	void setPos(RZUF3_Pos pos);
+	void updateAbsolutePos();
+	bool setParent(RZUF3_Object* parent);
+	bool setParent(std::string parentName);
 
 	RZUF3_EventsManager* getEventsManager();
 
@@ -33,5 +40,8 @@ private:
 	RZUF3_EventsManager m_eventsManager;
 	std::string m_name;
 	std::vector<RZUF3_ObjectScript*> m_scripts;
+	std::map<std::string, RZUF3_Object*> m_children;
+	RZUF3_Object* m_parent = nullptr;
 	RZUF3_Pos m_pos;
+	RZUF3_Pos m_absPos;
 };

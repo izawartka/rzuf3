@@ -24,16 +24,10 @@ void RZUF3_Clickable::init()
 	m_rect = mp_options.rect;
 	m_mouseDownCallback = mp_options.mouseDownCallback;
 	m_onHoverCursorId = mp_options.onHoverCursorId;
-	m_isMouseOver = false;
-	m_isLeftPressed = false;
-	m_isRightPressed = false;
-	m_lastRelX = 0;
-	m_lastRelY = 0;
-	m_objEventsManager = getObject()->getEventsManager();
-	m_onHoverCursor = nullptr;
 
 	updateOnHoverCusror();
 
+	m_objEventsManager = getObject()->getEventsManager();
 	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
 	_ADD_LISTENER(eventsManager, Update);
 	_ADD_LISTENER(eventsManager, MouseDown);
@@ -43,13 +37,20 @@ void RZUF3_Clickable::init()
 
 void RZUF3_Clickable::deinit()
 {
-	removeOnHoverCursor();
-
 	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Update);
 	_REMOVE_LISTENER(eventsManager, MouseDown);
 	_REMOVE_LISTENER(eventsManager, MouseUp);
 	_REMOVE_LISTENER(eventsManager, MouseMove);
+	m_objEventsManager = nullptr;
+
+	removeOnHoverCursor();
+
+	m_isMouseOver = false;
+	m_isLeftPressed = false;
+	m_isRightPressed = false;
+	m_lastRelX = 0;
+	m_lastRelY = 0;
 }
 
 void RZUF3_Clickable::setRect(SDL_Rect rect)
@@ -155,7 +156,7 @@ void RZUF3_Clickable::updateOnHoverCusror()
 
 RZUF3_Pos RZUF3_Clickable::getRelPos(int x, int y) const
 {
-	RZUF3_Pos objectPos = m_object->getPos();
+	RZUF3_Pos objectPos = m_object->getAbsolutePos();
 	int relX = x - m_rect.x - objectPos.x;
 	int relY = y - m_rect.y - objectPos.y;
 

@@ -56,7 +56,6 @@ protected:
 	RZUF3_TextStyle m_style;
 	SDL_Rect m_dstRect = { 0, 0, 0, 0 };
 	RZUF3_Renderer* m_renderer = nullptr;
-
 	SDL_Texture* m_texture = nullptr;
 	
 	_DECLARE_LISTENER(Draw)

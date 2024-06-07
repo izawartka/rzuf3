@@ -12,9 +12,7 @@ RZUF3_MovingTest::~RZUF3_MovingTest()
 }
 
 void RZUF3_MovingTest::init()
-{
-	m_angle = 0;
-	
+{	
 	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
 	_ADD_LISTENER(eventsManager, Update);
 }
@@ -23,6 +21,8 @@ void RZUF3_MovingTest::deinit()
 {
 	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Update);
+
+	m_angle = 0;
 }
 
 void RZUF3_MovingTest::onUpdate(RZUF3_UpdateEvent* event)

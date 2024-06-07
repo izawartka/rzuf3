@@ -19,12 +19,10 @@ RZUF3_TextRenderer::~RZUF3_TextRenderer()
 void RZUF3_TextRenderer::init()
 {
 	m_fontFilepath = mp_options.fontFilepath;
-	m_font = nullptr;
 	m_text = mp_options.text;
 	m_style = mp_options.style;
 	m_dstRect = { mp_options.x, mp_options.y, 0, 0 };
 	m_renderer = this->getObject()->getScene()->getRenderer();
-	m_texture = nullptr;
 
 	updateFont();
 	updateTexture();
@@ -35,11 +33,13 @@ void RZUF3_TextRenderer::init()
 
 void RZUF3_TextRenderer::deinit()
 {
+	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	_REMOVE_LISTENER(eventsManager, Draw);
+
 	removeTexture();
 	removeFont();
 
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
-	_REMOVE_LISTENER(eventsManager, Draw);
+	m_renderer = nullptr;
 }
 
 void RZUF3_TextRenderer::setFontFilepath(std::string fontFilepath)
@@ -147,6 +147,7 @@ void RZUF3_TextRenderer::updateTexture()
 		m_style.bgColor, 
 		m_style.wrapLength
 	);
+
 	if (surface == nullptr)
 	{
 		spdlog::error("Failed to render text: {}", TTF_GetError());
@@ -160,7 +161,8 @@ void RZUF3_TextRenderer::updateTexture()
 		return;
 	}
 
-	SDL_FreeSurface(surface);
+	// SDL_FreeSurface(surface);
+	// temporarily commented out because it caused some weird exceptions in debug mode
 	this->m_texture = texture;
 
 	SDL_QueryTexture(this->m_texture, nullptr, nullptr, &m_dstRect.w, &m_dstRect.h);

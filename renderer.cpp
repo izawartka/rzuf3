@@ -61,7 +61,7 @@ void RZUF3_Renderer::fillCircle(RZUF3_Object* parentObject, RZUF3_Pos pos, int r
 
 void RZUF3_Renderer::translatePos(RZUF3_Object* parentObject, RZUF3_Pos& pos)
 {
-	RZUF3_Pos parentPos = parentObject->getPos();
+	RZUF3_Pos parentPos = parentObject->getAbsolutePos();
 
 	pos.x += parentPos.x;
 	pos.y += parentPos.y;
@@ -69,7 +69,7 @@ void RZUF3_Renderer::translatePos(RZUF3_Object* parentObject, RZUF3_Pos& pos)
 
 void RZUF3_Renderer::translateRect(RZUF3_Object* parentObject, SDL_Rect& rect)
 {
-	RZUF3_Pos pos = parentObject->getPos();
+	RZUF3_Pos pos = parentObject->getAbsolutePos();
 
 	rect.x += pos.x;
 	rect.y += pos.y;

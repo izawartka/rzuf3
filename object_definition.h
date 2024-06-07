@@ -10,4 +10,5 @@ public:
 	std::string name;
 	RZUF3_Pos pos = RZUF3_Pos(0, 0);
 	std::vector<RZUF3_ObjectScript*> scripts = std::vector<RZUF3_ObjectScript*>();
+	std::string parentName = "";
 };
