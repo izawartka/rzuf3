@@ -1,7 +1,6 @@
 #include "game.h"
 #include "scene_definition.h"
 #include "scene.h"
-#include "events/events.h"
 #include "events_manager.h"
 
 RZUF3_Game::RZUF3_Game()
@@ -164,6 +163,7 @@ void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 
 	this->m_scene = new RZUF3_Scene(sceneDefinition, this->m_renderer);
 	this->m_scene->init();
+	addGlobalEvents();
 }
 
 RZUF3_Scene* RZUF3_Game::getScene()
@@ -183,6 +183,44 @@ bool RZUF3_Game::setWindowIcon(std::string filepath)
 	SDL_SetWindowIcon(m_window, icon);
 	SDL_FreeSurface(icon);
 	return true;
+}
+
+void RZUF3_Game::addGlobalEvents()
+{
+	RZUF3_EventsManager* eventsManager = m_scene->getEventsManager();
+
+	eventsManager->addEventListener(RZUF3_EventType_Quit, [this](RZUF3_Event* event) {
+		m_isRunning = false;
+	});
+
+	eventsManager->addEventListener(RZUF3_EventType_SetWindowSize, [this](RZUF3_Event* event) {
+		RZUF3_SetWindowSizeEvent* e = (RZUF3_SetWindowSizeEvent*)event;
+		int width, height;
+		SDL_GetWindowSize(m_window, &width, &height);
+		if(e->getWidth() > 0) width = e->getWidth();
+		if(e->getHeight() > 0) height = e->getHeight();
+		SDL_SetWindowSize(m_window, width, height);
+	});
+
+	eventsManager->addEventListener(RZUF3_EventType_SetWindowIcon, [this](RZUF3_Event* event) {
+		RZUF3_SetWindowIconEvent* e = (RZUF3_SetWindowIconEvent*)event;
+		setWindowIcon(e->getFilename());
+	});
+
+	eventsManager->addEventListener(RZUF3_EventType_SetWindowTitle, [this](RZUF3_Event* event) {
+		RZUF3_SetWindowTitleEvent* e = (RZUF3_SetWindowTitleEvent*)event;
+		SDL_SetWindowTitle(m_window, e->getTitle().c_str());
+	});
+
+	eventsManager->addEventListener(RZUF3_EventType_SetWindowFullscreen, [this](RZUF3_Event* event) {
+		RZUF3_SetWindowFullscreenEvent* e = (RZUF3_SetWindowFullscreenEvent*)event;
+		SDL_SetWindowFullscreen(m_window, e->getFlags());
+	});
+
+	eventsManager->addEventListener(RZUF3_EventType_SetScene, [this](RZUF3_Event* event) {
+		RZUF3_SetSceneEvent* e = (RZUF3_SetSceneEvent*)event;
+		setScene(e->getSceneDefinition());
+	});
 }
 
 void RZUF3_Game::update(double dt)

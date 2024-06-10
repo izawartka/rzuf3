@@ -18,6 +18,12 @@ enum RZUF3_EventType {
 	RZUF3_EventType_MousePressed,
 	RZUF3_EventType_UIValueChange,
 	RZUF3_EventType_UISetValue,
+	RZUF3_EventType_Quit,
+	RZUF3_EventType_SetWindowSize,
+	RZUF3_EventType_SetWindowIcon,
+	RZUF3_EventType_SetWindowTitle,
+	RZUF3_EventType_SetWindowFullscreen,
+	RZUF3_EventType_SetScene,
 };
 
 #include "update.h"
@@ -33,3 +39,9 @@ enum RZUF3_EventType {
 #include "mouse_pressed.h"
 #include "ui_value_change.h"
 #include "ui_set_value.h"
+#include "quit.h"
+#include "set_window_size.h"
+#include "set_window_icon.h"
+#include "set_window_title.h"
+#include "set_window_fullscreen.h"
+#include "set_scene.h"

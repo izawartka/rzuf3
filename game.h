@@ -3,6 +3,7 @@
 #include "scene_definition.h"
 #include "scene.h"
 #include "renderer.h"
+#include "events/events.h"
 
 #define RZUF3_GAME_FPS 60
 
@@ -18,6 +19,7 @@ public:
 	void setScene(RZUF3_SceneDefinition* sceneDefinition);
 	RZUF3_Scene* getScene();
 	bool setWindowIcon(std::string filepath);
+	void addGlobalEvents();
 
 	void update(double dt);
 	void render(double dt);
