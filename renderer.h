@@ -14,12 +14,14 @@ public:
 	void drawRect(RZUF3_Object* parentObject, SDL_Rect rect, SDL_Color color, unsigned int width);
 	void drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect);
 	void drawTextureOpaque(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect, Uint8 opacity);
-	void fillCircle(RZUF3_Object* parentObject, RZUF3_Pos pos, int radius, SDL_Color color);
+	void fillCircle(RZUF3_Object* parentObject, int cx, int cy, int radius, SDL_Color color);
 
 	SDL_Renderer* getSDLRenderer() { return m_renderer; }
 
+	static void screenToObjectXY(RZUF3_Object* parentObject, int& x, int& y);
+	static void objectToScreenXY(RZUF3_Object* parentObject, int& x, int& y);
+	static void objectToScreenRect(RZUF3_Object* parentObject, SDL_Rect& rect);
+
 private:
-	void translatePos(RZUF3_Object* parentObject, RZUF3_Pos& pos);
-	void translateRect(RZUF3_Object* parentObject, SDL_Rect& rect);
 	SDL_Renderer* m_renderer;
 };

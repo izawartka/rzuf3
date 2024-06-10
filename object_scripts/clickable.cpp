@@ -49,8 +49,8 @@ void RZUF3_Clickable::deinit()
 	m_isMouseOver = false;
 	m_isLeftPressed = false;
 	m_isRightPressed = false;
-	m_lastRelX = 0;
-	m_lastRelY = 0;
+	m_lastX = 0;
+	m_lastY = 0;
 }
 
 void RZUF3_Clickable::setRect(SDL_Rect rect)
@@ -73,54 +73,60 @@ void RZUF3_Clickable::setOnHoverCursor(SDL_SystemCursor id)
 void RZUF3_Clickable::onUpdate(RZUF3_UpdateEvent* event)
 {
 	if (m_isLeftPressed) {
-		RZUF3_MousePressedEvent objEvent(m_lastRelX, m_lastRelY, SDL_BUTTON_LEFT);
+		RZUF3_MousePressedEvent objEvent(m_lastX, m_lastY, SDL_BUTTON_LEFT);
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
 
 	if (m_isRightPressed) {
-		RZUF3_MousePressedEvent objEvent(m_lastRelX, m_lastRelY, SDL_BUTTON_RIGHT);
+		RZUF3_MousePressedEvent objEvent(m_lastX, m_lastY, SDL_BUTTON_RIGHT);
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
 }
 
 void RZUF3_Clickable::onMouseDown(RZUF3_MouseDownEvent* event)
 {
-	RZUF3_Pos relPos = getRelPos(event->getX(), event->getY());
-	if (!isPosInside(relPos)) return;
-
-	RZUF3_MouseDownEvent objEvent(relPos.x, relPos.y, event->getButton());
-	m_objEventsManager->dispatchEvent(&objEvent);
+	int x = event->getX();
+	int y = event->getY();
+	screenToRectXY(x, y);
+	if (!isXYInside(x, y)) return;
 
 	if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = true;
 	if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = true;
+
+	RZUF3_MouseDownEvent objEvent(x, y, event->getButton());
+	m_objEventsManager->dispatchEvent(&objEvent);
 
 	if (m_mouseDownCallback) m_mouseDownCallback(event);
 }
 
 void RZUF3_Clickable::onMouseUp(RZUF3_MouseUpEvent* event)
 {
-	RZUF3_Pos relPos = getRelPos(event->getX(), event->getY());
+	int x = event->getX();
+	int y = event->getY();
+	screenToRectXY(x, y);
 
 	if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = false;
 	if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = false;
 
-	if (!isPosInside(relPos)) return;
+	if (!isXYInside(x, y)) return;
 
-	RZUF3_MouseUpEvent objEvent(relPos.x, relPos.y, event->getButton());
+	RZUF3_MouseUpEvent objEvent(x, y, event->getButton());
 	m_objEventsManager->dispatchEvent(&objEvent);
 }
 
 void RZUF3_Clickable::onMouseMove(RZUF3_MouseMoveEvent* event)
 {
-	RZUF3_Pos relPos = getRelPos(event->getX(), event->getY());
-	bool isMouseOverNow = isPosInside(relPos);
-	m_lastRelX = relPos.x;
-	m_lastRelY = relPos.y;
+	int x = event->getX();
+	int y = event->getY();
+	screenToRectXY(x, y);
+	bool isMouseOverNow = isXYInside(x, y);
+	m_lastX = x;
+	m_lastY = y;
 
 	if (isMouseOverNow && !m_isMouseOver)
 	{
 		if (m_onHoverCursor) SDL_SetCursor(m_onHoverCursor);
-		RZUF3_MouseEnterEvent objEvent(relPos.x, relPos.y);
+		RZUF3_MouseEnterEvent objEvent(x, y);
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
 	else if (!isMouseOverNow && m_isMouseOver)
@@ -128,12 +134,14 @@ void RZUF3_Clickable::onMouseMove(RZUF3_MouseMoveEvent* event)
 		SDL_Cursor* defCursor = SDL_GetDefaultCursor();
 		SDL_SetCursor(defCursor);
 		SDL_FreeCursor(defCursor);
-		RZUF3_MouseLeaveEvent objEvent(relPos.x, relPos.y);
+		RZUF3_MouseLeaveEvent objEvent(x, y);
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
 
 	m_isMouseOver = isMouseOverNow;
-	RZUF3_MouseMoveEvent objEvent(relPos.x, relPos.y, event->getMovX(), event->getMovY());
+	int movX = event->getMovX() / m_object->getAbsolutePos().scaleX;
+	int movY = event->getMovY() / m_object->getAbsolutePos().scaleY;
+	RZUF3_MouseMoveEvent objEvent(x, y, movX, movY);
 	m_objEventsManager->dispatchEvent(&objEvent);
 }
 
@@ -154,19 +162,17 @@ void RZUF3_Clickable::updateOnHoverCusror()
 
 }
 
-RZUF3_Pos RZUF3_Clickable::getRelPos(int x, int y) const
+void RZUF3_Clickable::screenToRectXY(int &x, int &y) const
 {
-	RZUF3_Pos objectPos = m_object->getAbsolutePos();
-	int relX = x - m_rect.x - objectPos.x;
-	int relY = y - m_rect.y - objectPos.y;
-
-	return RZUF3_Pos(relX, relY);
+	RZUF3_Renderer::screenToObjectXY(m_object, x, y);
+	x -= m_rect.x;
+	y -= m_rect.y;
 }
 
-bool RZUF3_Clickable::isPosInside(RZUF3_Pos relPos) const
+bool RZUF3_Clickable::isXYInside(int x, int y) const
 {
-	if (relPos.x < 0 || relPos.x >= m_rect.w) return false;
-	if (relPos.y < 0 || relPos.y >= m_rect.h) return false;
+	if (x < 0 || x >= m_rect.w) return false;
+	if (y < 0 || y >= m_rect.h) return false;
 
 	return true;
 }

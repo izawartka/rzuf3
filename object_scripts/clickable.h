@@ -38,8 +38,8 @@ protected:
 	void removeOnHoverCursor();
 	void updateOnHoverCusror();
 
-	RZUF3_Pos getRelPos(int x, int y) const;
-	bool isPosInside(RZUF3_Pos pos) const;
+	void screenToRectXY(int &x, int &y) const;
+	bool isXYInside(int x, int y) const;
 
 	RZUF3_ClickableOptions mp_options;
 
@@ -47,8 +47,8 @@ protected:
 	bool m_isMouseOver = false;
 	bool m_isLeftPressed = false;
 	bool m_isRightPressed = false;
-	int m_lastRelX = 0;
-	int m_lastRelY = 0;
+	int m_lastX = 0;
+	int m_lastY = 0;
 
 	RZUF3_ClickableCallback m_mouseDownCallback = nullptr;
 	RZUF3_EventsManager* m_objEventsManager = nullptr;

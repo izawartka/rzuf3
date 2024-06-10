@@ -128,12 +128,10 @@ void RZUF3_Slider::onDraw(RZUF3_DrawEvent* event)
 	double fraction = (double)(m_value - m_min) / (m_max - m_min);
 	int thumbPosX = fraction * (m_style.width - m_style.sliderSize);
 
-	RZUF3_Pos thumbPos = {
-		thumbPosX + thumbHalfSize - thumbOffset,
-		thumbHalfSize - thumbOffset
-	};
+	int thumbCX = thumbPosX + thumbHalfSize - thumbOffset;
+	int thumbCY = thumbHalfSize - thumbOffset;
 
-	m_renderer->fillCircle(m_object, thumbPos, thumbHalfSize, m_style.thumbColor);
+	m_renderer->fillCircle(m_object, thumbCX, thumbCY, thumbHalfSize, m_style.thumbColor);
 }
 
 void RZUF3_Slider::updateStyle()

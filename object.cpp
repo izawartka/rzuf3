@@ -90,8 +90,11 @@ void RZUF3_Object::updateAbsolutePos()
 	if (m_parent == nullptr) return;
 
 	RZUF3_Pos parentPos = m_parent->getAbsolutePos();
-	m_absPos.x += parentPos.x;
-	m_absPos.y += parentPos.y;
+
+	m_absPos.x = parentPos.x + m_pos.x * parentPos.scaleX;
+	m_absPos.y = parentPos.y + m_pos.y * parentPos.scaleY;
+	m_absPos.scaleX *= parentPos.scaleX;
+	m_absPos.scaleY *= parentPos.scaleY;
 }
 
 bool RZUF3_Object::setParent(RZUF3_Object* parent)
