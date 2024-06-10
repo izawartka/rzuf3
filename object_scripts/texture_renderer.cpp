@@ -25,6 +25,7 @@ void RZUF3_TextureRenderer::init()
 	this->m_textureFilepath = mp_options.filepath;
 	this->m_dstRect = {mp_options.x, mp_options.y, 0, 0};
 	this->m_srcRect = this->mp_options.srcRect;
+	this->m_alignment = this->mp_options.alignment;
 	this->m_renderer = this->getObject()->getScene()->getRenderer();
 
 	this->updateTexture();
@@ -66,6 +67,11 @@ void RZUF3_TextureRenderer::setSrcRect(SDL_Rect srcRect)
 	this->m_srcRect = srcRect;
 }
 
+void RZUF3_TextureRenderer::setAlign(RZUF3_Align alignment)
+{
+	this->m_alignment = alignment;
+}
+
 void RZUF3_TextureRenderer::clearSrcRect()
 {
 	this->m_srcRect = { 0, 0, 0, 0 };
@@ -81,6 +87,7 @@ void RZUF3_TextureRenderer::onDraw(RZUF3_DrawEvent* event)
 		srcRectPtr = &m_srcRect;
 	}
 
+	m_renderer->setAlign(m_alignment);
 	m_renderer->drawTexture(m_object, m_texture, srcRectPtr, m_dstRect);
 }
 

@@ -111,23 +111,27 @@ void RZUF3_Checkbox::onDraw(RZUF3_DrawEvent* event)
 {
 	RZUF3_Object* obj = getObject();
 
+	m_renderer->setColor(m_style.borderColor);
+	m_renderer->setAlign(RZUF3_Align_TopLeft);
 	m_renderer->drawRect(obj, {
 		0,
 		0,
 		m_style.rectSize,
 		m_style.rectSize
-	}, m_style.borderColor, m_style.borderWidth);
+	}, m_style.borderWidth);
 
 	if(!m_checked) return;
 
 	int totOffset = m_style.checkOffset + m_style.borderWidth;
 
+	m_renderer->setColor(m_style.checkColor);
+	m_renderer->setAlign(RZUF3_Align_TopLeft);
 	m_renderer->fillRect(obj, {
 		totOffset,
 		totOffset,
 		m_style.rectSize - totOffset * 2,
 		m_style.rectSize - totOffset * 2
-	}, m_style.checkColor);
+	});
 }
 
 void RZUF3_Checkbox::updateStyle()

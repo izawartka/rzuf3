@@ -123,15 +123,23 @@ void RZUF3_Slider::onDraw(RZUF3_DrawEvent* event)
 		m_style.sliderSize
 	};
 
-	m_renderer->fillRect(m_object, sliderRect, m_style.sliderColor);
+	m_renderer->setColor(m_style.sliderColor);
+	m_renderer->setAlign(RZUF3_Align_TopLeft);
+	m_renderer->fillRect(m_object, sliderRect);
 
 	double fraction = (double)(m_value - m_min) / (m_max - m_min);
 	int thumbPosX = fraction * (m_style.width - m_style.sliderSize);
 
-	int thumbCX = thumbPosX + thumbHalfSize - thumbOffset;
-	int thumbCY = thumbHalfSize - thumbOffset;
+	SDL_Rect thumbRect = {
+		thumbPosX + thumbOffset,
+		thumbOffset,
+		m_style.thumbSize,
+		m_style.thumbSize
+	};
 
-	m_renderer->fillCircle(m_object, thumbCX, thumbCY, thumbHalfSize, m_style.thumbColor);
+	m_renderer->setColor(m_style.thumbColor);
+	m_renderer->setAlign(RZUF3_Align_TopLeft);
+	m_renderer->fillCircle(m_object, thumbRect);
 }
 
 void RZUF3_Slider::updateStyle()

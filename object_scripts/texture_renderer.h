@@ -11,6 +11,7 @@ struct RZUF3_TextureRendererOptions {
 	int x = 0;
 	int y = 0;
 	SDL_Rect srcRect = { 0, 0, 0, 0 };
+	RZUF3_Align alignment = RZUF3_Align_TopLeft;
 };
 
 class RZUF3_TextureRenderer : public RZUF3_ObjectScript {
@@ -26,6 +27,7 @@ public:
 	void setDstRect(SDL_Rect dstRect);
 	void setDstPos(int x, int y);
 	void setSrcRect(SDL_Rect srcRect);
+	void setAlign(RZUF3_Align alignment);
 	void clearSrcRect();
 
 protected:
@@ -40,6 +42,7 @@ protected:
 	SDL_Texture* m_texture = nullptr;
 	SDL_Rect m_dstRect = { 0, 0, 0, 0 };
 	SDL_Rect m_srcRect = { 0, 0, 0, 0 };
+	RZUF3_Align m_alignment = RZUF3_Align_TopLeft;
 	RZUF3_Renderer* m_renderer = nullptr;
 
 	_DECLARE_LISTENER(Draw)

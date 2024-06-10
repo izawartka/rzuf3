@@ -3,22 +3,26 @@
 #include "renderer.h"
 #include "renderer.h"
 
-void RZUF3_Renderer::fillRect(RZUF3_Object* parentObject, SDL_Rect rect, SDL_Color color)
+void RZUF3_Renderer::setColor(SDL_Color color)
+{
+	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+}
+
+void RZUF3_Renderer::fillRect(RZUF3_Object* parentObject, SDL_Rect rect)
 {
 	objectToScreenRect(parentObject, rect);
-	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+	alignRect(rect, m_alignment);
 	SDL_RenderFillRect(m_renderer, &rect);
 }
 
-void RZUF3_Renderer::drawRect(RZUF3_Object* parentObject, SDL_Rect rect, SDL_Color color, unsigned int borderWidth)
+void RZUF3_Renderer::drawRect(RZUF3_Object* parentObject, SDL_Rect rect, unsigned int borderWidth)
 {
 	objectToScreenRect(parentObject, rect);
+	alignRect(rect, m_alignment);
 	RZUF3_Pos pos = parentObject->getAbsolutePos();
 
 	int borderWidthX = borderWidth * pos.scaleX;
 	int borderWidthY = borderWidth * pos.scaleY;
-
-	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
 
 	for (int i = 0; i < borderWidthX; i++)
 	{
@@ -36,34 +40,39 @@ void RZUF3_Renderer::drawRect(RZUF3_Object* parentObject, SDL_Rect rect, SDL_Col
 void RZUF3_Renderer::drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect)
 {
 	objectToScreenRect(parentObject, dstRect);
+	alignRect(dstRect, m_alignment);
 	SDL_RenderCopy(m_renderer, texture, srcRect, &dstRect);
 }
 
 void RZUF3_Renderer::drawTextureOpaque(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect, Uint8 opacity)
 {
 	objectToScreenRect(parentObject, dstRect);
+	alignRect(dstRect, m_alignment);
 	SDL_SetTextureAlphaMod(texture, opacity);
 	SDL_RenderCopy(m_renderer, texture, srcRect, &dstRect);
 	SDL_SetTextureAlphaMod(texture, 255);
 }
 
-void RZUF3_Renderer::fillCircle(RZUF3_Object* parentObject, int cx, int cy, int radius, SDL_Color color)
+void RZUF3_Renderer::fillCircle(RZUF3_Object* parentObject, SDL_Rect rect)
 {
-	objectToScreenXY(parentObject, cx, cy);
-	RZUF3_Pos pos = parentObject->getAbsolutePos();
+	objectToScreenRect(parentObject, rect);
+	alignRect(rect, m_alignment);
 
-	int radiusX = radius * pos.scaleX;
-	int radiusY = radius * pos.scaleY;
+	int rx = rect.w / 2;
+	int ry = rect.h / 2;
+	int cx = rect.x + rx;
+	int cy = rect.y + ry;
 
-	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
-
-	for (int x = -radiusX; x <= radiusX; x++)
+	for (int x = -rx; x <= rx; x++)
 	{
-		double scX = x / pos.scaleX;
-		double scY = sqrt(radiusY * radiusY - scX * scX);
-		int y = scY * pos.scaleY;
+		double scX = (double)x / rx;
+		double scY = sqrt(1 - scX * scX);
+		int y = scY * ry;
 
-		SDL_RenderDrawLine(m_renderer, cx + x, cy + y, cx + x, cy - y);
+		SDL_RenderDrawLine(m_renderer, 
+			cx + x, cy - y, 
+			cx + x, cy + y
+		);
 	}
 }
 
@@ -91,4 +100,41 @@ void RZUF3_Renderer::objectToScreenRect(RZUF3_Object* parentObject, SDL_Rect& re
 	rect.y = pos.y + rect.y * pos.scaleY;
 	rect.w *= pos.scaleX;
 	rect.h *= pos.scaleY;
+}
+
+void RZUF3_Renderer::alignRect(SDL_Rect& rect, RZUF3_Align alignment)
+{
+	switch (alignment)
+	{
+	case RZUF3_Align_TopLeft:
+		break;
+	case RZUF3_Align_Top:
+		rect.x += rect.w / 2;
+		break;
+	case RZUF3_Align_TopRight:
+		rect.x += rect.w;
+		break;
+	case RZUF3_Align_Left:
+		rect.y += rect.h / 2;
+		break;
+	case RZUF3_Align_Center:
+		rect.x += rect.w / 2;
+		rect.y += rect.h / 2;
+		break;
+	case RZUF3_Align_Right:
+		rect.x += rect.w;
+		rect.y += rect.h / 2;
+		break;
+	case RZUF3_Align_BottomLeft:
+		rect.y += rect.h;
+		break;
+	case RZUF3_Align_Bottom:
+		rect.x += rect.w / 2;
+		rect.y += rect.h;
+		break;
+	case RZUF3_Align_BottomRight:
+		rect.x += rect.w;
+		rect.y += rect.h;
+		break;
+	}
 }

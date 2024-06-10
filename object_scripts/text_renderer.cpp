@@ -92,6 +92,7 @@ void RZUF3_TextRenderer::onDraw(RZUF3_DrawEvent* event)
 	if (m_object == nullptr) return;
 	if (m_texture == nullptr) return;
 
+	m_renderer->setAlign(m_style.alignment);
 	m_renderer->drawTexture(
 		m_object,
 		m_texture,
@@ -140,7 +141,7 @@ void RZUF3_TextRenderer::updateTexture()
 	TTF_SetFontStyle(m_font, m_style.style);
 	TTF_SetFontSize(m_font, m_style.size);
 
-	SDL_Surface* surface = TTF_RenderText_LCD_Wrapped(
+	SDL_Surface* surface = TTF_RenderUTF8_LCD_Wrapped(
 		this->m_font,
 		this->m_text.c_str(),
 		m_style.color, 
