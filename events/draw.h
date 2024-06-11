@@ -7,7 +7,6 @@ public:
 		this->m_dt = dt;
 	}
 
-	int getEventType() const { return RZUF3_EventType_Draw; }
 	double getDt() const { return m_dt; }
 
 private:

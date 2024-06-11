@@ -8,3 +8,6 @@
 #include <string>
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bin_to_hex.h>
+#include <typeindex>
+#include <algorithm>
+#include <unordered_map>

@@ -21,7 +21,7 @@
 #include "events/events.h"
 
 #include "object_script.h"
-#include "object_script_macros.h"
+#include "event_macros.h"
 #include "object_scripts/checkbox.h"
 #include "object_scripts/clickable.h"
 #include "object_scripts/moving_test.h"

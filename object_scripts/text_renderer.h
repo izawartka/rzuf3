@@ -2,7 +2,7 @@
 #include "../common.h"
 #include "../object_script.h"
 #include "../events/draw.h"
-#include "../object_script_macros.h"
+#include "../event_macros.h"
 
 class RZUF3_ObjectScript;
 

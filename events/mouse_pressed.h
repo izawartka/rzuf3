@@ -6,7 +6,6 @@ public:
 	RZUF3_MousePressedEvent(int x, int y, uint8_t button)
 		: RZUF3_MouseEvent(x, y), m_button(button) {}
 
-	int getEventType() const { return RZUF3_EventType_MousePressed; }
 	uint8_t getButton() const { return m_button; }
 
 protected:

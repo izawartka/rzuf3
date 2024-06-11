@@ -7,7 +7,6 @@ public:
 		m_title = title;
 	}
 
-	int getEventType() const { return RZUF3_EventType_SetWindowTitle; }
 	std::string getTitle() const { return m_title; }
 
 private:

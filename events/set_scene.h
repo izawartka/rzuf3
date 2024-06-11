@@ -10,7 +10,6 @@ public:
 		m_sceneDef = sceneDef;
 	}
 
-	int getEventType() const { return RZUF3_EventType_SetScene; }
 	RZUF3_SceneDefinition* getSceneDefinition() { return m_sceneDef; }
 
 private:

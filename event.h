@@ -3,5 +3,5 @@
 
 class RZUF3_Event {
 public:
-	virtual int getEventType() const { return -1; }
+	virtual ~RZUF3_Event() = default;
 };

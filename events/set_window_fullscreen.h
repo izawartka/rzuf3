@@ -7,7 +7,6 @@ public:
 		m_flags = flags;
 	}
 
-	int getEventType() const { return RZUF3_EventType_SetWindowFullscreen; }
 	Uint32 getFlags() const { return m_flags; }
 
 private:

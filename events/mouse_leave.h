@@ -5,6 +5,4 @@ class RZUF3_MouseLeaveEvent : public RZUF3_MouseEvent {
 public:
 	RZUF3_MouseLeaveEvent(int x, int y)
 		: RZUF3_MouseEvent(x, y) {}
-
-	int getEventType() const { return RZUF3_EventType_MouseLeave; }
 };

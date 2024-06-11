@@ -7,7 +7,6 @@ public:
 		m_filename = filename;
 	}
 
-	int getEventType() const { return RZUF3_EventType_SetWindowIcon; }
 	std::string getFilename() const { return m_filename; }
 
 private:

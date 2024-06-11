@@ -26,8 +26,14 @@ public:
 
 	bool isRunning() const { return m_isRunning; }
 	RZUF3_Renderer* getRenderer() { return m_renderer; }
-
 private:
+	void onQuit(RZUF3_QuitEvent* event);
+	void onSetWindowSize(RZUF3_SetWindowSizeEvent* event);
+	void onSetWindowIcon(RZUF3_SetWindowIconEvent* event);
+	void onSetWindowTitle(RZUF3_SetWindowTitleEvent* event);
+	void onSetWindowFullscreen(RZUF3_SetWindowFullscreenEvent* event);
+	void onSetScene(RZUF3_SetSceneEvent* event);
+
 	bool m_isRunning = false;
 	SDL_Window* m_window = nullptr;
 	RZUF3_Renderer* m_renderer = nullptr;

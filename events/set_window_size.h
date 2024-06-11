@@ -8,7 +8,6 @@ public:
 		m_height = height;
 	}
 
-	int getEventType() const { return RZUF3_EventType_SetWindowSize; }
 	int getWidth() const { return m_width; }
 	int getHeight() const { return m_height; }
 

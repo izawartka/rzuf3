@@ -2,6 +2,7 @@
 #include "scene_definition.h"
 #include "scene.h"
 #include "events_manager.h"
+#include "event_macros.h"
 
 RZUF3_Game::RZUF3_Game()
 {
@@ -188,39 +189,12 @@ bool RZUF3_Game::setWindowIcon(std::string filepath)
 void RZUF3_Game::addGlobalEvents()
 {
 	RZUF3_EventsManager* eventsManager = m_scene->getEventsManager();
-
-	eventsManager->addEventListener(RZUF3_EventType_Quit, [this](RZUF3_Event* event) {
-		m_isRunning = false;
-	});
-
-	eventsManager->addEventListener(RZUF3_EventType_SetWindowSize, [this](RZUF3_Event* event) {
-		RZUF3_SetWindowSizeEvent* e = (RZUF3_SetWindowSizeEvent*)event;
-		int width, height;
-		SDL_GetWindowSize(m_window, &width, &height);
-		if(e->getWidth() > 0) width = e->getWidth();
-		if(e->getHeight() > 0) height = e->getHeight();
-		SDL_SetWindowSize(m_window, width, height);
-	});
-
-	eventsManager->addEventListener(RZUF3_EventType_SetWindowIcon, [this](RZUF3_Event* event) {
-		RZUF3_SetWindowIconEvent* e = (RZUF3_SetWindowIconEvent*)event;
-		setWindowIcon(e->getFilename());
-	});
-
-	eventsManager->addEventListener(RZUF3_EventType_SetWindowTitle, [this](RZUF3_Event* event) {
-		RZUF3_SetWindowTitleEvent* e = (RZUF3_SetWindowTitleEvent*)event;
-		SDL_SetWindowTitle(m_window, e->getTitle().c_str());
-	});
-
-	eventsManager->addEventListener(RZUF3_EventType_SetWindowFullscreen, [this](RZUF3_Event* event) {
-		RZUF3_SetWindowFullscreenEvent* e = (RZUF3_SetWindowFullscreenEvent*)event;
-		SDL_SetWindowFullscreen(m_window, e->getFlags());
-	});
-
-	eventsManager->addEventListener(RZUF3_EventType_SetScene, [this](RZUF3_Event* event) {
-		RZUF3_SetSceneEvent* e = (RZUF3_SetSceneEvent*)event;
-		setScene(e->getSceneDefinition());
-	});
+	_ADD_LISTENER_NOID(eventsManager, Quit, RZUF3);
+	_ADD_LISTENER_NOID(eventsManager, SetWindowSize, RZUF3);
+	_ADD_LISTENER_NOID(eventsManager, SetWindowIcon, RZUF3);
+	_ADD_LISTENER_NOID(eventsManager, SetWindowTitle, RZUF3);
+	_ADD_LISTENER_NOID(eventsManager, SetWindowFullscreen, RZUF3);
+	_ADD_LISTENER_NOID(eventsManager, SetScene, RZUF3);
 }
 
 void RZUF3_Game::update(double dt)
@@ -244,4 +218,38 @@ void RZUF3_Game::render(double dt)
 		m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&rEvent);
 	}
 	SDL_RenderPresent(m_sdlRenderer);
+}
+
+void RZUF3_Game::onQuit(RZUF3_QuitEvent* event)
+{
+	m_isRunning = false;
+}
+
+void RZUF3_Game::onSetWindowSize(RZUF3_SetWindowSizeEvent* event)
+{
+	int width, height;
+	SDL_GetWindowSize(m_window, &width, &height);
+	if (event->getWidth() > 0) width = event->getWidth();
+	if (event->getHeight() > 0) height = event->getHeight();
+	SDL_SetWindowSize(m_window, width, height);
+}
+
+void RZUF3_Game::onSetWindowIcon(RZUF3_SetWindowIconEvent* event)
+{
+	setWindowIcon(event->getFilename());
+}
+
+void RZUF3_Game::onSetWindowTitle(RZUF3_SetWindowTitleEvent* event)
+{
+	SDL_SetWindowTitle(m_window, event->getTitle().c_str());
+}
+
+void RZUF3_Game::onSetWindowFullscreen(RZUF3_SetWindowFullscreenEvent* event)
+{
+	SDL_SetWindowFullscreen(m_window, event->getFlags());
+}
+
+void RZUF3_Game::onSetScene(RZUF3_SetSceneEvent* event)
+{
+	setScene(event->getSceneDefinition());
 }

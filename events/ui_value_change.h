@@ -7,7 +7,6 @@ public:
 		this->m_value = value;
 	}
 
-	int getEventType() const { return RZUF3_EventType_UIValueChange; }
 	int getValue() const { return m_value; }
 
 private:

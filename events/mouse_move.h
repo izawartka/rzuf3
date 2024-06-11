@@ -6,7 +6,6 @@ public:
 	RZUF3_MouseMoveEvent(int x, int y, int movX, int movY)
 		: RZUF3_MouseEvent(x, y), m_movX(movX), m_movY(movY) {}
 
-	int getEventType() const { return RZUF3_EventType_MouseMove; }
 	int getMovX() const { return m_movX; }
 	int getMovY() const { return m_movY; }
 
