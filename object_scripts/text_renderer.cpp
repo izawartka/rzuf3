@@ -1,4 +1,5 @@
 #include "text_renderer.h"
+#include "../lang.h"
 
 RZUF3_TextRenderer::RZUF3_TextRenderer(std::string fontFilepath, std::string text)
 {
@@ -22,18 +23,18 @@ void RZUF3_TextRenderer::init()
 	m_text = mp_options.text;
 	m_style = mp_options.style;
 	m_dstRect = { mp_options.x, mp_options.y, 0, 0 };
-	m_renderer = this->getObject()->getScene()->getRenderer();
+	m_renderer = g_scene->getRenderer();
 
 	updateFont();
 	updateTexture();
 
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_ADD_LISTENER(eventsManager, Draw);
 }
 
 void RZUF3_TextRenderer::deinit()
 {
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Draw);
 
 	removeTexture();
@@ -141,9 +142,11 @@ void RZUF3_TextRenderer::updateTexture()
 	TTF_SetFontStyle(m_font, m_style.style);
 	TTF_SetFontSize(m_font, m_style.size);
 
+	std::string text = m_style.useLangFile ? g_lang->getText(m_text) : m_text;
+
 	SDL_Surface* surface = TTF_RenderUTF8_LCD_Wrapped(
 		this->m_font,
-		this->m_text.c_str(),
+		text.c_str(),
 		m_style.color, 
 		m_style.bgColor, 
 		m_style.wrapLength

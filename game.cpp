@@ -4,15 +4,28 @@
 #include "events_manager.h"
 #include "event_macros.h"
 
+RZUF3_Game* g_game = nullptr;
+
 RZUF3_Game::RZUF3_Game()
 {
-
+	assert(g_game == nullptr, "Only one instance of RZUF3_Game can be present at a time");
+	g_game = this;
 }
 
 RZUF3_Game::~RZUF3_Game()
 {
 	if(m_isRunning)
 		clean();
+
+	g_game = nullptr;
+}
+
+void RZUF3_Game::loadLanguage(std::string filepath)
+{
+	if(m_lang != nullptr) delete m_lang;
+
+	m_lang = new RZUF3_Lang(filepath);
+	m_lang->load();
 }
 
 void RZUF3_Game::initWindow(const char* title, int xpos, int ypos, int width, int height, bool fullscreen)
@@ -147,6 +160,7 @@ void RZUF3_Game::clean()
 	SDL_Quit();
 	IMG_Quit();
 	TTF_Quit();
+	delete m_lang;
 }
 
 void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)

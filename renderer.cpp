@@ -3,6 +3,21 @@
 #include "renderer.h"
 #include "renderer.h"
 
+RZUF3_Renderer* g_renderer = nullptr;
+
+RZUF3_Renderer::RZUF3_Renderer(SDL_Renderer* renderer)
+{
+	assert(g_renderer == nullptr, "Only one instace of RZUF3_Renderer can be present at a time");
+	g_renderer = this;
+
+	m_renderer = renderer;
+}
+
+RZUF3_Renderer::~RZUF3_Renderer()
+{
+	g_renderer = nullptr;
+}
+
 void RZUF3_Renderer::setColor(SDL_Color color)
 {
 	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);

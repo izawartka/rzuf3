@@ -22,7 +22,7 @@ void RZUF3_Slider::init()
 	m_min = mp_options.min;
 	m_max = mp_options.max;
 	m_style = mp_options.style;
-	m_renderer = m_object->getScene()->getRenderer();
+	m_renderer = g_scene->getRenderer();
 
 	m_clickable = new RZUF3_Clickable();
 	m_object->addScript(m_clickable);
@@ -34,7 +34,7 @@ void RZUF3_Slider::init()
 	_ADD_LISTENER(m_objEventsManager, MousePressed);
 	_ADD_LISTENER(m_objEventsManager, UISetValue);
 
-	RZUF3_EventsManager* eventsManager = m_object->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_ADD_LISTENER(eventsManager, Draw);
 }
 
@@ -44,7 +44,7 @@ void RZUF3_Slider::deinit()
 	_REMOVE_LISTENER(m_objEventsManager, UISetValue);
 	m_objEventsManager = nullptr;
 
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Draw);
 
 	m_object->removeScript(m_clickable);

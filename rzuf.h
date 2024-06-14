@@ -12,6 +12,8 @@
 #include "scene.h"
 #include "pos.h"
 #include "renderer.h"
+#include "strings_helper.h"
+#include "lang.h"
 
 #include "asset.h"
 #include "assets/texture.h"

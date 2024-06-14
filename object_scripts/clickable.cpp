@@ -27,8 +27,8 @@ void RZUF3_Clickable::init()
 
 	updateOnHoverCusror();
 
-	m_objEventsManager = getObject()->getEventsManager();
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	m_objEventsManager = m_object->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_ADD_LISTENER(eventsManager, Update);
 	_ADD_LISTENER(eventsManager, MouseDown);
 	_ADD_LISTENER(eventsManager, MouseUp);
@@ -37,7 +37,7 @@ void RZUF3_Clickable::init()
 
 void RZUF3_Clickable::deinit()
 {
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Update);
 	_REMOVE_LISTENER(eventsManager, MouseDown);
 	_REMOVE_LISTENER(eventsManager, MouseUp);

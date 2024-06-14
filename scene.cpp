@@ -4,9 +4,15 @@
 #include "scene_definition.h"
 #include "object_definition.h"
 #include "object.h"
+#include "game.h"
+
+RZUF3_Scene* g_scene = nullptr;
 
 RZUF3_Scene::RZUF3_Scene(RZUF3_SceneDefinition* sceneDefinition, RZUF3_Renderer* renderer)
 {
+	assert(g_scene == nullptr, "Only once instance of RZUF3_Scene can be present at a time");
+	g_scene = this;
+
 	this->m_name = sceneDefinition->name;
 	this->m_renderer = renderer;
 	this->m_assetsManager = new RZUF3_AssetsManager(renderer);
@@ -28,6 +34,8 @@ RZUF3_Scene::~RZUF3_Scene()
 
 	delete this->m_assetsManager;
 	delete this->m_eventsManager;
+
+	g_scene = nullptr;
 }
 
 RZUF3_AssetsManager* RZUF3_Scene::getAssetsManager()

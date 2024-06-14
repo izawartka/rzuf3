@@ -33,7 +33,7 @@ bool RZUF3_AssetsManager::addAsset(RZUF3_AssetDefinition assetDefinition)
 
 	std::string filepath = asset->getFilepath();
 
-	if (!asset->load(this))
+	if (!asset->load())
 	{
 		return false;
 	}

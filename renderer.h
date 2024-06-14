@@ -19,8 +19,8 @@ enum RZUF3_Align {
 
 class RZUF3_Renderer {
 public:
-	RZUF3_Renderer(SDL_Renderer* renderer) : m_renderer(renderer) {}
-	~RZUF3_Renderer() {}
+	RZUF3_Renderer(SDL_Renderer* renderer);
+	~RZUF3_Renderer();
 
 	void setColor(SDL_Color color);
 	void setAlign(RZUF3_Align alignment) { m_alignment = alignment; }
@@ -43,3 +43,5 @@ private:
 	SDL_Renderer* m_renderer;
 	RZUF3_Align m_alignment = RZUF3_Align_Left;
 };
+
+extern RZUF3_Renderer* g_renderer;

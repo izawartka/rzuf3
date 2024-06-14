@@ -13,6 +13,7 @@ struct RZUF3_TextStyle {
 	int style = TTF_STYLE_NORMAL;
 	int wrapLength = 0;
 	RZUF3_Align alignment = RZUF3_Align_TopLeft;
+	bool useLangFile = true;
 };
 
 struct RZUF3_TextRendererOptions {

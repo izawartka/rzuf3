@@ -39,3 +39,5 @@ private:
 	RZUF3_Renderer* m_renderer;
 	std::map<std::string, RZUF3_Object*> m_objects;
 };
+
+extern RZUF3_Scene* g_scene;

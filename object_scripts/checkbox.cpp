@@ -19,10 +19,10 @@ RZUF3_Checkbox::~RZUF3_Checkbox()
 void RZUF3_Checkbox::init()
 {
 	m_style = mp_options.style;
-	m_renderer = getObject()->getScene()->getRenderer();
+	m_renderer = g_scene->getRenderer();
 	m_checked = mp_options.checked;
 
-	RZUF3_Object* obj = getObject();
+	RZUF3_Object* obj = m_object;
 
 	m_textRenderer = new RZUF3_TextRenderer(
 		mp_options.fontFilepath, 
@@ -49,7 +49,7 @@ void RZUF3_Checkbox::deinit()
 	_REMOVE_LISTENER(objEventsManager, MouseDown);
 	_REMOVE_LISTENER(objEventsManager, UISetValue);
 
-	RZUF3_EventsManager* eventsManager = m_object->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Draw);
 
 	m_object->removeScript(m_textRenderer);
@@ -73,7 +73,7 @@ void RZUF3_Checkbox::setChecked(bool checked)
 {
 	m_checked = checked;
 
-	RZUF3_EventsManager* objEventsManager = getObject()->getEventsManager();
+	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	RZUF3_UIValueChangeEvent objEvent(m_checked ? 1 : 0);
 	objEventsManager->dispatchEvent(&objEvent);
 }
@@ -109,7 +109,7 @@ void RZUF3_Checkbox::onUISetValue(RZUF3_UISetValueEvent* event)
 
 void RZUF3_Checkbox::onDraw(RZUF3_DrawEvent* event)
 {
-	RZUF3_Object* obj = getObject();
+	RZUF3_Object* obj = m_object;
 
 	m_renderer->setColor(m_style.borderColor);
 	m_renderer->setAlign(RZUF3_Align_TopLeft);

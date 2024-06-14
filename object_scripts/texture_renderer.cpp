@@ -26,17 +26,17 @@ void RZUF3_TextureRenderer::init()
 	this->m_dstRect = {mp_options.x, mp_options.y, 0, 0};
 	this->m_srcRect = this->mp_options.srcRect;
 	this->m_alignment = this->mp_options.alignment;
-	this->m_renderer = this->getObject()->getScene()->getRenderer();
+	this->m_renderer = g_scene->getRenderer();
 
 	this->updateTexture();
 
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_ADD_LISTENER(eventsManager, Draw);
 }
 
 void RZUF3_TextureRenderer::deinit()
 {
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Draw);
 
 	removeTexture();
@@ -95,7 +95,7 @@ void RZUF3_TextureRenderer::removeTexture()
 {
 	if (m_texture == nullptr) return;
 
-	RZUF3_AssetsManager* assetsManager = this->m_object->getScene()->getAssetsManager();
+	RZUF3_AssetsManager* assetsManager = g_scene->getAssetsManager();
 
 	assetsManager->removeAsset(m_textureFilepath);
 	m_texture = nullptr;
@@ -105,7 +105,7 @@ void RZUF3_TextureRenderer::updateTexture()
 {
 	if (this->m_textureFilepath == "") return;
 
-	RZUF3_AssetsManager* assetsManager = this->m_object->getScene()->getAssetsManager();
+	RZUF3_AssetsManager* assetsManager = g_scene->getAssetsManager();
 
 	RZUF3_AssetDefinition assetDefinition;
 	assetDefinition.filepath = m_textureFilepath;

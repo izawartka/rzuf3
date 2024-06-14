@@ -13,13 +13,13 @@ RZUF3_MovingTest::~RZUF3_MovingTest()
 
 void RZUF3_MovingTest::init()
 {	
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_ADD_LISTENER(eventsManager, Update);
 }
 
 void RZUF3_MovingTest::deinit()
 {
-	RZUF3_EventsManager* eventsManager = getObject()->getScene()->getEventsManager();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_REMOVE_LISTENER(eventsManager, Update);
 
 	m_angle = 0;

@@ -8,7 +8,7 @@ RZUF3_Texture* RZUF3_Texture::getInstance(std::string filepath)
 	return instance;
 }
 
-bool RZUF3_Texture::load(RZUF3_AssetsManager* assetsManager)
+bool RZUF3_Texture::load()
 {
 	SDL_Surface* surface = IMG_Load(m_filepath.c_str());
 	if (surface == nullptr)
@@ -17,7 +17,7 @@ bool RZUF3_Texture::load(RZUF3_AssetsManager* assetsManager)
 		return false;
 	}
 
-	SDL_Renderer* renderer = assetsManager->getRenderer()->getSDLRenderer();
+	SDL_Renderer* renderer = g_renderer->getSDLRenderer();
 	m_texture = SDL_CreateTextureFromSurface(renderer, surface);
 	if (m_texture == nullptr)
 	{

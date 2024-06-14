@@ -8,7 +8,7 @@ class RZUF3_Asset {
 public:
 	static RZUF3_Asset* getInstance(std::string filepath);
 
-	virtual bool load(RZUF3_AssetsManager* assetsManager) = 0;
+	virtual bool load() = 0;
 	virtual void unload() = 0;
 
 	virtual void addReference() final;

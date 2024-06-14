@@ -4,6 +4,7 @@
 #include "scene.h"
 #include "renderer.h"
 #include "events/events.h"
+#include "lang.h"
 
 #define RZUF3_GAME_FPS 60
 
@@ -12,6 +13,7 @@ public:
 	RZUF3_Game();
 	~RZUF3_Game();
 
+	void loadLanguage(std::string filepath);
 	void initWindow(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
 	void startGameLoop();
 	void handleSDLEvents();
@@ -40,4 +42,7 @@ private:
 	SDL_Renderer* m_sdlRenderer = nullptr;
 	unsigned int m_counter = 0;
 	RZUF3_Scene* m_scene = nullptr;
+	RZUF3_Lang* m_lang = nullptr;
 };
+
+extern RZUF3_Game* g_game;
