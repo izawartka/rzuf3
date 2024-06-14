@@ -14,27 +14,28 @@ public:
 	~RZUF3_Game();
 
 	void loadLanguage(std::string filepath);
-	void initWindow(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
+	void initWindow(int width, int height, bool fullscreen);
 	void startGameLoop();
-	void handleSDLEvents();
-	void clean();
-	void setScene(RZUF3_SceneDefinition* sceneDefinition);
-	RZUF3_Scene* getScene();
-	bool setWindowIcon(std::string filepath);
-	void addGlobalEvents();
 
-	void update(double dt);
-	void render(double dt);
+	void quit();
+	void setWindowTitle(std::string title, bool useLangFile = true);
+	void setWindowSize(int width, int height);
+	void setWindowFullscreen(bool fullscreen);
+	void setWindowResizable(bool resizable);
+	bool setWindowIcon(std::string filepath);
+
+	void setScene(RZUF3_SceneDefinition* sceneDefinition);
 
 	bool isRunning() const { return m_isRunning; }
+	RZUF3_Lang* getLang() { return m_lang; }
+	RZUF3_Scene* getScene() { return m_scene; }
 	RZUF3_Renderer* getRenderer() { return m_renderer; }
+
 private:
-	void onQuit(RZUF3_QuitEvent* event);
-	void onSetWindowSize(RZUF3_SetWindowSizeEvent* event);
-	void onSetWindowIcon(RZUF3_SetWindowIconEvent* event);
-	void onSetWindowTitle(RZUF3_SetWindowTitleEvent* event);
-	void onSetWindowFullscreen(RZUF3_SetWindowFullscreenEvent* event);
-	void onSetScene(RZUF3_SetSceneEvent* event);
+	void update(double dt);
+	void render(double dt);
+	void handleSDLEvents();
+	void clean();
 
 	bool m_isRunning = false;
 	SDL_Window* m_window = nullptr;

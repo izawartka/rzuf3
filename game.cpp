@@ -28,7 +28,7 @@ void RZUF3_Game::loadLanguage(std::string filepath)
 	m_lang->load();
 }
 
-void RZUF3_Game::initWindow(const char* title, int xpos, int ypos, int width, int height, bool fullscreen)
+void RZUF3_Game::initWindow(int width, int height, bool fullscreen)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
@@ -44,7 +44,7 @@ void RZUF3_Game::initWindow(const char* title, int xpos, int ypos, int width, in
 		flags = SDL_WINDOW_FULLSCREEN;
 	}
 
-	m_window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
+	m_window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 	if (!m_window)
 	{
 		spdlog::error("Window Creation Failed: {}", SDL_GetError());
@@ -111,6 +111,90 @@ void RZUF3_Game::startGameLoop()
 	clean();
 }
 
+void RZUF3_Game::quit()
+{
+	m_isRunning = false;
+}
+
+void RZUF3_Game::setWindowTitle(std::string title, bool useLangFile)
+{
+	if(useLangFile) title = m_lang->getText(title);
+	SDL_SetWindowTitle(m_window, title.c_str());
+}
+
+void RZUF3_Game::setWindowSize(int width, int height)
+{
+	int oldWidth, oldHeight;
+	SDL_GetWindowSize(m_window, &oldWidth, &oldHeight);
+	if (width <= 0) width = oldWidth;
+	if (height <= 0) height = oldHeight;
+	SDL_SetWindowSize(m_window, width, height);
+}
+
+void RZUF3_Game::setWindowFullscreen(bool fullscreen)
+{
+	SDL_SetWindowFullscreen(m_window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+}
+
+void RZUF3_Game::setWindowResizable(bool resizable)
+{
+	SDL_SetWindowResizable(m_window, resizable ? SDL_TRUE : SDL_FALSE);
+}
+
+bool RZUF3_Game::setWindowIcon(std::string filepath)
+{
+	SDL_Surface* icon = IMG_Load(filepath.c_str());
+	if (icon == nullptr)
+	{
+		spdlog::error("Failed to load icon: {}", IMG_GetError());
+		return false;
+	}
+
+	SDL_SetWindowIcon(m_window, icon);
+	SDL_FreeSurface(icon);
+	return true;
+}
+
+void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
+{
+	if (this->m_scene != nullptr)
+	{
+		delete this->m_scene;
+	}
+
+	if (sceneDefinition == nullptr)
+	{
+		this->m_scene = nullptr;
+		return;
+	}
+
+	this->m_scene = new RZUF3_Scene(sceneDefinition, this->m_renderer);
+	this->m_scene->init();
+}
+
+void RZUF3_Game::update(double dt)
+{
+	if (m_scene != nullptr)
+	{
+		RZUF3_UpdateEvent rEvent(dt);
+		m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&rEvent);
+	}
+
+	m_counter++;
+}
+
+void RZUF3_Game::render(double dt)
+{
+	SDL_SetRenderDrawColor(m_sdlRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(m_sdlRenderer);
+	if (m_scene != nullptr)
+	{
+		RZUF3_DrawEvent rEvent(dt);
+		m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&rEvent);
+	}
+	SDL_RenderPresent(m_sdlRenderer);
+}
+
 void RZUF3_Game::handleSDLEvents()
 {
 	RZUF3_EventsManager* eventsManager = m_scene->getEventsManager();
@@ -134,6 +218,10 @@ void RZUF3_Game::handleSDLEvents()
 			break;
 		case SDL_MOUSEMOTION:
 			rEvent = new RZUF3_MouseMoveEvent(sdlEvent.motion.x, sdlEvent.motion.y, sdlEvent.motion.xrel, sdlEvent.motion.yrel);
+			break;
+		case SDL_WINDOWEVENT_RESIZED:
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+			rEvent = new RZUF3_WindowResizeEvent((int)sdlEvent.window.data1, (int)sdlEvent.window.data2);
 			break;
 		case SDL_QUIT:
 			m_isRunning = false;
@@ -161,109 +249,4 @@ void RZUF3_Game::clean()
 	IMG_Quit();
 	TTF_Quit();
 	delete m_lang;
-}
-
-void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
-{
-	if(this->m_scene != nullptr)
-	{
-		delete this->m_scene;
-	}
-
-	if(sceneDefinition == nullptr)
-	{
-		this->m_scene = nullptr;
-		return;
-	}
-
-	this->m_scene = new RZUF3_Scene(sceneDefinition, this->m_renderer);
-	this->m_scene->init();
-	addGlobalEvents();
-}
-
-RZUF3_Scene* RZUF3_Game::getScene()
-{
-	return this->m_scene;
-}
-
-bool RZUF3_Game::setWindowIcon(std::string filepath)
-{
-	SDL_Surface* icon = IMG_Load(filepath.c_str());
-	if (icon == nullptr)
-	{
-		spdlog::error("Failed to load icon: {}", IMG_GetError());
-		return false;
-	}
-
-	SDL_SetWindowIcon(m_window, icon);
-	SDL_FreeSurface(icon);
-	return true;
-}
-
-void RZUF3_Game::addGlobalEvents()
-{
-	RZUF3_EventsManager* eventsManager = m_scene->getEventsManager();
-	_ADD_LISTENER_NOID(eventsManager, Quit, RZUF3);
-	_ADD_LISTENER_NOID(eventsManager, SetWindowSize, RZUF3);
-	_ADD_LISTENER_NOID(eventsManager, SetWindowIcon, RZUF3);
-	_ADD_LISTENER_NOID(eventsManager, SetWindowTitle, RZUF3);
-	_ADD_LISTENER_NOID(eventsManager, SetWindowFullscreen, RZUF3);
-	_ADD_LISTENER_NOID(eventsManager, SetScene, RZUF3);
-}
-
-void RZUF3_Game::update(double dt)
-{
-	if (m_scene != nullptr)
-	{
-		RZUF3_UpdateEvent rEvent(dt);
-		m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&rEvent);
-	}
-
-	m_counter++;
-}
-
-void RZUF3_Game::render(double dt)
-{
-	SDL_SetRenderDrawColor(m_sdlRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(m_sdlRenderer);
-	if (m_scene != nullptr)
-	{
-		RZUF3_DrawEvent rEvent(dt);
-		m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&rEvent);
-	}
-	SDL_RenderPresent(m_sdlRenderer);
-}
-
-void RZUF3_Game::onQuit(RZUF3_QuitEvent* event)
-{
-	m_isRunning = false;
-}
-
-void RZUF3_Game::onSetWindowSize(RZUF3_SetWindowSizeEvent* event)
-{
-	int width, height;
-	SDL_GetWindowSize(m_window, &width, &height);
-	if (event->getWidth() > 0) width = event->getWidth();
-	if (event->getHeight() > 0) height = event->getHeight();
-	SDL_SetWindowSize(m_window, width, height);
-}
-
-void RZUF3_Game::onSetWindowIcon(RZUF3_SetWindowIconEvent* event)
-{
-	setWindowIcon(event->getFilename());
-}
-
-void RZUF3_Game::onSetWindowTitle(RZUF3_SetWindowTitleEvent* event)
-{
-	SDL_SetWindowTitle(m_window, event->getTitle().c_str());
-}
-
-void RZUF3_Game::onSetWindowFullscreen(RZUF3_SetWindowFullscreenEvent* event)
-{
-	SDL_SetWindowFullscreen(m_window, event->getFlags());
-}
-
-void RZUF3_Game::onSetScene(RZUF3_SetSceneEvent* event)
-{
-	setScene(event->getSceneDefinition());
 }
