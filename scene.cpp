@@ -10,7 +10,7 @@ RZUF3_Scene* g_scene = nullptr;
 
 RZUF3_Scene::RZUF3_Scene(RZUF3_SceneDefinition* sceneDefinition, RZUF3_Renderer* renderer)
 {
-	assert(g_scene == nullptr, "Only once instance of RZUF3_Scene can be present at a time");
+	if(g_scene != nullptr) throw std::logic_error("Only one instance of RZUF3_Scene can be present at a time");
 	g_scene = this;
 
 	this->m_name = sceneDefinition->name;

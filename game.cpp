@@ -1,3 +1,4 @@
+#include "common.h"
 #include "game.h"
 #include "scene_definition.h"
 #include "scene.h"
@@ -8,7 +9,7 @@ RZUF3_Game* g_game = nullptr;
 
 RZUF3_Game::RZUF3_Game()
 {
-	assert(g_game == nullptr, "Only one instance of RZUF3_Game can be present at a time");
+        if(g_game != nullptr) throw std::logic_error("Only one instance of RZUF3_Game can be present at a time");
 	g_game = this;
 }
 

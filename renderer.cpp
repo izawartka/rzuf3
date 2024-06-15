@@ -7,7 +7,7 @@ RZUF3_Renderer* g_renderer = nullptr;
 
 RZUF3_Renderer::RZUF3_Renderer(SDL_Renderer* renderer)
 {
-	assert(g_renderer == nullptr, "Only one instace of RZUF3_Renderer can be present at a time");
+	if(g_renderer != nullptr) throw std::logic_error("Only one instance of RZUF3_Renderer can be present at a time");
 	g_renderer = this;
 
 	m_renderer = renderer;

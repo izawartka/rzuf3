@@ -5,7 +5,7 @@ RZUF3_Lang* g_lang = nullptr;
 
 RZUF3_Lang::RZUF3_Lang(std::string filepath)
 {
-	assert(g_lang == nullptr, "Only one language file can be loaded at a time");
+	if(g_lang != nullptr) throw std::logic_error("Only one instance of RZUF3_Lang can be present at a time");
 	g_lang = this;
 
 	m_filepath = filepath;

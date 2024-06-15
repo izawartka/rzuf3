@@ -12,3 +12,4 @@
 #include <algorithm>
 #include <unordered_map>
 #include <fstream>
+#include <exception>
