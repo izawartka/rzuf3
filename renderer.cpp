@@ -23,6 +23,18 @@ void RZUF3_Renderer::setColor(SDL_Color color)
 	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
 }
 
+void RZUF3_Renderer::drawLine(RZUF3_Object* parentObject, int x1, int y1, int x2, int y2)
+{
+	int x1c = x1;
+	int y1c = y1;
+	int x2c = x2;
+	int y2c = y2;
+
+	objectToScreenXY(parentObject, x1c, y1c);
+	objectToScreenXY(parentObject, x2c, y2c);
+	SDL_RenderDrawLine(m_renderer, x1c, y1c, x2c, y2c);
+}
+
 void RZUF3_Renderer::fillRect(RZUF3_Object* parentObject, SDL_Rect rect)
 {
 	objectToScreenRect(parentObject, rect);
@@ -117,6 +129,22 @@ void RZUF3_Renderer::objectToScreenRect(RZUF3_Object* parentObject, SDL_Rect& re
 	rect.h *= pos.scaleY;
 }
 
+void RZUF3_Renderer::screenToRectXY(RZUF3_Object* parentObject, SDL_Rect& rect, int& x, int& y)
+{
+	screenToObjectXY(parentObject, x, y);
+
+	x -= rect.x;
+	y -= rect.y;
+}
+
+bool RZUF3_Renderer::isXYInside(SDL_Rect& rect, int x, int y)
+{
+	if (x < 0 || x >= rect.w) return false;
+	if (y < 0 || y >= rect.h) return false;
+
+	return true;
+}
+
 void RZUF3_Renderer::alignRect(SDL_Rect& rect, RZUF3_Align alignment)
 {
 	switch (alignment)
@@ -124,32 +152,32 @@ void RZUF3_Renderer::alignRect(SDL_Rect& rect, RZUF3_Align alignment)
 	case RZUF3_Align_TopLeft:
 		break;
 	case RZUF3_Align_Top:
-		rect.x += rect.w / 2;
+		rect.x -= rect.w / 2;
 		break;
 	case RZUF3_Align_TopRight:
-		rect.x += rect.w;
+		rect.x -= rect.w;
 		break;
 	case RZUF3_Align_Left:
-		rect.y += rect.h / 2;
+		rect.y -= rect.h / 2;
 		break;
 	case RZUF3_Align_Center:
-		rect.x += rect.w / 2;
-		rect.y += rect.h / 2;
+		rect.x -= rect.w / 2;
+		rect.y -= rect.h / 2;
 		break;
 	case RZUF3_Align_Right:
-		rect.x += rect.w;
-		rect.y += rect.h / 2;
+		rect.x -= rect.w;
+		rect.y -= rect.h / 2;
 		break;
 	case RZUF3_Align_BottomLeft:
-		rect.y += rect.h;
+		rect.y -= rect.h;
 		break;
 	case RZUF3_Align_Bottom:
-		rect.x += rect.w / 2;
-		rect.y += rect.h;
+		rect.x -= rect.w / 2;
+		rect.y -= rect.h;
 		break;
 	case RZUF3_Align_BottomRight:
-		rect.x += rect.w;
-		rect.y += rect.h;
+		rect.x -= rect.w;
+		rect.y -= rect.h;
 		break;
 	}
 }

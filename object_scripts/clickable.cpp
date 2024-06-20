@@ -22,10 +22,9 @@ RZUF3_Clickable::~RZUF3_Clickable()
 void RZUF3_Clickable::init()
 {
 	m_rect = mp_options.rect;
-	m_mouseDownCallback = mp_options.mouseDownCallback;
 	m_onHoverCursorId = mp_options.onHoverCursorId;
 
-	updateOnHoverCusror();
+	if(mp_options.setOnHoverCursor) updateOnHoverCusror();
 
 	m_objEventsManager = m_object->getEventsManager();
 	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
@@ -33,6 +32,7 @@ void RZUF3_Clickable::init()
 	_ADD_LISTENER(eventsManager, MouseDown);
 	_ADD_LISTENER(eventsManager, MouseUp);
 	_ADD_LISTENER(eventsManager, MouseMove);
+	_ADD_LISTENER(m_objEventsManager, SetRect);
 }
 
 void RZUF3_Clickable::deinit()
@@ -42,6 +42,7 @@ void RZUF3_Clickable::deinit()
 	_REMOVE_LISTENER(eventsManager, MouseDown);
 	_REMOVE_LISTENER(eventsManager, MouseUp);
 	_REMOVE_LISTENER(eventsManager, MouseMove);
+	_REMOVE_LISTENER(m_objEventsManager, SetRect);
 	m_objEventsManager = nullptr;
 
 	removeOnHoverCursor();
@@ -57,11 +58,6 @@ void RZUF3_Clickable::setRect(SDL_Rect rect)
 {
 	m_rect = rect;
 }
-
-void RZUF3_Clickable::setMouseDownCallback(RZUF3_ClickableCallback mouseDownCallback)
-{
-	m_mouseDownCallback = mouseDownCallback;
-} 
 
 void RZUF3_Clickable::setOnHoverCursor(SDL_SystemCursor id)
 {
@@ -87,28 +83,26 @@ void RZUF3_Clickable::onMouseDown(RZUF3_MouseDownEvent* event)
 {
 	int x = event->getX();
 	int y = event->getY();
-	screenToRectXY(x, y);
-	if (!isXYInside(x, y)) return;
+	RZUF3_Renderer::screenToRectXY(m_object, m_rect, x, y);
+	if (!RZUF3_Renderer::isXYInside(m_rect, x, y)) return;
 
 	if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = true;
 	if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = true;
 
 	RZUF3_MouseDownEvent objEvent(x, y, event->getButton());
 	m_objEventsManager->dispatchEvent(&objEvent);
-
-	if (m_mouseDownCallback) m_mouseDownCallback(event);
 }
 
 void RZUF3_Clickable::onMouseUp(RZUF3_MouseUpEvent* event)
 {
 	int x = event->getX();
 	int y = event->getY();
-	screenToRectXY(x, y);
+	RZUF3_Renderer::screenToRectXY(m_object, m_rect, x, y);
 
 	if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = false;
 	if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = false;
 
-	if (!isXYInside(x, y)) return;
+	if (!RZUF3_Renderer::isXYInside(m_rect, x, y)) return;
 
 	RZUF3_MouseUpEvent objEvent(x, y, event->getButton());
 	m_objEventsManager->dispatchEvent(&objEvent);
@@ -118,8 +112,8 @@ void RZUF3_Clickable::onMouseMove(RZUF3_MouseMoveEvent* event)
 {
 	int x = event->getX();
 	int y = event->getY();
-	screenToRectXY(x, y);
-	bool isMouseOverNow = isXYInside(x, y);
+	RZUF3_Renderer::screenToRectXY(m_object, m_rect, x, y);
+	bool isMouseOverNow = RZUF3_Renderer::isXYInside(m_rect, x, y);
 	m_lastX = x;
 	m_lastY = y;
 
@@ -145,6 +139,11 @@ void RZUF3_Clickable::onMouseMove(RZUF3_MouseMoveEvent* event)
 	m_objEventsManager->dispatchEvent(&objEvent);
 }
 
+void RZUF3_Clickable::onSetRect(RZUF3_SetRectEvent* event)
+{
+	setRect(event->getRect());
+}
+
 void RZUF3_Clickable::removeOnHoverCursor()
 {
 	if (m_onHoverCursor == nullptr) return;
@@ -159,20 +158,4 @@ void RZUF3_Clickable::updateOnHoverCusror()
 	if(m_onHoverCursorId < 0) return;
 
 	m_onHoverCursor = SDL_CreateSystemCursor(m_onHoverCursorId);
-
-}
-
-void RZUF3_Clickable::screenToRectXY(int &x, int &y) const
-{
-	RZUF3_Renderer::screenToObjectXY(m_object, x, y);
-	x -= m_rect.x;
-	y -= m_rect.y;
-}
-
-bool RZUF3_Clickable::isXYInside(int x, int y) const
-{
-	if (x < 0 || x >= m_rect.w) return false;
-	if (y < 0 || y >= m_rect.h) return false;
-
-	return true;
 }

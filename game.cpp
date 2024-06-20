@@ -9,7 +9,6 @@ RZUF3_Game* g_game = nullptr;
 
 RZUF3_Game::RZUF3_Game()
 {
-        if(g_game != nullptr) throw std::logic_error("Only one instance of RZUF3_Game can be present at a time");
 	g_game = this;
 }
 
@@ -156,6 +155,21 @@ bool RZUF3_Game::setWindowIcon(std::string filepath)
 	return true;
 }
 
+void RZUF3_Game::setRelativeMouseMode(bool enabled)
+{
+	SDL_SetRelativeMouseMode(enabled ? SDL_TRUE : SDL_FALSE);
+}
+
+void RZUF3_Game::setCursorPos(int x, int y)
+{
+	SDL_WarpMouseInWindow(m_window, x, y);
+}
+
+void RZUF3_Game::setCursorVisible(bool visible)
+{
+	SDL_ShowCursor(visible ? SDL_ENABLE : SDL_DISABLE);
+}
+
 void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 {
 	if (this->m_scene != nullptr)
@@ -171,6 +185,11 @@ void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 
 	this->m_scene = new RZUF3_Scene(sceneDefinition, this->m_renderer);
 	this->m_scene->init();
+}
+
+void RZUF3_Game::getWindowSize(int* width, int* height) const
+{
+	SDL_GetWindowSize(m_window, width, height);
 }
 
 void RZUF3_Game::update(double dt)
@@ -220,9 +239,13 @@ void RZUF3_Game::handleSDLEvents()
 		case SDL_MOUSEMOTION:
 			rEvent = new RZUF3_MouseMoveEvent(sdlEvent.motion.x, sdlEvent.motion.y, sdlEvent.motion.xrel, sdlEvent.motion.yrel);
 			break;
-		case SDL_WINDOWEVENT_RESIZED:
-		case SDL_WINDOWEVENT_SIZE_CHANGED:
-			rEvent = new RZUF3_WindowResizeEvent((int)sdlEvent.window.data1, (int)sdlEvent.window.data2);
+		case SDL_WINDOWEVENT:
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+			{
+				spdlog::debug("Window resized to {}x{}", sdlEvent.window.data1, sdlEvent.window.data2);
+				rEvent = new RZUF3_WindowResizeEvent(sdlEvent.window.data1, sdlEvent.window.data2);
+				break;
+			}
 			break;
 		case SDL_QUIT:
 			m_isRunning = false;

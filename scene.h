@@ -28,7 +28,7 @@ public:
 
 	void init();
 
-	bool addObject(RZUF3_ObjectDefinition objectDef);
+	RZUF3_Object* addObject(RZUF3_ObjectDefinition objectDef);
 	void removeObject(std::string name);
 	RZUF3_Object* getObject(std::string name);
 

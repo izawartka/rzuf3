@@ -20,13 +20,8 @@
 
 #include "event.h"
 #include "event_listener.h"
+#include "event_macros.h"
 #include "events/events.h"
 
 #include "object_script.h"
-#include "event_macros.h"
-#include "object_scripts/checkbox.h"
-#include "object_scripts/clickable.h"
-#include "object_scripts/moving_test.h"
-#include "object_scripts/slider.h"
-#include "object_scripts/texture_renderer.h"
-#include "object_scripts/text_renderer.h"
+#include "object_scripts/object_scripts.h"

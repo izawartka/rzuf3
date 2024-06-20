@@ -61,27 +61,24 @@ void RZUF3_Scene::init()
 	}
 }
 
-bool RZUF3_Scene::addObject(RZUF3_ObjectDefinition objectDef)
+RZUF3_Object* RZUF3_Scene::addObject(RZUF3_ObjectDefinition objectDef)
 {
 	if(this->m_objects.find(objectDef.name) != this->m_objects.end())
 	{
 		spdlog::error("Object with name {} already exists in the scene", objectDef.name);
-		return false;
+		return nullptr;
 	}
 
 	RZUF3_Object* object = new RZUF3_Object(objectDef, this);
 	this->m_objects.insert(std::pair(objectDef.name, object));
 
-	return true;
+	return object;
 }
 
 void RZUF3_Scene::removeObject(std::string name)
 {
-	if(this->m_objects.find(name) == this->m_objects.end())
-	{
-		spdlog::warn("Object with name {} does not exist in the scene", name);
-		return;
-	}
+	RZUF3_Object* object = this->getObject(name);
+	if (object == nullptr) return;
 
 	delete this->m_objects[name];
 	this->m_objects.erase(name);
@@ -89,5 +86,11 @@ void RZUF3_Scene::removeObject(std::string name)
 
 RZUF3_Object* RZUF3_Scene::getObject(std::string name)
 {
+	if (this->m_objects.find(name) == this->m_objects.end())
+	{
+		spdlog::warn("Object with name {} does not exist in the scene", name);
+		return nullptr;
+	}
+
 	return this->m_objects[name];
 }

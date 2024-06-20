@@ -25,6 +25,7 @@ public:
 	void setColor(SDL_Color color);
 	void setAlign(RZUF3_Align alignment) { m_alignment = alignment; }
 
+	void drawLine(RZUF3_Object* parentObject, int x1, int y1, int x2, int y2);
 	void fillRect(RZUF3_Object* parentObject, SDL_Rect rect);
 	void drawRect(RZUF3_Object* parentObject, SDL_Rect rect, unsigned int width);
 	void drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect);
@@ -36,6 +37,8 @@ public:
 	static void screenToObjectXY(RZUF3_Object* parentObject, int& x, int& y);
 	static void objectToScreenXY(RZUF3_Object* parentObject, int& x, int& y);
 	static void objectToScreenRect(RZUF3_Object* parentObject, SDL_Rect& rect);
+	static void screenToRectXY(RZUF3_Object* parentObject, SDL_Rect& rect, int& x, int& y);
+	static bool isXYInside(SDL_Rect& rect, int x, int y);
 
 private:
 	static void alignRect(SDL_Rect& rect, RZUF3_Align alignment);

@@ -19,4 +19,3 @@
 
 #define _DECLARE_LISTENER(eventType) \
 	int m_id##eventType##Listener = -1;
-

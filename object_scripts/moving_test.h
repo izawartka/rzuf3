@@ -1,8 +1,7 @@
 #pragma once
-#include "../common.h"
 #include "../events/update.h"
-#include "../object_script.h"
 #include "../event_macros.h"
+#include "object_scripts.h"
 
 class RZUF3_ObjectScript;
 class RZUF3_UpdateEvent;

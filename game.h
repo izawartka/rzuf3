@@ -23,18 +23,20 @@ public:
 	void setWindowFullscreen(bool fullscreen);
 	void setWindowResizable(bool resizable);
 	bool setWindowIcon(std::string filepath);
+	void setRelativeMouseMode(bool enabled);
+	void setCursorPos(int x, int y);
+	void setCursorVisible(bool visible);
 
 	void setScene(RZUF3_SceneDefinition* sceneDefinition);
 
 	bool isRunning() const { return m_isRunning; }
-	RZUF3_Lang* getLang() { return m_lang; }
-	RZUF3_Scene* getScene() { return m_scene; }
-	RZUF3_Renderer* getRenderer() { return m_renderer; }
+	void getWindowSize(int* width, int* height) const;
 
 private:
 	void update(double dt);
 	void render(double dt);
 	void handleSDLEvents();
+	void onWindowEvent(SDL_WindowEvent* event);
 	void clean();
 
 	bool m_isRunning = false;

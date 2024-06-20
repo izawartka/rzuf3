@@ -1,13 +1,13 @@
 #pragma once
-#include "../common.h"
 #include "../events/update.h"
-#include "../object_script.h"
 #include "../event_macros.h"
 #include "../renderer.h"
-#include "clickable.h"
-#include "text_renderer.h"
+#include "object_scripts.h"
 
 class RZUF3_ObjectScript;
+class RZUF3_Renderer;
+class RZUF3_Clickable;
+class RZUF3_TextRenderer;
 
 struct RZUF3_CheckboxStyle {
 	SDL_Color textColor = { 255, 255, 255, 255 };

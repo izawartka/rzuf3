@@ -76,6 +76,20 @@ void RZUF3_Object::setPos(RZUF3_Pos pos)
 	m_pos = pos;
 
 	updateAbsolutePos();
+}
+
+void RZUF3_Object::updateAbsolutePos()
+{
+	m_absPos = m_pos;
+
+	if (m_parent != nullptr) {
+		RZUF3_Pos parentPos = m_parent->getAbsolutePos();
+
+		m_absPos.x = parentPos.x + m_pos.x * parentPos.scaleX;
+		m_absPos.y = parentPos.y + m_pos.y * parentPos.scaleY;
+		m_absPos.scaleX *= parentPos.scaleX;
+		m_absPos.scaleY *= parentPos.scaleY;
+	}
 
 	for (auto& child : m_children)
 	{
@@ -83,22 +97,10 @@ void RZUF3_Object::setPos(RZUF3_Pos pos)
 	}
 }
 
-void RZUF3_Object::updateAbsolutePos()
-{
-	m_absPos = m_pos;
-
-	if (m_parent == nullptr) return;
-
-	RZUF3_Pos parentPos = m_parent->getAbsolutePos();
-
-	m_absPos.x = parentPos.x + m_pos.x * parentPos.scaleX;
-	m_absPos.y = parentPos.y + m_pos.y * parentPos.scaleY;
-	m_absPos.scaleX *= parentPos.scaleX;
-	m_absPos.scaleY *= parentPos.scaleY;
-}
-
 bool RZUF3_Object::setParent(RZUF3_Object* parent)
 {
+	if(parent == nullptr) return false;
+
 	if (m_parent != nullptr) {
 		m_parent->m_children.erase(m_name);
 	}
@@ -106,7 +108,8 @@ bool RZUF3_Object::setParent(RZUF3_Object* parent)
 	m_parent = parent;
 	m_parent->m_children.insert(std::pair(m_name, this));
 
-	return parent != nullptr;
+	updateAbsolutePos();
+	return true;
 }
 
 bool RZUF3_Object::setParent(std::string parentName)
@@ -116,7 +119,7 @@ bool RZUF3_Object::setParent(std::string parentName)
 	RZUF3_Object* parent = m_scene->getObject(parentName);
 
 	if (!parent) {
-		spdlog::error("Parent object {} does not exist in scene");
+		spdlog::error("Could not find the parent object");
 		return false;
 	}
 
