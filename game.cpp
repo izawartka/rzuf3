@@ -98,7 +98,7 @@ void RZUF3_Game::startGameLoop()
 
 		deltaTime = (double)((now - lastTime) * 1000 / (double)SDL_GetPerformanceFrequency());
 
-		if(deltaTime < 1000.0f / RZUF3_GAME_FPS)
+		if(RZUF3_GAME_FPS > 0 && deltaTime < 1000.0f / RZUF3_GAME_FPS)
 		{
 			SDL_Delay((1000.0f / RZUF3_GAME_FPS) - deltaTime);
 			deltaTime = 1000.0f / RZUF3_GAME_FPS;
@@ -238,6 +238,9 @@ void RZUF3_Game::handleSDLEvents()
 			break;
 		case SDL_MOUSEMOTION:
 			rEvent = new RZUF3_MouseMoveEvent(sdlEvent.motion.x, sdlEvent.motion.y, sdlEvent.motion.xrel, sdlEvent.motion.yrel);
+			break;
+		case SDL_MOUSEWHEEL:
+			rEvent = new RZUF3_MouseWheelEvent(sdlEvent.wheel.x, sdlEvent.wheel.y);
 			break;
 		case SDL_WINDOWEVENT:
 			if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)

@@ -36,7 +36,6 @@ private:
 	void update(double dt);
 	void render(double dt);
 	void handleSDLEvents();
-	void onWindowEvent(SDL_WindowEvent* event);
 	void clean();
 
 	bool m_isRunning = false;

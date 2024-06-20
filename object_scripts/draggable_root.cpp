@@ -11,13 +11,6 @@ RZUF3_DraggableRoot::~RZUF3_DraggableRoot()
 
 }
 
-void RZUF3_DraggableRoot::setRect(SDL_Rect rect)
-{
-	m_rect = rect;
-
-	updateContentPosition();
-}
-
 void RZUF3_DraggableRoot::init()
 {
 	m_offX = 0;
@@ -31,6 +24,7 @@ void RZUF3_DraggableRoot::init()
 	_ADD_LISTENER(eventsManager, MouseDown);
 	_ADD_LISTENER(eventsManager, MouseUp);
 	_ADD_LISTENER(eventsManager, MouseMove);
+	_ADD_LISTENER(eventsManager, MouseWheel);
 
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_ADD_LISTENER(objEventsManager, SetRect);
@@ -42,6 +36,7 @@ void RZUF3_DraggableRoot::deinit()
 	_REMOVE_LISTENER(eventsManager, MouseDown);
 	_REMOVE_LISTENER(eventsManager, MouseUp);
 	_REMOVE_LISTENER(eventsManager, MouseMove);
+	_REMOVE_LISTENER(eventsManager, MouseWheel);
 
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_REMOVE_LISTENER(objEventsManager, SetRect);
@@ -49,8 +44,24 @@ void RZUF3_DraggableRoot::deinit()
 	m_contentObj = nullptr;
 }
 
+void RZUF3_DraggableRoot::setRect(SDL_Rect rect)
+{
+	m_rect = rect;
+
+	updateContentPosition();
+}
+
+void RZUF3_DraggableRoot::setLimitRect(SDL_Rect limitRect)
+{
+	m_limitRect = limitRect;
+
+	updateContentPosition();
+}
+
 void RZUF3_DraggableRoot::onMouseDown(RZUF3_MouseDownEvent* event)
 {
+	if(!mp_options.useDrag) return;
+
 	int x = event->getX();
 	int y = event->getY();
 
@@ -86,6 +97,24 @@ void RZUF3_DraggableRoot::onMouseMove(RZUF3_MouseMoveEvent* event)
 	}
 }
 
+void RZUF3_DraggableRoot::onMouseWheel(RZUF3_MouseWheelEvent* event)
+{
+	if (!mp_options.useScale) return;
+
+	double delta = std::pow(1.1, event->getY());
+
+	double newScale = m_scale * delta;
+	if (newScale < mp_options.minScale) newScale = mp_options.minScale;
+	if (newScale > mp_options.maxScale) newScale = mp_options.maxScale;
+	double fixedDelta = newScale / m_scale;
+
+	m_scale = newScale;
+	m_offX *= fixedDelta;
+	m_offY *= fixedDelta;
+
+	updateContentPosition();
+}
+
 void RZUF3_DraggableRoot::onSetRect(RZUF3_SetRectEvent* event)
 {
 	setRect(event->getRect());
@@ -116,6 +145,8 @@ void RZUF3_DraggableRoot::updateContentPosition()
 
 	m_contentObj->setPos({
 		m_rect.x + (m_rect.w / 2) + m_offX,
-		m_rect.y + (m_rect.h / 2) + m_offY
+		m_rect.y + (m_rect.h / 2) + m_offY,
+		m_scale,
+		m_scale
 	});
 }
