@@ -1,20 +1,17 @@
 #pragma once
 #include "../events/update.h"
 #include "../event_macros.h"
+#include "../anchor.h"
 #include "object_scripts.h"
 
 class RZUF3_ObjectScript;
 class RZUF3_UpdateEvent;
+class RZUF3_WindowResizeEvent;
+class RZUF3_SetAnchorEvent;
+class RZUF3_GetAnchorEvent;
 
 struct RZUF3_WindowRectAnchorOptions {
-	double x1Anchor = 0;
-	double y1Anchor = 0;
-	double x2Anchor = 1;
-	double y2Anchor = 1;
-	int x1Offset = 0;
-	int y1Offset = 0;
-	int x2Offset = 0;
-	int y2Offset = 0;
+	RZUF3_Anchor anchors[2];
 };
 
 /* currently doesn't work if the parent object is moved or scaled */
@@ -27,12 +24,15 @@ public:
 	void deinit();
 
 	void setOptions(RZUF3_WindowRectAnchorOptions options);
+	void setAnchor(RZUF3_Anchor anchor, int index);
 
 	RZUF3_WindowRectAnchorOptions getOptions();
 
 protected:
 	void onUpdate(RZUF3_UpdateEvent* event);
 	void onWindowResize(RZUF3_WindowResizeEvent* event);
+	void onSetAnchor(RZUF3_SetAnchorEvent* event);
+	void onGetAnchor(RZUF3_GetAnchorEvent* event) const;
 	void update();
 
 	RZUF3_WindowRectAnchorOptions mp_options;
@@ -45,4 +45,6 @@ protected:
 
 	_DECLARE_LISTENER(Update)
 	_DECLARE_LISTENER(WindowResize)
+	_DECLARE_LISTENER(SetAnchor)
+	_DECLARE_LISTENER(GetAnchor)
 };

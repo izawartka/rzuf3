@@ -141,6 +141,24 @@ void RZUF3_Game::setWindowResizable(bool resizable)
 	SDL_SetWindowResizable(m_window, resizable ? SDL_TRUE : SDL_FALSE);
 }
 
+void RZUF3_Game::setWindowMinimumSize(int width, int height)
+{
+	int oldWidth, oldHeight;
+	SDL_GetWindowMinimumSize(m_window, &oldWidth, &oldHeight);
+	if (width <= 0) width = oldWidth;
+	if (height <= 0) height = oldHeight;
+	SDL_SetWindowMinimumSize(m_window, width, height);
+}
+
+void RZUF3_Game::setWindowMaximumSize(int width, int height)
+{
+	int oldWidth, oldHeight;
+	SDL_GetWindowMaximumSize(m_window, &oldWidth, &oldHeight);
+	if (width <= 0) width = oldWidth;
+	if (height <= 0) height = oldHeight;
+	SDL_SetWindowMaximumSize(m_window, width, height);
+}
+
 bool RZUF3_Game::setWindowIcon(std::string filepath)
 {
 	SDL_Surface* icon = IMG_Load(filepath.c_str());

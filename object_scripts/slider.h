@@ -1,9 +1,12 @@
 #pragma once
-#include "../events/update.h"
+#include "../events/draw.h"
 #include "../event_macros.h"
 #include "object_scripts.h"
 
 class RZUF3_ObjectScript;
+class RZUF3_MousePressedEvent;
+class RZUF3_UISetValueEvent;
+class RZUF3_DrawEvent;
 
 struct RZUF3_SliderStyle {
 	SDL_Color sliderColor = { 128, 128, 128, 255 };

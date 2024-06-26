@@ -5,6 +5,10 @@
 
 class RZUF3_ObjectScript;
 class RZUF3_UpdateEvent;
+class RZUF3_MouseDownEvent;
+class RZUF3_MouseUpEvent;
+class RZUF3_MouseMoveEvent;
+class RZUF3_SetRectEvent;
 
 struct RZUF3_ClickableOptions {
 	SDL_Rect rect;

@@ -3,6 +3,7 @@
 #include "object_scripts.h"
 
 class RZUF3_ObjectScript;
+class RZUF3_SetRectEvent;
 
 struct RZUF3_DraggableRootOptions {
 	std::string contentObjName;

@@ -1,5 +1,5 @@
 #pragma once
-#include "../events/update.h"
+#include "../events/draw.h"
 #include "../event_macros.h"
 #include "../renderer.h"
 #include "object_scripts.h"
@@ -8,6 +8,9 @@ class RZUF3_ObjectScript;
 class RZUF3_Renderer;
 class RZUF3_Clickable;
 class RZUF3_TextRenderer;
+class RZUF3_DrawEvent;
+class RZUF3_MouseDownEvent;
+class RZUF3_UISetValueEvent;
 
 struct RZUF3_CheckboxStyle {
 	SDL_Color textColor = { 255, 255, 255, 255 };

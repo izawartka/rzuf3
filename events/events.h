@@ -14,6 +14,8 @@
 #include "mouse_enter.h"
 #include "mouse_pressed.h"
 #include "mouse_wheel.h"
+#include "set_anchor.h"
+#include "get_anchor.h"
 #include "set_rect_event.h"
 #include "ui_value_change.h"
 #include "ui_set_value.h"

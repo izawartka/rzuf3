@@ -22,6 +22,8 @@ public:
 	void setWindowSize(int width, int height);
 	void setWindowFullscreen(bool fullscreen);
 	void setWindowResizable(bool resizable);
+	void setWindowMinimumSize(int width, int height);
+	void setWindowMaximumSize(int width, int height);
 	bool setWindowIcon(std::string filepath);
 	void setRelativeMouseMode(bool enabled);
 	void setCursorPos(int x, int y);
