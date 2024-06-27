@@ -11,7 +11,10 @@ class RZUF3_SetAnchorEvent;
 class RZUF3_GetAnchorEvent;
 
 struct RZUF3_WindowRectAnchorOptions {
-	RZUF3_Anchor anchors[2];
+	RZUF3_Anchor anchors[2] = {
+		RZUF3_Anchor(0.0, 0.0, 0, 0),
+		RZUF3_Anchor(1.0, 1.0, 0, 0)
+	};
 };
 
 /* currently doesn't work if the parent object is moved or scaled */
