@@ -13,9 +13,9 @@ struct RZUF3_DraggableRootOptions {
 	bool lockCursor = false;
 	bool useDrag = true;
 	bool useScale = true;
-	double minScale = 0.1;
-	double maxScale = 10;
-	double scaleStep = 0.1;
+	double minScale = 0.125;
+	double maxScale = 4;
+	double scaleStep = 1;
 };
 
 class RZUF3_DraggableRoot : public RZUF3_ObjectScript {

@@ -101,7 +101,7 @@ void RZUF3_DraggableRoot::onMouseWheel(RZUF3_MouseWheelEvent* event)
 {
 	if (!mp_options.useScale) return;
 
-	double delta = std::pow(1.1, event->getY());
+	double delta = std::pow(2, event->getY() * mp_options.scaleStep);
 
 	double newScale = m_scale * delta;
 	if (newScale < mp_options.minScale) newScale = mp_options.minScale;
