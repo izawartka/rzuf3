@@ -9,6 +9,7 @@ RZUF3_Game* g_game = nullptr;
 
 RZUF3_Game::RZUF3_Game()
 {
+	if (g_game != nullptr) throw std::logic_error("Only one instance of RZUF3_Game can be present at a time");
 	g_game = this;
 }
 
