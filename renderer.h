@@ -24,6 +24,7 @@ public:
 
 	void setColor(SDL_Color color);
 	void setAlign(RZUF3_Align alignment) { m_alignment = alignment; }
+	void setWindowSize(int width, int height) { m_winWidth = width; m_winHeight = height; }
 
 	void drawLine(RZUF3_Object* parentObject, int x1, int y1, int x2, int y2);
 	void fillRect(RZUF3_Object* parentObject, SDL_Rect rect);
@@ -45,6 +46,8 @@ private:
 
 	SDL_Renderer* m_renderer;
 	RZUF3_Align m_alignment = RZUF3_Align_Left;
+	int m_winWidth = 0;
+	int m_winHeight = 0;
 };
 
 extern RZUF3_Renderer* g_renderer;

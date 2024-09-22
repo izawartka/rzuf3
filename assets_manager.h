@@ -13,8 +13,9 @@ public:
 	RZUF3_AssetsManager(RZUF3_Renderer* renderer);
 	~RZUF3_AssetsManager();
 	
-	bool addAsset(RZUF3_AssetDefinition assetDefinition);
-	void addAssets(std::vector<RZUF3_AssetDefinition> assetDefinitions);
+	RZUF3_Asset* addAsset(RZUF3_AssetDefinition assetDefinition);
+	std::vector<RZUF3_Asset*> addAssets(std::vector<RZUF3_AssetDefinition> assetDefinitions);
+
 	bool removeAsset(std::string filepath);
 	void removeAssets(std::vector<std::string> filepaths);
 

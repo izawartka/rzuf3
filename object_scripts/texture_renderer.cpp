@@ -111,15 +111,15 @@ void RZUF3_TextureRenderer::updateTexture()
 	assetDefinition.filepath = m_textureFilepath;
 	assetDefinition.factory = RZUF3_Texture::getInstance;
 
-	if (!assetsManager->addAsset(assetDefinition)) return;
+	RZUF3_Texture* textureAsset = (RZUF3_Texture*)assetsManager->addAsset(assetDefinition);
 
-	this->m_texture = (SDL_Texture*)assetsManager->getAssetContent(m_textureFilepath);
-
-	if(this->m_texture == nullptr)
+	if (textureAsset == nullptr)
 	{
-		spdlog::error("Texture {} not found", this->m_textureFilepath);
+		spdlog::error("Texture {} could not be loaded", this->m_textureFilepath);
 		return;
 	}
+
+	this->m_texture = (SDL_Texture*)textureAsset->getContent();
 
 	SDL_QueryTexture(this->m_texture, nullptr, nullptr, &this->m_dstRect.w, &this->m_dstRect.h);
 }

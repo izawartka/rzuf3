@@ -29,10 +29,11 @@ RZUF3_Object::~RZUF3_Object()
 
 void RZUF3_Object::init()
 {
+	if(m_initialized) return;
 	m_initialized = true;
 
 	std::vector<RZUF3_ObjectScript*> scriptsOnInit = m_scripts;
-	for (RZUF3_ObjectScript* script : scriptsOnInit)
+	for (RZUF3_ObjectScript*& script : scriptsOnInit)
 	{
 		script->init();
 	}

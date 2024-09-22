@@ -62,6 +62,7 @@ void RZUF3_Game::initWindow(int width, int height, bool fullscreen)
 	}
 
 	m_renderer = new RZUF3_Renderer(m_sdlRenderer);
+	setWindowSize(width, height);
 
 	spdlog::info("Renderer Created");
 
@@ -264,8 +265,12 @@ void RZUF3_Game::handleSDLEvents()
 		case SDL_WINDOWEVENT:
 			if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
 			{
-				spdlog::debug("Window resized to {}x{}", sdlEvent.window.data1, sdlEvent.window.data2);
-				rEvent = new RZUF3_WindowResizeEvent(sdlEvent.window.data1, sdlEvent.window.data2);
+				int width = sdlEvent.window.data1;
+				int height = sdlEvent.window.data2;
+
+				spdlog::debug("Window resized to {}x{}", width, height);
+				m_renderer->setWindowSize(width, height);
+				rEvent = new RZUF3_WindowResizeEvent(width, height);
 				break;
 			}
 			break;

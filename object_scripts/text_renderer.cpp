@@ -159,14 +159,14 @@ void RZUF3_TextRenderer::updateTexture()
 	}
 
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(this->m_renderer->getSDLRenderer(), surface);
+	/// temporarily commented out because it caused some weird exceptions in debug mode
+	/// SDL_FreeSurface(surface);
 	if (texture == nullptr)
 	{
 		spdlog::error("Failed to create text texture: {}", SDL_GetError());
 		return;
 	}
 
-	// SDL_FreeSurface(surface);
-	// temporarily commented out because it caused some weird exceptions in debug mode
 	this->m_texture = texture;
 
 	SDL_QueryTexture(this->m_texture, nullptr, nullptr, &m_dstRect.w, &m_dstRect.h);

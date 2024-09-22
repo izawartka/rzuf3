@@ -21,6 +21,9 @@ RZUF3_Renderer::~RZUF3_Renderer()
 void RZUF3_Renderer::setColor(SDL_Color color)
 {
 	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+
+	SDL_BlendMode blendMode = color.a != 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE;
+	SDL_SetRenderDrawBlendMode(m_renderer, blendMode);
 }
 
 void RZUF3_Renderer::drawLine(RZUF3_Object* parentObject, int x1, int y1, int x2, int y2)

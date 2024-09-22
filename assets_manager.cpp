@@ -18,7 +18,7 @@ RZUF3_AssetsManager::~RZUF3_AssetsManager()
 	}
 }
 
-bool RZUF3_AssetsManager::addAsset(RZUF3_AssetDefinition assetDefinition)
+RZUF3_Asset* RZUF3_AssetsManager::addAsset(RZUF3_AssetDefinition assetDefinition)
 {
 	auto it = m_assets.find(assetDefinition.filepath);
 
@@ -26,7 +26,7 @@ bool RZUF3_AssetsManager::addAsset(RZUF3_AssetDefinition assetDefinition)
 	{
 		spdlog::debug("Reusing asset {}", it->second->getFilepath());
 		it->second->addReference();
-		return true;
+		return it->second;
 	}
 
 	RZUF3_Asset* asset = assetDefinition.factory(assetDefinition.filepath);
@@ -35,21 +35,26 @@ bool RZUF3_AssetsManager::addAsset(RZUF3_AssetDefinition assetDefinition)
 
 	if (!asset->load())
 	{
-		return false;
+		return nullptr;
 	}
 
 	asset->addReference();
 
 	m_assets[filepath] = asset;
-	return true;
+	return asset;
 }
 
-void RZUF3_AssetsManager::addAssets(std::vector<RZUF3_AssetDefinition> assetDefinitions)
+std::vector<RZUF3_Asset*> RZUF3_AssetsManager::addAssets(std::vector<RZUF3_AssetDefinition> assetDefinitions)
 {
+	std::vector<RZUF3_Asset*> assets;
+
 	for(RZUF3_AssetDefinition assetDefinition : assetDefinitions)
 	{
-		addAsset(assetDefinition);
+		RZUF3_Asset* asset = addAsset(assetDefinition);
+		assets.push_back(asset);
 	}
+
+	return assets;
 }
 
 bool RZUF3_AssetsManager::removeAsset(std::string filename)
@@ -62,7 +67,7 @@ bool RZUF3_AssetsManager::removeAsset(std::string filename)
 		return false;
 	}
 
-	RZUF3_Asset* asset = m_assets[filename]; // 
+	RZUF3_Asset* asset = it->second;
 
 	asset->removeReference();
 

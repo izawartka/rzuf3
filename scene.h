@@ -38,6 +38,7 @@ private:
 	RZUF3_EventsManager* m_eventsManager;
 	RZUF3_Renderer* m_renderer;
 	std::map<std::string, RZUF3_Object*> m_objects;
+	std::vector<RZUF3_Object*> m_objectsToDelete;
 };
 
 extern RZUF3_Scene* g_scene;

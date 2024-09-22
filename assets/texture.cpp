@@ -19,13 +19,12 @@ bool RZUF3_Texture::load()
 
 	SDL_Renderer* renderer = g_renderer->getSDLRenderer();
 	m_texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_FreeSurface(surface);
 	if (m_texture == nullptr)
 	{
 		spdlog::error("Texture {}: failed to create texture: {}", m_filepath, SDL_GetError());
 		return false;
 	}
-
-	SDL_FreeSurface(surface);
 
 	spdlog::info("Loaded texture: {}", m_filepath);
 
