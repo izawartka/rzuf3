@@ -225,8 +225,9 @@ void RZUF3_Game::update(double dt)
 
 void RZUF3_Game::render(double dt)
 {
-	SDL_SetRenderDrawColor(m_sdlRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(m_sdlRenderer);
+	SDL_SetRenderDrawColor(m_sdlRenderer, m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+	if(m_clearColor.a != 0) SDL_RenderClear(m_sdlRenderer);
+
 	if (m_scene != nullptr)
 	{
 		RZUF3_DrawEvent rEvent(dt);

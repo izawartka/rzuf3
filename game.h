@@ -28,6 +28,7 @@ public:
 	void setRelativeMouseMode(bool enabled);
 	void setCursorPos(int x, int y);
 	void setCursorVisible(bool visible);
+	void setClearColor(SDL_Color color) { m_clearColor = color; }
 
 	void setScene(RZUF3_SceneDefinition* sceneDefinition);
 
@@ -47,6 +48,7 @@ private:
 	unsigned int m_counter = 0;
 	RZUF3_Scene* m_scene = nullptr;
 	RZUF3_Lang* m_lang = nullptr;
+	SDL_Color m_clearColor = { 0, 0, 0, 255 };
 };
 
 extern RZUF3_Game* g_game;
