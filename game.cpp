@@ -190,6 +190,38 @@ void RZUF3_Game::setCursorVisible(bool visible)
 	SDL_ShowCursor(visible ? SDL_ENABLE : SDL_DISABLE);
 }
 
+void RZUF3_Game::requestTextInput(std::string id, SDL_Rect rect)
+{
+	if(m_scene == nullptr) return;
+	if(id == "") return;
+
+	if (m_currentTextInputId != "")
+	{
+		stopTextInput(m_currentTextInputId);
+	}
+
+	m_currentTextInputId = id;
+
+	RZUF3_TextInputFocusEvent event(id);
+	m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&event);
+
+	SDL_SetTextInputRect(&rect);
+	SDL_StartTextInput();
+}
+
+void RZUF3_Game::stopTextInput(std::string id)
+{
+	if(m_scene == nullptr) return;
+	if(m_currentTextInputId != id && id != "") return;
+
+	m_currentTextInputId = "";
+
+	SDL_StopTextInput();
+
+	RZUF3_TextInputFocusEvent event("");
+	m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&event);
+}
+
 void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 {
 	if (this->m_scene != nullptr)
@@ -262,6 +294,12 @@ void RZUF3_Game::handleSDLEvents()
 			break;
 		case SDL_MOUSEWHEEL:
 			rEvent = new RZUF3_MouseWheelEvent(sdlEvent.wheel.x, sdlEvent.wheel.y);
+			break;
+		case SDL_TEXTINPUT:
+			rEvent = new RZUF3_TextInputEvent(sdlEvent.text.text);
+			break;
+		case SDL_TEXTEDITING:
+			rEvent = new RZUF3_TextEditingEvent(sdlEvent.edit.text, sdlEvent.edit.start, sdlEvent.edit.length);
 			break;
 		case SDL_WINDOWEVENT:
 			if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)

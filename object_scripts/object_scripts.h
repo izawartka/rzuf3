@@ -11,3 +11,5 @@
 #include "text_renderer.h"
 #include "window_anchor.h"
 #include "window_rect_anchor.h"
+#include "timer.h"
+#include "text_input.h"

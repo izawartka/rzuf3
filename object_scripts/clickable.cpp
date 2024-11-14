@@ -84,13 +84,19 @@ void RZUF3_Clickable::onMouseDown(RZUF3_MouseDownEvent* event)
 	int x = event->getX();
 	int y = event->getY();
 	RZUF3_Renderer::screenToRectXY(m_object, m_rect, x, y);
-	if (!RZUF3_Renderer::isXYInside(m_rect, x, y)) return;
+	bool inside = RZUF3_Renderer::isXYInside(m_rect, x, y);
 
-	if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = true;
-	if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = true;
+	if (inside) {
+		if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = true;
+		if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = true;
 
-	RZUF3_MouseDownEvent objEvent(x, y, event->getButton());
-	m_objEventsManager->dispatchEvent(&objEvent);
+		RZUF3_MouseDownEvent objEvent(x, y, event->getButton());
+		m_objEventsManager->dispatchEvent(&objEvent);
+	}
+	else {
+		RZUF3_MouseDownOutsideEvent objEvent(x, y, event->getButton());
+		m_objEventsManager->dispatchEvent(&objEvent);
+	}
 }
 
 void RZUF3_Clickable::onMouseUp(RZUF3_MouseUpEvent* event)

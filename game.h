@@ -29,6 +29,8 @@ public:
 	void setCursorPos(int x, int y);
 	void setCursorVisible(bool visible);
 	void setClearColor(SDL_Color color) { m_clearColor = color; }
+	void requestTextInput(std::string id, SDL_Rect rect);
+	void stopTextInput(std::string id);
 
 	void setScene(RZUF3_SceneDefinition* sceneDefinition);
 
@@ -48,6 +50,7 @@ private:
 	unsigned int m_counter = 0;
 	RZUF3_Scene* m_scene = nullptr;
 	RZUF3_Lang* m_lang = nullptr;
+	std::string m_currentTextInputId = "";
 	SDL_Color m_clearColor = { 0, 0, 0, 255 };
 };
 
