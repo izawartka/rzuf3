@@ -36,6 +36,7 @@ struct RZUF3_TextInputOptions {
 	std::string fontFilepath;
 	std::string text;
 	bool multiline = false;
+	int maxChars = 0;
 	RZUF3_TextInputStyle style;
 	RZUF3_TextInputStyle focusedStyle;
 };
@@ -48,15 +49,16 @@ public:
 	void init();
 	void deinit();
 
+	void setMaxChars(int maxChars);
 	void setStyle(RZUF3_TextInputStyle style);
 	void setFocusedStyle(RZUF3_TextInputStyle style);
 	void setText(std::string text);
 	void setMultiline(bool multiline);
 	void setFocuesed(bool focused);
 	void setCursorPos(int pos);
+	void setCursorPosFromXY(int x, int y);
 
-	RZUF3_TextInputStyle getStyle() const;
-	RZUF3_TextInputStyle getFocusedStyle() const;
+	RZUF3_TextInputStyle* getStyle(bool focused);
 	std::string getText() const;
 	bool getMultiline() const;
 	bool getFocused() const;
@@ -76,17 +78,19 @@ protected:
 	void updateStyle();
 	void updateText();
 	void controlledSetCursorPos(int pos, bool force = false);
+	void setScroll(int x, int y);
 
 	RZUF3_TextInputOptions mp_options;
 
+	RZUF3_TextInputOptions m_options;
+
 	std::string m_text;
 	bool m_isFocused = false;
-	bool m_isMultiline = false;
 	bool m_isBlinking = false;
 	int m_cursorPos = 0;
+	int m_scrollX = 0;
+	int m_scrollY = 0;
 	SDL_Rect m_cachedCursorRect = { 0, 0, 0, 0 };
-	RZUF3_TextInputStyle m_style;
-	RZUF3_TextInputStyle m_focusedStyle;
 
 	RZUF3_Renderer* m_renderer = nullptr;
 	RZUF3_Clickable* m_clickable = nullptr;
