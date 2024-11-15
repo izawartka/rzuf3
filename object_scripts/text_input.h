@@ -22,6 +22,7 @@ struct RZUF3_TextInputStyle {
 	SDL_Color borderColor = { 255, 255, 255, 255 };
 	SDL_Color checkColor = { 255, 255, 255, 255 };
 	SDL_Color bgColor = { 0, 0, 0, 255 };
+	SDL_Color blinkColor = { 255, 255, 255, 255 };
 	SDL_Rect rect = { 0, 0, 128, 0 };
 	int textSize = 14;
 	int textStyle = TTF_STYLE_NORMAL;
@@ -52,6 +53,7 @@ public:
 	void setText(std::string text);
 	void setMultiline(bool multiline);
 	void setFocuesed(bool focused);
+	void setCursorPos(int pos);
 
 	RZUF3_TextInputStyle getStyle() const;
 	RZUF3_TextInputStyle getFocusedStyle() const;
@@ -73,6 +75,7 @@ protected:
 	void controlledSetText(std::string text, bool noNewLineCheck = false);
 	void updateStyle();
 	void updateText();
+	void controlledSetCursorPos(int pos, bool force = false);
 
 	RZUF3_TextInputOptions mp_options;
 
@@ -81,12 +84,14 @@ protected:
 	bool m_isMultiline = false;
 	bool m_isBlinking = false;
 	int m_cursorPos = 0;
+	SDL_Rect m_cachedCursorRect = { 0, 0, 0, 0 };
 	RZUF3_TextInputStyle m_style;
 	RZUF3_TextInputStyle m_focusedStyle;
 
 	RZUF3_Renderer* m_renderer = nullptr;
 	RZUF3_Clickable* m_clickable = nullptr;
 	RZUF3_TextRenderer* m_textRenderer = nullptr;
+	RZUF3_TextRenderer* m_helperTextRenderer = nullptr;
 	RZUF3_Timer* m_blinkTimer = nullptr;
 
 	_DECLARE_LISTENER(MouseDown)

@@ -23,6 +23,8 @@ void RZUF3_TextRenderer::init()
 	m_text = mp_options.text;
 	m_style = mp_options.style;
 	m_dstRect = { mp_options.x, mp_options.y, 0, 0 };
+	m_enabled = mp_options.enabled;
+	m_metricsOnly = mp_options.metricsOnly;
 	m_renderer = g_scene->getRenderer();
 
 	updateFont();
@@ -73,6 +75,11 @@ void RZUF3_TextRenderer::setStyle(RZUF3_TextStyle style)
 	updateTexture();
 }
 
+void RZUF3_TextRenderer::setEnabled(bool enabled)
+{
+	m_enabled = enabled;
+}
+
 RZUF3_TextStyle RZUF3_TextRenderer::getStyle()
 {
 	return m_style;
@@ -88,10 +95,16 @@ int RZUF3_TextRenderer::getHeight()
 	return m_dstRect.h;
 }
 
+bool RZUF3_TextRenderer::getEnabled()
+{
+	return m_enabled;
+}
+
 void RZUF3_TextRenderer::onDraw(RZUF3_DrawEvent* event)
 {
 	if (m_object == nullptr) return;
 	if (m_texture == nullptr) return;
+	if (!m_enabled || m_metricsOnly) return;
 
 	m_renderer->setAlign(m_style.alignment);
 	m_renderer->drawTexture(
@@ -143,6 +156,19 @@ void RZUF3_TextRenderer::updateTexture()
 	TTF_SetFontSize(m_font, m_style.size);
 
 	std::string text = m_style.useLangFile ? g_lang->getText(m_text) : m_text;
+	if (text == "") {
+		m_dstRect.w = 0;
+		m_dstRect.h = 0;
+		return;
+	}
+
+	if (m_metricsOnly) {
+		int w, h;
+		TTF_SizeUTF8(m_font, text.c_str(), &w, &h);
+		m_dstRect.w = w;
+		m_dstRect.h = h;
+		return;
+	}
 
 	SDL_Surface* surface = TTF_RenderUTF8_LCD_Wrapped(
 		this->m_font,

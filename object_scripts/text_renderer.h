@@ -21,6 +21,8 @@ struct RZUF3_TextRendererOptions {
 	int x = 0;
 	int y = 0;
 	RZUF3_TextStyle style;
+	bool enabled = true;
+	bool metricsOnly = false;
 };
 
 class RZUF3_TextRenderer : public RZUF3_ObjectScript {
@@ -36,10 +38,12 @@ public:
 	void setDstPos(int x, int y);
 	void setText(std::string text);
 	void setStyle(RZUF3_TextStyle style);
+	void setEnabled(bool enabled);
 
 	RZUF3_TextStyle getStyle();
 	int getWidth();
 	int getHeight();
+	bool getEnabled();
 
 protected:
 	void onDraw(RZUF3_DrawEvent* event);
@@ -55,6 +59,8 @@ protected:
 	TTF_Font* m_font = nullptr;
 	std::string m_text;
 	RZUF3_TextStyle m_style;
+	bool m_enabled = true;
+	bool m_metricsOnly = false;
 	SDL_Rect m_dstRect = { 0, 0, 0, 0 };
 	RZUF3_Renderer* m_renderer = nullptr;
 	SDL_Texture* m_texture = nullptr;

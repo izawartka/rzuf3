@@ -154,6 +154,9 @@ void RZUF3_Clickable::removeOnHoverCursor()
 {
 	if (m_onHoverCursor == nullptr) return;
 
+	SDL_Cursor* defCursor = SDL_GetDefaultCursor();
+	SDL_SetCursor(defCursor);
+	SDL_FreeCursor(defCursor);
 	SDL_FreeCursor(m_onHoverCursor);
 	m_onHoverCursor = nullptr;
 }
@@ -164,4 +167,6 @@ void RZUF3_Clickable::updateOnHoverCusror()
 	if(m_onHoverCursorId < 0) return;
 
 	m_onHoverCursor = SDL_CreateSystemCursor(m_onHoverCursorId);
+
+	if (m_isMouseOver) SDL_SetCursor(m_onHoverCursor);
 }
