@@ -18,11 +18,10 @@ struct RZUF3_TextStyle {
 struct RZUF3_TextRendererOptions {
 	std::string fontFilepath;
 	std::string text;
-	int x = 0;
-	int y = 0;
+	SDL_Rect dstRect = { 0, 0, 0, 0 };
 	SDL_Rect cropRect = { 0, 0, 0, 0 };
 	RZUF3_TextStyle style;
-	bool enabled = true;
+	bool useOnDraw = true;
 	bool metricsOnly = false;
 };
 
@@ -37,17 +36,19 @@ public:
 
 	void setFontFilepath(std::string fontFilepath);
 	void setDstPos(int x, int y);
-	void setMaxSize(int maxWidth, int maxHeight);
+	void setDstSize(int width, int height);
 	void setOffset(int offsetX, int offsetY);
+	void setMaxSize(int maxWidth, int maxHeight);
 	void setText(std::string text);
 	void setStyle(RZUF3_TextStyle style);
-	void setEnabled(bool enabled);
+	void setUseOnDraw(bool useOnDraw);
 	int pointToCharIndex(int x, int y);
+	void draw();
 
 	RZUF3_TextStyle getStyle() const;
 	int getWidth() const;
 	int getHeight() const;
-	bool getEnabled() const;
+	bool getUseOnDraw() const;
 
 protected:
 	void onDraw(RZUF3_DrawEvent* event);
@@ -60,18 +61,14 @@ protected:
 
 	RZUF3_TextRendererOptions mp_options;
 
-	std::string m_fontFilepath;
+	RZUF3_TextRendererOptions m_options;
+
 	TTF_Font* m_font = nullptr;
-	std::string m_text;
 	std::string m_cachedText;
-	RZUF3_TextStyle m_style;
-	bool m_enabled = true;
-	bool m_metricsOnly = false;
 	SDL_Rect m_origSize = { 0, 0, 0, 0 };
-	SDL_Rect m_dstRect = { 0, 0, 0, 0 };
-	SDL_Rect m_cropRect = { 0, 0, 0, 0 };
 	RZUF3_Renderer* m_renderer = nullptr;
 	SDL_Texture* m_texture = nullptr;
+	bool hasOnDrawListener = false;
 	
 	_DECLARE_LISTENER(Draw)
 };

@@ -2,11 +2,6 @@
 #include "common.h"
 #include "event.h"
 #include "event_listener.h"
-#include <unordered_map>
-#include <typeindex>
-#include <vector>
-#include <algorithm>
-#include <iostream>
 
 class RZUF3_Event;
 struct RZUF3_EventListener;
@@ -67,9 +62,9 @@ public:
             return;
         }
 
-        for (RZUF3_EventListener& eventListener : it->second) {
-            eventListener.callback(event);
-        }
+        for (auto& eventListener : it->second) {
+			eventListener.callback(event);
+		}
     }
 
 private:

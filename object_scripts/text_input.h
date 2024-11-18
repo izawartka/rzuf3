@@ -21,7 +21,7 @@ struct RZUF3_TextInputStyle {
 	SDL_Color textColor = { 255, 255, 255, 255 };
 	SDL_Color borderColor = { 255, 255, 255, 255 };
 	SDL_Color checkColor = { 255, 255, 255, 255 };
-	SDL_Color bgColor = { 0, 0, 0, 255 };
+	SDL_Color bgColor = { 0, 0, 0, 0 };
 	SDL_Color blinkColor = { 255, 255, 255, 255 };
 	SDL_Rect rect = { 0, 0, 128, 0 };
 	int textSize = 14;
@@ -62,6 +62,7 @@ public:
 	std::string getText() const;
 	bool getMultiline() const;
 	bool getFocused() const;
+	SDL_Rect getBorderRect(bool focused);
 
 protected:
 	void onMouseDown(RZUF3_MouseDownEvent* event);
