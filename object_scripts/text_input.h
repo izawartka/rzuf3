@@ -2,6 +2,7 @@
 #include "../events/draw.h"
 #include "../event_macros.h"
 #include "../renderer.h"
+#include "../text_style.h"
 #include "object_scripts.h"
 
 class RZUF3_ObjectScript;
@@ -18,14 +19,12 @@ class RZUF3_TextInputEvent;
 class RZUF3_TextEditingEvent;
 
 struct RZUF3_TextInputStyle {
-	SDL_Color textColor = { 255, 255, 255, 255 };
+	RZUF3_TextStyle textStyle;
 	SDL_Color borderColor = { 255, 255, 255, 255 };
 	SDL_Color checkColor = { 255, 255, 255, 255 };
 	SDL_Color bgColor = { 0, 0, 0, 0 };
 	SDL_Color blinkColor = { 255, 255, 255, 255 };
 	SDL_Rect rect = { 0, 0, 128, 0 };
-	int textSize = 14;
-	int textStyle = TTF_STYLE_NORMAL;
 	int borderWidth = 2;
 	int horizontalPadding = 5;
 	int verticalPadding = 5;
@@ -33,7 +32,6 @@ struct RZUF3_TextInputStyle {
 };
 
 struct RZUF3_TextInputOptions {
-	std::string fontFilepath;
 	std::string text;
 	bool multiline = false;
 	int maxChars = 0;

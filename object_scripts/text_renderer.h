@@ -1,29 +1,21 @@
 #pragma once
 #include "../events/draw.h"
 #include "../event_macros.h"
+#include "../text_style.h"
 #include "object_scripts.h"
 
 class RZUF3_ObjectScript;
 
-struct RZUF3_TextStyle {
-	SDL_Color color = { 255, 255, 255, 255 };
-	SDL_Color bgColor = { 0, 0, 0, 0 };
-	SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
-	int size = 16;
-	int style = TTF_STYLE_NORMAL;
-	int wrapLength = 0;
-	RZUF3_Align alignment = RZUF3_Align_TopLeft;
-	bool useLangFile = true;
-};
-
 struct RZUF3_TextRendererOptions {
-	std::string fontFilepath;
 	std::string text;
 	SDL_Rect dstRect = { 0, 0, 0, 0 };
 	SDL_Rect cropRect = { 0, 0, 0, 0 };
 	RZUF3_TextStyle style;
 	bool useOnDraw = true;
 	bool metricsOnly = false;
+	bool useLangFile = true;
+	int wrapLength = 0;
+	RZUF3_Align alignment = RZUF3_Align_TopLeft;
 };
 
 class RZUF3_TextRenderer : public RZUF3_ObjectScript {
@@ -42,7 +34,10 @@ public:
 	void setMaxSize(int maxWidth, int maxHeight);
 	void setText(std::string text);
 	void setStyle(RZUF3_TextStyle style);
+	void setUseLangFile(bool useLangFile);
 	void setUseOnDraw(bool useOnDraw);
+	void setWrapLength(int wrapLength);
+	void setAlignment(RZUF3_Align alignment);
 	int pointToCharIndex(int x, int y);
 	void draw();
 

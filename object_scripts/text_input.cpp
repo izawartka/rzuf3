@@ -21,9 +21,10 @@ void RZUF3_TextInput::init()
 	RZUF3_Object* obj = m_object;
 
 	RZUF3_TextRendererOptions textRendererOptions;
-	textRendererOptions.fontFilepath = mp_options.fontFilepath;
+	textRendererOptions.style = mp_options.style.textStyle;
 	textRendererOptions.text = m_text;
-	textRendererOptions.style.useLangFile = false;
+	textRendererOptions.useLangFile = false;
+	textRendererOptions.alignment = RZUF3_Align_TopLeft;
 	textRendererOptions.useOnDraw = false;
 
 	m_textRenderer = new RZUF3_TextRenderer(textRendererOptions);
@@ -355,15 +356,8 @@ void RZUF3_TextInput::updateStyle()
 
 	RZUF3_TextInputStyle* style = getStyle(m_isFocused);
 
-	RZUF3_TextStyle textStyle = m_textRenderer->getStyle();
-	textStyle.color = style->textColor;
-	textStyle.bgColor = style->bgColor;
-	textStyle.size = style->textSize;
-	textStyle.style = style->textStyle;
-	textStyle.alignment = RZUF3_Align_TopLeft;
-
-	m_textRenderer->setStyle(textStyle);
-	m_helperTextRenderer->setStyle(textStyle);
+	m_textRenderer->setStyle(style->textStyle);
+	m_helperTextRenderer->setStyle(style->textStyle);
 
 	m_textRenderer->setDstPos(
 		style->rect.x + style->horizontalPadding,

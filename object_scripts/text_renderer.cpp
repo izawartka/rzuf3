@@ -3,7 +3,7 @@
 
 RZUF3_TextRenderer::RZUF3_TextRenderer(std::string fontFilepath, std::string text)
 {
-	mp_options.fontFilepath = fontFilepath;
+	mp_options.style.fontFilepath = fontFilepath;
 	mp_options.text = text;
 }
 
@@ -40,12 +40,10 @@ void RZUF3_TextRenderer::deinit()
 
 void RZUF3_TextRenderer::setFontFilepath(std::string fontFilepath)
 {
-	removeTexture();
-	removeFont();
-	m_options.fontFilepath = fontFilepath;
-	updateFont();
-	updateTexture();
+	RZUF3_TextStyle style = m_options.style;
+	style.fontFilepath = fontFilepath;
 
+	setStyle(style);
 }
 
 void RZUF3_TextRenderer::setDstPos(int x, int y)
@@ -82,7 +80,22 @@ void RZUF3_TextRenderer::setText(std::string text)
 
 void RZUF3_TextRenderer::setStyle(RZUF3_TextStyle style)
 {
+	bool fontChanged = m_options.style.fontFilepath != style.fontFilepath;
 	m_options.style = style;
+
+	removeTexture();
+	if (fontChanged) {
+		removeFont();
+		updateFont();
+	}
+	updateTexture();
+}
+
+void RZUF3_TextRenderer::setUseLangFile(bool useLangFile)
+{
+	m_options.useLangFile = useLangFile;
+
+	cacheLangFileText();
 	removeTexture();
 	updateTexture();
 }
@@ -102,6 +115,19 @@ void RZUF3_TextRenderer::setUseOnDraw(bool useOnDraw)
 		_REMOVE_LISTENER(eventsManager, Draw);
 		hasOnDrawListener = false;
 	}
+}
+
+void RZUF3_TextRenderer::setWrapLength(int wrapLength)
+{
+	m_options.wrapLength = wrapLength;
+
+	removeTexture();
+	updateTexture();
+}
+
+void RZUF3_TextRenderer::setAlignment(RZUF3_Align alignment)
+{
+	m_options.alignment = alignment;
 }
 
 /* texture space x and y */
@@ -156,7 +182,7 @@ void RZUF3_TextRenderer::draw()
 	dstRect.w = dstRect.w > 0 ? dstRect.w : srcRect.w;
 	dstRect.h = dstRect.h > 0 ? dstRect.h : srcRect.h;
 
-	m_renderer->setAlign(m_options.style.alignment);
+	m_renderer->setAlign(m_options.alignment);
 	m_renderer->drawTexture(
 		m_object,
 		m_texture,
@@ -198,25 +224,25 @@ void RZUF3_TextRenderer::removeFont()
 	TTF_CloseFont(m_font);
 	m_font = nullptr;
 
-	spdlog::info("Unloaded font: {}", this->m_options.fontFilepath);
+	spdlog::info("Unloaded font: {}", this->m_options.style.fontFilepath);
 }
 
 void RZUF3_TextRenderer::updateFont()
 {
-	if (this->m_options.fontFilepath == "") {
+	if (this->m_options.style.fontFilepath == "") {
 		spdlog::error("Font filepath is empty");
 		return;
 	}
 
-	this->m_font = TTF_OpenFont(this->m_options.fontFilepath.c_str(), 24);
+	this->m_font = TTF_OpenFont(this->m_options.style.fontFilepath.c_str(), 24);
 
 	if (this->m_font == nullptr)
 	{
-		spdlog::error("Font {} not found", this->m_options.fontFilepath);
+		spdlog::error("Font {} not found", this->m_options.style.fontFilepath);
 		return;
 	}
 
-	spdlog::info("Loaded font: {}", this->m_options.fontFilepath);
+	spdlog::info("Loaded font: {}", this->m_options.style.fontFilepath);
 }
 
 void RZUF3_TextRenderer::removeTexture()
@@ -253,7 +279,7 @@ void RZUF3_TextRenderer::updateTexture()
 		m_cachedText.c_str(),
 		m_options.style.color, 
 		m_options.style.bgColor, 
-		m_options.style.wrapLength
+		m_options.wrapLength
 	);
 
 	if (surface == NULL)
@@ -280,8 +306,7 @@ void RZUF3_TextRenderer::updateTexture()
 
 void RZUF3_TextRenderer::cacheLangFileText()
 {
-	std::string text = m_options.style.useLangFile ? g_lang->getText(m_options.text) : m_options.text;
-	if (text == "") return;
+	std::string text = m_options.useLangFile ? g_lang->getText(m_options.text) : m_options.text;
 
 	m_cachedText = text;
 }
