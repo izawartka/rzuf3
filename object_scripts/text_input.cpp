@@ -35,6 +35,7 @@ void RZUF3_TextInput::init()
 
 	m_clickable = new RZUF3_Clickable();
 	obj->addScript(m_clickable);
+	m_clickable->setOnHoverCursor(SDL_SYSTEM_CURSOR_IBEAM);
 
 	m_blinkTimer = new RZUF3_Timer("blinkTimer", 0);
 	obj->addScript(m_blinkTimer);
@@ -270,10 +271,6 @@ void RZUF3_TextInput::onTextInputFocus(RZUF3_TextInputFocusEvent* event)
 {
 	std::string id = event->getId();
 	m_isFocused = id == m_object->getName();
-
-	if (m_clickable) {
-		m_clickable->setOnHoverCursor(m_isFocused ? SDL_SYSTEM_CURSOR_IBEAM : SDL_SYSTEM_CURSOR_HAND);
-	}
 
 	updateStyle();
 }
