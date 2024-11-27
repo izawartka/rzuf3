@@ -27,3 +27,4 @@
 #include "text_input_focus.h"
 #include "text_input.h"
 #include "text_editing.h"
+#include "draggable_update.h"

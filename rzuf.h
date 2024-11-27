@@ -11,6 +11,7 @@
 #include "asset_definition.h"
 #include "scene.h"
 #include "pos.h"
+#include "rectd.h"
 #include "anchor.h"
 #include "renderer.h"
 #include "strings_helper.h"

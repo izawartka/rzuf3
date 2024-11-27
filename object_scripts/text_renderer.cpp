@@ -109,8 +109,7 @@ int RZUF3_TextRenderer::pointToCharIndex(int x, int y)
 {
 	if(m_font == nullptr) return -1;
 
-	int lineCount = std::count(m_cachedText.begin(), m_cachedText.end(), '\n') + 1;
-	int lineHeight = m_origSize.h / lineCount;
+	int lineHeight = TTF_FontHeight(m_font);
 
 	int targetLineIndex = y / lineHeight;
 	int targetLineStart = 0;
@@ -127,38 +126,11 @@ int RZUF3_TextRenderer::pointToCharIndex(int x, int y)
 	int targetLineLength = targetLineEnd - targetLineStart;
 	std::string targetLine = m_cachedText.substr(targetLineStart, targetLineLength) + " ";
 
-	int targetLineWidth = 0;
-	TTF_SizeUTF8(m_font, targetLine.c_str(), &targetLineWidth, nullptr);
+	int charIndex = 0;
+	TTF_MeasureUTF8(m_font, targetLine.c_str(), x, nullptr, &charIndex);
+	if(charIndex > targetLineLength) charIndex = targetLineLength;
 
-	int estimatedIndex = (x * targetLineLength) / targetLineWidth;
-
-	while (true) {
-		if (estimatedIndex >= targetLineLength) {
-			estimatedIndex = targetLineLength;
-			break;
-		}
-		if (estimatedIndex < 0) {
-			estimatedIndex = 0;
-			break;
-		}
-
-		int guessWidth = 0;
-		TTF_SizeUTF8(m_font, targetLine.substr(0, estimatedIndex).c_str(), &guessWidth, nullptr);
-
-		if (guessWidth > x) {
-			estimatedIndex--;
-			continue;
-		}
-
-		int guessNextWidth = 0;
-		TTF_SizeUTF8(m_font, targetLine.substr(0, estimatedIndex + 1).c_str(), &guessNextWidth, nullptr);
-
-		if (guessWidth <= x && guessNextWidth > x) break;
-
-		estimatedIndex++;
-	}
-
-	return targetLineStart + estimatedIndex;
+	return targetLineStart + charIndex;
 }
 
 void RZUF3_TextRenderer::draw()
@@ -231,7 +203,10 @@ void RZUF3_TextRenderer::removeFont()
 
 void RZUF3_TextRenderer::updateFont()
 {
-	if (this->m_options.fontFilepath == "") return;
+	if (this->m_options.fontFilepath == "") {
+		spdlog::error("Font filepath is empty");
+		return;
+	}
 
 	this->m_font = TTF_OpenFont(this->m_options.fontFilepath.c_str(), 24);
 
@@ -281,16 +256,18 @@ void RZUF3_TextRenderer::updateTexture()
 		m_options.style.wrapLength
 	);
 
-	if (surface == nullptr)
+	if (surface == NULL)
 	{
 		spdlog::error("Failed to render text: {}", TTF_GetError());
 		return;
 	}
 
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(this->m_renderer->getSDLRenderer(), surface);
-	/// temporarily commented out because it caused some weird exceptions in debug mode
-	/// SDL_FreeSurface(surface);
-	if (texture == nullptr)
+	SDL_SetTextureBlendMode(texture, m_options.style.blendMode);
+
+	SDL_FreeSurface(surface);
+
+	if (texture == NULL)
 	{
 		spdlog::error("Failed to create text texture: {}", SDL_GetError());
 		return;

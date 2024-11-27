@@ -33,26 +33,40 @@ void RZUF3_Renderer::drawLine(RZUF3_Object* parentObject, int x1, int y1, int x2
 	int x2c = x2;
 	int y2c = y2;
 
-	objectToScreenXY(parentObject, x1c, y1c);
-	objectToScreenXY(parentObject, x2c, y2c);
+	if (m_useObjectPos && parentObject != nullptr)
+	{
+		screenToObjectXY(parentObject, x1c, y1c);
+		screenToObjectXY(parentObject, x2c, y2c);
+	}
 	SDL_RenderDrawLine(m_renderer, x1c, y1c, x2c, y2c);
 }
 
 void RZUF3_Renderer::fillRect(RZUF3_Object* parentObject, SDL_Rect rect)
 {
-	objectToScreenRect(parentObject, rect);
+	if (m_useObjectPos && parentObject != nullptr)
+	{
+		objectToScreenRect(parentObject, rect);
+	}
 	alignRect(rect, m_alignment);
 	SDL_RenderFillRect(m_renderer, &rect);
 }
 
 void RZUF3_Renderer::drawRect(RZUF3_Object* parentObject, SDL_Rect rect, unsigned int borderWidth)
 {
-	objectToScreenRect(parentObject, rect);
-	alignRect(rect, m_alignment);
-	RZUF3_Pos pos = parentObject->getAbsolutePos();
+	double scaleX = 1.0;
+	double scaleY = 1.0;
 
-	int borderWidthX = borderWidth * pos.scaleX;
-	int borderWidthY = borderWidth * pos.scaleY;
+	if (m_useObjectPos && parentObject != nullptr)
+	{
+		objectToScreenRect(parentObject, rect);
+		RZUF3_Pos pos = parentObject->getAbsolutePos();
+		scaleX = pos.scaleX;
+		scaleY = pos.scaleY;
+	}
+	alignRect(rect, m_alignment);
+
+	int borderWidthX = borderWidth * scaleX;
+	int borderWidthY = borderWidth * scaleY;
 
 	for (int i = 0; i < borderWidthX; i++)
 	{
@@ -69,14 +83,20 @@ void RZUF3_Renderer::drawRect(RZUF3_Object* parentObject, SDL_Rect rect, unsigne
 
 void RZUF3_Renderer::drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect)
 {
-	objectToScreenRect(parentObject, dstRect);
+	if (m_useObjectPos && parentObject != nullptr)
+	{
+		objectToScreenRect(parentObject, dstRect);
+	}
 	alignRect(dstRect, m_alignment);
 	SDL_RenderCopy(m_renderer, texture, srcRect, &dstRect);
 }
 
 void RZUF3_Renderer::drawTextureOpaque(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect, Uint8 opacity)
 {
-	objectToScreenRect(parentObject, dstRect);
+	if (m_useObjectPos && parentObject != nullptr)
+	{
+		objectToScreenRect(parentObject, dstRect);
+	}
 	alignRect(dstRect, m_alignment);
 	SDL_SetTextureAlphaMod(texture, opacity);
 	SDL_RenderCopy(m_renderer, texture, srcRect, &dstRect);
@@ -85,7 +105,10 @@ void RZUF3_Renderer::drawTextureOpaque(RZUF3_Object* parentObject, SDL_Texture* 
 
 void RZUF3_Renderer::fillCircle(RZUF3_Object* parentObject, SDL_Rect rect)
 {
-	objectToScreenRect(parentObject, rect);
+	if (m_useObjectPos && parentObject != nullptr)
+	{
+		objectToScreenRect(parentObject, rect);
+	}
 	alignRect(rect, m_alignment);
 
 	int rx = rect.w / 2;

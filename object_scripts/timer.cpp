@@ -60,8 +60,8 @@ void RZUF3_Timer::onUpdate(RZUF3_UpdateEvent* event)
 
 	if (m_time < m_options.interval) return;
 
-	RZUF3_TimerEvent* timerEvent = new RZUF3_TimerEvent(m_options.id, m_time);
-	m_selEventsManager->dispatchEvent(timerEvent);
+	RZUF3_TimerEvent timerEvent(m_options.id, m_time);
+	m_selEventsManager->dispatchEvent(&timerEvent);
 	// spdlog::debug("Timer event {} dispatched at time {}", m_options.id, m_time);
 	m_time = 0;
 }

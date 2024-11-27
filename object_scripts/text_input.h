@@ -57,6 +57,7 @@ public:
 	void setFocuesed(bool focused);
 	void setCursorPos(int pos);
 	void setCursorPosFromXY(int x, int y);
+	void addText(std::string text);
 
 	RZUF3_TextInputStyle* getStyle(bool focused);
 	std::string getText() const;

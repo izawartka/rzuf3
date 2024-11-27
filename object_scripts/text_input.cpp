@@ -159,6 +159,16 @@ void RZUF3_TextInput::setCursorPosFromXY(int x, int y)
 	if(charIndex > -1) controlledSetCursorPos(charIndex);
 }
 
+void RZUF3_TextInput::addText(std::string text)
+{
+	int pos = m_cursorPos;
+	if (pos > m_text.size()) pos = m_text.size();
+	if (pos < 0) pos = 0;
+
+	controlledSetText(m_text.insert(pos, text));
+	controlledSetCursorPos(pos + text.size());
+}
+
 RZUF3_TextInputStyle* RZUF3_TextInput::getStyle(bool focused)
 {
 	return focused ? &m_options.focusedStyle : &m_options.style;
@@ -274,12 +284,7 @@ void RZUF3_TextInput::onTextInput(RZUF3_TextInputEvent* event)
 	std::string addedText = event->getText();
 	if (addedText.size() > 1) return; // temporary fix for non-ascii characters lol
 
-	int pos = m_cursorPos;
-	if(pos > m_text.size()) pos = m_text.size();
-	if(pos < 0) pos = 0;
-
-	controlledSetText(m_text.insert(pos, addedText));
-	controlledSetCursorPos(pos + 1);
+	addText(addedText);
 }
 
 void RZUF3_TextInput::onKeyDown(RZUF3_KeyDownEvent* event)
@@ -303,11 +308,7 @@ void RZUF3_TextInput::onKeyDown(RZUF3_KeyDownEvent* event)
 			}
 			break;
 		case SDLK_RETURN:
-			if (m_options.multiline) {
-				text += "\n";
-				controlledSetText(text, true);
-				controlledSetCursorPos(m_cursorPos + 1, true);
-			}
+			if (m_options.multiline) addText("\n");
 			break;
 		case SDLK_LEFT:
 			controlledSetCursorPos(m_cursorPos - 1);

@@ -4,6 +4,7 @@
 
 #include "checkbox.h"
 #include "clickable.h"
+#include "draggable.h"
 #include "draggable_root.h"
 #include "moving_test.h"
 #include "slider.h"
