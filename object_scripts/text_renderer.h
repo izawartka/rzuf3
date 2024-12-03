@@ -5,6 +5,7 @@
 #include "object_scripts.h"
 
 class RZUF3_ObjectScript;
+class RZUF3_Font;
 
 struct RZUF3_TextRendererOptions {
 	std::string text;
@@ -38,19 +39,25 @@ public:
 	void setUseOnDraw(bool useOnDraw);
 	void setWrapLength(int wrapLength);
 	void setAlignment(RZUF3_Align alignment);
+	void setMetricsOnly(bool metricsOnly);
 	int pointToCharIndex(int x, int y);
+	bool charIndexToPoint(int index, int& x, int& y);
 	void draw();
 
+	SDL_Texture* getTexture() const;
 	RZUF3_TextStyle getStyle() const;
 	int getWidth() const;
 	int getHeight() const;
 	bool getUseOnDraw() const;
+	int getFontAscent() const;
+	int getFontDescent() const;
+	int getFontHeight() const;
 
 protected:
 	void onDraw(RZUF3_DrawEvent* event);
 
 	void removeFont();
-	void updateFont();
+	void createFont();
 	void removeTexture();
 	void updateTexture();
 	void cacheLangFileText();
@@ -59,12 +66,13 @@ protected:
 
 	RZUF3_TextRendererOptions m_options;
 
+	RZUF3_Font* m_fontAsset = nullptr;
 	TTF_Font* m_font = nullptr;
-	std::string m_cachedText;
+	std::string m_cachedText = "";
 	SDL_Rect m_origSize = { 0, 0, 0, 0 };
 	RZUF3_Renderer* m_renderer = nullptr;
 	SDL_Texture* m_texture = nullptr;
-	bool hasOnDrawListener = false;
+	bool m_hasOnDrawListener = false;
 	
 	_DECLARE_LISTENER(Draw)
 };

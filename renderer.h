@@ -33,17 +33,19 @@ public:
 	void drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect);
 	void drawTextureOpaque(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect, Uint8 opacity);
 	void fillCircle(RZUF3_Object* parentObject, SDL_Rect rect);
+	bool createStaticTexture(SDL_Texture* &texture, int width, int height);
 
 	SDL_Renderer* getSDLRenderer() { return m_renderer; }
+	bool getUseObjectPos() const { return m_useObjectPos; }
 
 	static void screenToObjectXY(RZUF3_Object* parentObject, int& x, int& y);
 	static void objectToScreenXY(RZUF3_Object* parentObject, int& x, int& y);
 	static void objectToScreenRect(RZUF3_Object* parentObject, SDL_Rect& rect);
 	static void screenToRectXY(RZUF3_Object* parentObject, SDL_Rect& rect, int& x, int& y);
 	static bool isXYInside(SDL_Rect& rect, int x, int y);
+	static void alignRect(SDL_Rect& rect, RZUF3_Align alignment);
 
 private:
-	static void alignRect(SDL_Rect& rect, RZUF3_Align alignment);
 
 	SDL_Renderer* m_renderer;
 	RZUF3_Align m_alignment = RZUF3_Align_Left;

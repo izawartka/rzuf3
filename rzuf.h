@@ -20,6 +20,7 @@
 
 #include "asset.h"
 #include "assets/texture.h"
+#include "assets/font.h"
 
 #include "event.h"
 #include "event_listener.h"

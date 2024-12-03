@@ -222,6 +222,21 @@ void RZUF3_Game::stopTextInput(std::string id)
 	m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&event);
 }
 
+bool RZUF3_Game::copyToClipboard(std::string text)
+{
+	return SDL_SetClipboardText(text.c_str()) == 0;
+}
+
+std::string RZUF3_Game::getClipboardText()
+{
+	char* text = SDL_GetClipboardText();
+	if (text == nullptr) return "";
+	std::string result(text);
+	SDL_free(text);
+
+	return result;
+}
+
 void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 {
 	if (this->m_scene != nullptr)

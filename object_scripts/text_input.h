@@ -8,7 +8,7 @@
 class RZUF3_ObjectScript;
 class RZUF3_Renderer;
 class RZUF3_Clickable;
-class RZUF3_TextRenderer;
+class RZUF3_TextSelRenderer;
 class RZUF3_DrawEvent;
 class RZUF3_MouseDownEvent;
 class RZUF3_MouseDownOutsideEvent;
@@ -52,10 +52,11 @@ public:
 	void setFocusedStyle(RZUF3_TextInputStyle style);
 	void setText(std::string text);
 	void setMultiline(bool multiline);
-	void setFocuesed(bool focused);
+	void setFocused(bool focused);
 	void setCursorPos(int pos);
 	void setCursorPosFromXY(int x, int y);
-	void addText(std::string text);
+	void addText(std::string text, bool noNewLineCheck = false);
+	void removeText(bool backspace);
 
 	RZUF3_TextInputStyle* getStyle(bool focused);
 	std::string getText() const;
@@ -72,12 +73,16 @@ protected:
 	void onDraw(RZUF3_DrawEvent* event);
 	void onTextInputFocus(RZUF3_TextInputFocusEvent* event);
 	void onTextInput(RZUF3_TextInputEvent* event);
+	void onTextSelectionChange(RZUF3_TextSelectionChangeEvent* event);
 	void onKeyDown(RZUF3_KeyDownEvent* event);
+	void onKeyUp(RZUF3_KeyUpEvent* event);
 
+	void removeTextRenderer();
+	void createTextRenderer();
+	void updateTextRenderer();
 	void controlledSetText(std::string text, bool noNewLineCheck = false);
 	void updateStyle();
-	void updateText();
-	void controlledSetCursorPos(int pos, bool force = false);
+	void updateCursorRectAndScroll();
 	void setScroll(int x, int y);
 
 	RZUF3_TextInputOptions mp_options;
@@ -87,15 +92,15 @@ protected:
 	std::string m_text;
 	bool m_isFocused = false;
 	bool m_isBlinking = false;
-	int m_cursorPos = 0;
 	int m_scrollX = 0;
 	int m_scrollY = 0;
 	SDL_Rect m_cachedCursorRect = { 0, 0, 0, 0 };
+	bool m_isCtrlDown = false;
+	bool m_isShiftDown = false;
 
 	RZUF3_Renderer* m_renderer = nullptr;
 	RZUF3_Clickable* m_clickable = nullptr;
-	RZUF3_TextRenderer* m_textRenderer = nullptr;
-	RZUF3_TextRenderer* m_helperTextRenderer = nullptr;
+	RZUF3_TextSelRenderer* m_textRenderer = nullptr;
 	RZUF3_Timer* m_blinkTimer = nullptr;
 
 	_DECLARE_LISTENER(MouseDown)
@@ -106,5 +111,7 @@ protected:
 	_DECLARE_LISTENER(Draw)
 	_DECLARE_LISTENER(TextInputFocus)
 	_DECLARE_LISTENER(TextInput)
+	_DECLARE_LISTENER(TextSelectionChange)
 	_DECLARE_LISTENER(KeyDown)
+	_DECLARE_LISTENER(KeyUp)
 };

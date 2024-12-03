@@ -21,18 +21,18 @@ RZUF3_Clickable::~RZUF3_Clickable()
 
 void RZUF3_Clickable::init()
 {
-	m_rect = mp_options.rect;
-	m_onHoverCursorId = mp_options.onHoverCursorId;
+	m_options = mp_options;
 
-	if(mp_options.setOnHoverCursor) updateOnHoverCusror();
+	if(m_options.useOnHoverCursor) updateOnHoverCusror();
 
-	m_objEventsManager = m_object->getEventsManager();
 	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_ADD_LISTENER(eventsManager, Update);
 	_ADD_LISTENER(eventsManager, MouseDown);
 	_ADD_LISTENER(eventsManager, MouseUp);
 	_ADD_LISTENER(eventsManager, MouseMove);
-	_ADD_LISTENER(m_objEventsManager, SetRect);
+
+	m_objEventsManager = m_object->getEventsManager();
+	setUseOnSetRect(m_options.useOnSetRect);
 }
 
 void RZUF3_Clickable::deinit()
@@ -42,12 +42,13 @@ void RZUF3_Clickable::deinit()
 	_REMOVE_LISTENER(eventsManager, MouseDown);
 	_REMOVE_LISTENER(eventsManager, MouseUp);
 	_REMOVE_LISTENER(eventsManager, MouseMove);
-	_REMOVE_LISTENER(m_objEventsManager, SetRect);
+
+	setUseOnSetRect(false);
 	m_objEventsManager = nullptr;
 
 	removeOnHoverCursor();
 
-	m_isMouseOver = false;
+	m_isInside = false;
 	m_isLeftPressed = false;
 	m_isRightPressed = false;
 	m_lastX = 0;
@@ -56,14 +57,39 @@ void RZUF3_Clickable::deinit()
 
 void RZUF3_Clickable::setRect(SDL_Rect rect)
 {
-	m_rect = rect;
+	m_options.rect = rect;
+}
+
+void RZUF3_Clickable::setAlignment(RZUF3_Align alignment)
+{
+	m_options.alignment = alignment;
 }
 
 void RZUF3_Clickable::setOnHoverCursor(SDL_SystemCursor id)
 {
 	removeOnHoverCursor();
-	m_onHoverCursorId = id;
+	m_options.onHoverCursorId = id;
 	updateOnHoverCusror();
+}
+
+void RZUF3_Clickable::setUseOnSetRect(bool useOnSetRect)
+{
+	m_options.useOnSetRect = useOnSetRect;
+
+	if (useOnSetRect && !m_hasSetRectListener) {
+		_ADD_LISTENER(m_objEventsManager, SetRect);
+		m_hasSetRectListener = true;
+	}
+
+	if (!useOnSetRect && m_hasSetRectListener) {
+		_REMOVE_LISTENER(m_objEventsManager, SetRect);
+		m_hasSetRectListener = false;
+	}
+}
+
+void RZUF3_Clickable::setInsideOnly(bool insideOnly)
+{
+	m_options.insideOnly = insideOnly;
 }
 
 void RZUF3_Clickable::onUpdate(RZUF3_UpdateEvent* event)
@@ -83,17 +109,19 @@ void RZUF3_Clickable::onMouseDown(RZUF3_MouseDownEvent* event)
 {
 	int x = event->getX();
 	int y = event->getY();
-	RZUF3_Renderer::screenToRectXY(m_object, m_rect, x, y);
-	bool inside = RZUF3_Renderer::isXYInside(m_rect, x, y);
+	SDL_Rect rect = getAlignedRect();
+	RZUF3_Renderer::screenToRectXY(m_object, rect, x, y);
+	bool inside = RZUF3_Renderer::isXYInside(rect, x, y);
 
-	if (inside) {
+	if (inside || !m_options.insideOnly) {
 		if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = true;
 		if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = true;
 
 		RZUF3_MouseDownEvent objEvent(x, y, event->getButton());
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
-	else {
+
+	if (!inside) {
 		RZUF3_MouseDownOutsideEvent objEvent(x, y, event->getButton());
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
@@ -103,50 +131,67 @@ void RZUF3_Clickable::onMouseUp(RZUF3_MouseUpEvent* event)
 {
 	int x = event->getX();
 	int y = event->getY();
-	RZUF3_Renderer::screenToRectXY(m_object, m_rect, x, y);
+	SDL_Rect rect = getAlignedRect();
+	RZUF3_Renderer::screenToRectXY(m_object, rect, x, y);
 
 	if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = false;
 	if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = false;
 
-	if (!RZUF3_Renderer::isXYInside(m_rect, x, y)) return;
+	bool inside = RZUF3_Renderer::isXYInside(rect, x, y);
 
-	RZUF3_MouseUpEvent objEvent(x, y, event->getButton());
-	m_objEventsManager->dispatchEvent(&objEvent);
+	if (inside || !m_options.insideOnly) {
+		RZUF3_MouseUpEvent objEvent(x, y, event->getButton());
+		m_objEventsManager->dispatchEvent(&objEvent);
+	}
 }
 
 void RZUF3_Clickable::onMouseMove(RZUF3_MouseMoveEvent* event)
 {
 	int x = event->getX();
 	int y = event->getY();
-	RZUF3_Renderer::screenToRectXY(m_object, m_rect, x, y);
-	bool isMouseOverNow = RZUF3_Renderer::isXYInside(m_rect, x, y);
+	SDL_Rect rect = getAlignedRect();
+	RZUF3_Renderer::screenToRectXY(m_object, rect, x, y);
+	bool insideNow = RZUF3_Renderer::isXYInside(rect, x, y);
 	m_lastX = x;
 	m_lastY = y;
 
-	if (isMouseOverNow && !m_isMouseOver)
+	if (insideNow && !m_isInside)
 	{
-		if (m_onHoverCursor) SDL_SetCursor(m_onHoverCursor);
+		if (m_onHoverCursor) {
+			SDL_SetCursor(m_onHoverCursor);
+		}
+
 		RZUF3_MouseEnterEvent objEvent(x, y);
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
-	else if (!isMouseOverNow && m_isMouseOver)
+	else if (!insideNow && m_isInside)
 	{
-		SDL_Cursor* defCursor = SDL_GetDefaultCursor();
-		SDL_SetCursor(defCursor);
-		SDL_FreeCursor(defCursor);
+		if (m_onHoverCursor) {
+			SDL_Cursor* defCursor = SDL_GetDefaultCursor();
+			SDL_SetCursor(defCursor);
+			SDL_FreeCursor(defCursor);
+		}
+
 		RZUF3_MouseLeaveEvent objEvent(x, y);
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
 
-	m_isMouseOver = isMouseOverNow;
+	if (!insideNow && !m_isInside && m_options.insideOnly) {
+		m_isInside = insideNow;
+		return;
+	}
+
+	m_isInside = insideNow;
 	int movX = event->getMovX() / m_object->getAbsolutePos().scaleX;
 	int movY = event->getMovY() / m_object->getAbsolutePos().scaleY;
+
 	RZUF3_MouseMoveEvent objEvent(x, y, movX, movY);
 	m_objEventsManager->dispatchEvent(&objEvent);
 }
 
 void RZUF3_Clickable::onSetRect(RZUF3_SetRectEvent* event)
 {
+	if (!m_options.useOnSetRect) return;
 	setRect(event->getRect());
 }
 
@@ -154,9 +199,12 @@ void RZUF3_Clickable::removeOnHoverCursor()
 {
 	if (m_onHoverCursor == nullptr) return;
 
-	SDL_Cursor* defCursor = SDL_GetDefaultCursor();
-	SDL_SetCursor(defCursor);
-	SDL_FreeCursor(defCursor);
+	if (m_isInside) {
+		SDL_Cursor* defCursor = SDL_GetDefaultCursor();
+		SDL_SetCursor(defCursor);
+		SDL_FreeCursor(defCursor);
+	}
+
 	SDL_FreeCursor(m_onHoverCursor);
 	m_onHoverCursor = nullptr;
 }
@@ -164,9 +212,18 @@ void RZUF3_Clickable::removeOnHoverCursor()
 void RZUF3_Clickable::updateOnHoverCusror()
 {
 	if(m_onHoverCursor != nullptr) return;
-	if(m_onHoverCursorId < 0) return;
+	if(m_options.onHoverCursorId < 0) return;
 
-	m_onHoverCursor = SDL_CreateSystemCursor(m_onHoverCursorId);
+	m_onHoverCursor = SDL_CreateSystemCursor(m_options.onHoverCursorId);
 
-	if (m_isMouseOver) SDL_SetCursor(m_onHoverCursor);
+	if (m_isInside) {
+		SDL_SetCursor(m_onHoverCursor);
+	}
+}
+
+SDL_Rect RZUF3_Clickable::getAlignedRect()
+{
+	SDL_Rect rect = m_options.rect;
+	RZUF3_Renderer::alignRect(rect, m_options.alignment);
+	return rect;
 }

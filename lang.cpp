@@ -42,8 +42,16 @@ bool RZUF3_Lang::load()
 			continue;
 		}
 
+		accumulatedLine.erase(std::remove(accumulatedLine.begin(), accumulatedLine.end(), '\r'), accumulatedLine.end());
+		
+		size_t pos = accumulatedLine.find("\\n");
+		while (pos != std::string::npos) {
+			accumulatedLine.replace(pos, 2, "\n");
+			pos = accumulatedLine.find("\\n", pos + 1);
+		}
+
 		std::string key, value;
-		size_t pos = accumulatedLine.find('=');
+		pos = accumulatedLine.find('=');
 
 		if (pos == std::string::npos) {
 			spdlog::error("Language file: Invalid line: {}", accumulatedLine);

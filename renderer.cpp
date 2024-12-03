@@ -129,6 +129,40 @@ void RZUF3_Renderer::fillCircle(RZUF3_Object* parentObject, SDL_Rect rect)
 	}
 }
 
+bool RZUF3_Renderer::createStaticTexture(SDL_Texture* &texture, int width, int height)
+{
+	if (texture != nullptr) {
+		spdlog::error("createStaticTexture: Target texture should be nullptr");
+		return false;
+	}
+
+	SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+	if (surface == nullptr) {
+		spdlog::error("createStaticTexture: Failed to create surface: {}", SDL_GetError());
+		return false;
+	}
+
+	SDL_RenderReadPixels(
+		g_renderer->getSDLRenderer(),
+		nullptr,
+		SDL_PIXELFORMAT_ARGB8888,
+		surface->pixels,
+		surface->pitch
+	);
+
+	texture = SDL_CreateTextureFromSurface(g_renderer->getSDLRenderer(), surface);
+
+	if (texture == nullptr) {
+		spdlog::error("createStaticTexture: Failed to create texture: {}", SDL_GetError());
+		SDL_FreeSurface(surface);
+		return false;
+	}
+
+	SDL_FreeSurface(surface);
+
+	return true;
+}
+
 void RZUF3_Renderer::screenToObjectXY(RZUF3_Object* parentObject, int& x, int& y)
 {
 	RZUF3_Pos objectPos = parentObject->getAbsolutePos();

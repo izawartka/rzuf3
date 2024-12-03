@@ -1,4 +1,5 @@
 #include "text_renderer.h"
+#include "../assets/font.h"
 #include "../lang.h"
 
 RZUF3_TextRenderer::RZUF3_TextRenderer(std::string fontFilepath, std::string text)
@@ -24,7 +25,7 @@ void RZUF3_TextRenderer::init()
 	m_renderer = g_scene->getRenderer();
 
 	cacheLangFileText();
-	updateFont();
+	createFont();
 	updateTexture();
 	setUseOnDraw(m_options.useOnDraw);
 }
@@ -36,6 +37,7 @@ void RZUF3_TextRenderer::deinit()
 	removeFont();
 
 	m_renderer = nullptr;
+	m_cachedText = "";
 }
 
 void RZUF3_TextRenderer::setFontFilepath(std::string fontFilepath)
@@ -86,7 +88,7 @@ void RZUF3_TextRenderer::setStyle(RZUF3_TextStyle style)
 	removeTexture();
 	if (fontChanged) {
 		removeFont();
-		updateFont();
+		createFont();
 	}
 	updateTexture();
 }
@@ -104,16 +106,16 @@ void RZUF3_TextRenderer::setUseOnDraw(bool useOnDraw)
 {
 	m_options.useOnDraw = useOnDraw;
 
-	if (useOnDraw && !m_options.metricsOnly && !hasOnDrawListener) {
+	if (useOnDraw && !m_options.metricsOnly && !m_hasOnDrawListener) {
 		RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 		_ADD_LISTENER(eventsManager, Draw);
-		hasOnDrawListener = true;
+		m_hasOnDrawListener = true;
 	}
 
-	if (!useOnDraw && hasOnDrawListener) {
+	if ((!useOnDraw || m_options.metricsOnly) && m_hasOnDrawListener) {
 		RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 		_REMOVE_LISTENER(eventsManager, Draw);
-		hasOnDrawListener = false;
+		m_hasOnDrawListener = false;
 	}
 }
 
@@ -130,7 +132,17 @@ void RZUF3_TextRenderer::setAlignment(RZUF3_Align alignment)
 	m_options.alignment = alignment;
 }
 
+void RZUF3_TextRenderer::setMetricsOnly(bool metricsOnly)
+{
+	m_options.metricsOnly = metricsOnly;
+	setUseOnDraw(m_options.useOnDraw);
+
+	removeTexture();
+	updateTexture();
+}
+
 /* texture space x and y */
+/* does not work with wrapping */
 int RZUF3_TextRenderer::pointToCharIndex(int x, int y)
 {
 	if(m_font == nullptr) return -1;
@@ -138,6 +150,9 @@ int RZUF3_TextRenderer::pointToCharIndex(int x, int y)
 	int lineHeight = TTF_FontHeight(m_font);
 
 	int targetLineIndex = y / lineHeight;
+	if(y < 0) targetLineIndex = 0;
+	if(y >= m_origSize.h) targetLineIndex = m_origSize.h / lineHeight - 1;
+
 	int targetLineStart = 0;
 	int targetLineEnd = m_cachedText.size();
 
@@ -157,6 +172,47 @@ int RZUF3_TextRenderer::pointToCharIndex(int x, int y)
 	if(charIndex > targetLineLength) charIndex = targetLineLength;
 
 	return targetLineStart + charIndex;
+}
+
+bool RZUF3_TextRenderer::charIndexToPoint(int index, int& x, int& y)
+{
+	if (m_font == nullptr) return false;
+	if (index < 0 || index > m_cachedText.size()) return false;
+
+	int lineHeight = TTF_FontHeight(m_font);
+
+	if(m_cachedText.size() == 0)
+	{
+		x = 0;
+		y = lineHeight;
+		return true;
+	}
+
+	int nextLineIndex = 0;
+	int targetLineStart = 0;
+	int targetLineEnd = -1;
+	bool endsWithNewline = m_cachedText.back() == '\n';
+
+	while (targetLineEnd < index)
+	{
+		nextLineIndex++;
+		targetLineStart = targetLineEnd + 1;
+		targetLineEnd = m_cachedText.find('\n', targetLineStart);
+		if (targetLineEnd == std::string::npos) targetLineEnd = m_cachedText.size();
+	}
+
+	int targetLineLength = targetLineEnd - targetLineStart;
+
+	int charIndex = index - targetLineStart;
+
+	std::string targetLineText = m_cachedText.substr(targetLineStart, targetLineLength) + "-";
+	std::string targetText = targetLineText.substr(0, charIndex);
+
+	TTF_SizeUTF8(m_font, targetText.c_str(), &x, nullptr);
+
+	y = nextLineIndex * lineHeight;
+
+	return true;
 }
 
 void RZUF3_TextRenderer::draw()
@@ -191,6 +247,11 @@ void RZUF3_TextRenderer::draw()
 	);
 }
 
+SDL_Texture* RZUF3_TextRenderer::getTexture() const
+{
+	return m_texture;
+}
+
 RZUF3_TextStyle RZUF3_TextRenderer::getStyle() const
 {
 	return m_options.style;
@@ -211,6 +272,27 @@ bool RZUF3_TextRenderer::getUseOnDraw() const
 	return m_options.useOnDraw;
 }
 
+int RZUF3_TextRenderer::getFontAscent() const
+{
+	if (m_font == nullptr) return 0;
+
+	return TTF_FontAscent(m_font);
+}
+
+int RZUF3_TextRenderer::getFontDescent() const
+{
+	if (m_font == nullptr) return 0;
+
+	return TTF_FontDescent(m_font);
+}
+
+int RZUF3_TextRenderer::getFontHeight() const
+{
+	if (m_font == nullptr) return 0;
+
+	return TTF_FontHeight(m_font);
+}
+
 void RZUF3_TextRenderer::onDraw(RZUF3_DrawEvent* event)
 {
 	if (!m_options.useOnDraw || m_options.metricsOnly) return;
@@ -219,46 +301,40 @@ void RZUF3_TextRenderer::onDraw(RZUF3_DrawEvent* event)
 
 void RZUF3_TextRenderer::removeFont()
 {
-	if (m_font == nullptr) return;
+	m_font == nullptr;
 
-	TTF_CloseFont(m_font);
-	m_font = nullptr;
-
-	spdlog::info("Unloaded font: {}", this->m_options.style.fontFilepath);
+	if (m_fontAsset != nullptr) g_scene->getAssetsManager()->removeAsset(m_fontAsset->getFilepath());
 }
 
-void RZUF3_TextRenderer::updateFont()
+void RZUF3_TextRenderer::createFont()
 {
-	if (this->m_options.style.fontFilepath == "") {
-		spdlog::error("Font filepath is empty");
+	if (m_options.style.fontFilepath == "") {
+		spdlog::error("TextRenderer: Font filepath is empty");
 		return;
 	}
 
-	this->m_font = TTF_OpenFont(this->m_options.style.fontFilepath.c_str(), 24);
+	m_fontAsset = (RZUF3_Font*)(g_scene->getAssetsManager()->addAsset({ 
+		m_options.style.fontFilepath, 
+		RZUF3_Font::getInstance 
+	}));
 
-	if (this->m_font == nullptr)
-	{
-		spdlog::error("Font {} not found", this->m_options.style.fontFilepath);
-		return;
-	}
-
-	spdlog::info("Loaded font: {}", this->m_options.style.fontFilepath);
+	m_font = m_fontAsset == nullptr ? nullptr : (TTF_Font*)m_fontAsset->getContent();
 }
 
 void RZUF3_TextRenderer::removeTexture()
 {
-	if (this->m_texture == nullptr) return;
+	if (m_texture == nullptr) return;
 
-	SDL_DestroyTexture(this->m_texture);
-	this->m_texture = nullptr;
+	SDL_DestroyTexture(m_texture);
+	m_texture = nullptr;
 }
 
 void RZUF3_TextRenderer::updateTexture()
 {
-	if (this->m_font == nullptr) return;
+	if (m_font == nullptr) return;
 
-	TTF_SetFontStyle(m_font, m_options.style.style);
 	TTF_SetFontSize(m_font, m_options.style.size);
+	TTF_SetFontStyle(m_font, m_options.style.style);
 
 	if (m_cachedText == "") {
 		m_origSize.w = 0;
@@ -275,7 +351,7 @@ void RZUF3_TextRenderer::updateTexture()
 	}
 
 	SDL_Surface* surface = TTF_RenderUTF8_LCD_Wrapped(
-		this->m_font,
+		m_font,
 		m_cachedText.c_str(),
 		m_options.style.color, 
 		m_options.style.bgColor, 
@@ -288,7 +364,7 @@ void RZUF3_TextRenderer::updateTexture()
 		return;
 	}
 
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(this->m_renderer->getSDLRenderer(), surface);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(m_renderer->getSDLRenderer(), surface);
 	SDL_SetTextureBlendMode(texture, m_options.style.blendMode);
 
 	SDL_FreeSurface(surface);
@@ -299,14 +375,12 @@ void RZUF3_TextRenderer::updateTexture()
 		return;
 	}
 
-	this->m_texture = texture;
+	m_texture = texture;
 
-	SDL_QueryTexture(this->m_texture, nullptr, nullptr, &m_origSize.w, &m_origSize.h);
+	SDL_QueryTexture(m_texture, nullptr, nullptr, &m_origSize.w, &m_origSize.h);
 }
 
 void RZUF3_TextRenderer::cacheLangFileText()
 {
-	std::string text = m_options.useLangFile ? g_lang->getText(m_options.text) : m_options.text;
-
-	m_cachedText = text;
+	m_cachedText = m_options.useLangFile ? g_lang->getText(m_options.text) : m_options.text;
 }

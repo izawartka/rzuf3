@@ -31,6 +31,8 @@ public:
 	void setClearColor(SDL_Color color) { m_clearColor = color; }
 	void requestTextInput(std::string id, SDL_Rect rect);
 	void stopTextInput(std::string id);
+	bool copyToClipboard(std::string text);
+	std::string getClipboardText();
 
 	void setScene(RZUF3_SceneDefinition* sceneDefinition);
 

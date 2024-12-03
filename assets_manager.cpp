@@ -20,6 +20,12 @@ RZUF3_AssetsManager::~RZUF3_AssetsManager()
 
 RZUF3_Asset* RZUF3_AssetsManager::addAsset(RZUF3_AssetDefinition assetDefinition)
 {
+	if(assetDefinition.filepath.empty())
+	{
+		spdlog::error("Filepath of the asset to add is empty");
+		return nullptr;
+	}
+
 	auto it = m_assets.find(assetDefinition.filepath);
 
 	if (it != m_assets.end())
@@ -59,6 +65,12 @@ std::vector<RZUF3_Asset*> RZUF3_AssetsManager::addAssets(std::vector<RZUF3_Asset
 
 bool RZUF3_AssetsManager::removeAsset(std::string filename)
 {
+	if(filename.empty())
+	{
+		spdlog::error("Filepath of the asset to remove is empty");
+		return false;
+	}
+
 	auto it = m_assets.find(filename);
 
 	if (it == m_assets.end())
@@ -93,17 +105,18 @@ void RZUF3_AssetsManager::removeAssets(std::vector<std::string> filepaths)
 
 RZUF3_Asset* RZUF3_AssetsManager::getAsset(std::string filepath)
 {
-	return m_assets[filepath];
-}
-
-void* RZUF3_AssetsManager::getAssetContent(std::string filepath)
-{
 	auto it = m_assets.find(filepath);
 
 	if (it == m_assets.end())
 	{
+		spdlog::error("Asset {} is not loaded", filepath);
 		return nullptr;
 	}
 
-	return it->second->getContent();
+	return it->second;
+}
+
+void* RZUF3_AssetsManager::getAssetContent(std::string filepath)
+{
+	return getAsset(filepath)->getContent();
 }
