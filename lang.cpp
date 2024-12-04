@@ -83,7 +83,7 @@ bool RZUF3_Lang::load()
 
 std::string RZUF3_Lang::getText(std::string key)
 {
-	if (!m_loaded) return key;
+	if (this == nullptr || !m_loaded) return key;
 
 	auto it = m_texts.find(key);
 

@@ -48,7 +48,7 @@ public:
 	void deinit();
 
 	void setMaxChars(int maxChars);
-	void setStyle(RZUF3_TextInputStyle style);
+	void setStyle(RZUF3_TextInputStyle style, bool focused);
 	void setFocusedStyle(RZUF3_TextInputStyle style);
 	void setText(std::string text);
 	void setMultiline(bool multiline);
@@ -58,7 +58,7 @@ public:
 	void addText(std::string text, bool noNewLineCheck = false);
 	void removeText(bool backspace);
 
-	RZUF3_TextInputStyle* getStyle(bool focused);
+	RZUF3_TextInputStyle getStyle(bool focused) const;
 	std::string getText() const;
 	bool getMultiline() const;
 	bool getFocused() const;
@@ -77,6 +77,7 @@ protected:
 	void onKeyDown(RZUF3_KeyDownEvent* event);
 	void onKeyUp(RZUF3_KeyUpEvent* event);
 
+	RZUF3_TextInputStyle* getCurrentStylePtr();
 	void removeTextRenderer();
 	void createTextRenderer();
 	void updateTextRenderer();

@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "events/events.h"
 #include "lang.h"
+#include "config_file.h"
 
 #define RZUF3_GAME_FPS 60
 
@@ -13,7 +14,9 @@ public:
 	RZUF3_Game();
 	~RZUF3_Game();
 
+	bool addConfigFile(RZUF3_ConfigFileDef def);
 	void loadLanguage(std::string filepath);
+	void loadLanguageFromConfigFile(std::string basepath, std::string valueKey);
 	void initWindow(int width, int height, bool fullscreen);
 	void startGameLoop();
 
@@ -32,12 +35,13 @@ public:
 	void requestTextInput(std::string id, SDL_Rect rect);
 	void stopTextInput(std::string id);
 	bool copyToClipboard(std::string text);
-	std::string getClipboardText();
 
 	void setScene(RZUF3_SceneDefinition* sceneDefinition);
 
 	bool isRunning() const { return m_isRunning; }
 	void getWindowSize(int* width, int* height) const;
+	std::string getClipboardText();
+	RZUF3_ConfigFile* getConfigFile(std::string id = "");
 
 private:
 	void update(double dt);
@@ -54,6 +58,8 @@ private:
 	RZUF3_Lang* m_lang = nullptr;
 	std::string m_currentTextInputId = "";
 	SDL_Color m_clearColor = { 0, 0, 0, 255 };
+	std::map<std::string, RZUF3_ConfigFile*> m_configFiles;
+	RZUF3_ConfigFile* m_defaultConfigFile = nullptr;
 };
 
 extern RZUF3_Game* g_game;

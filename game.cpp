@@ -4,6 +4,7 @@
 #include "scene.h"
 #include "events_manager.h"
 #include "event_macros.h"
+#include "config_file.h"
 
 RZUF3_Game* g_game = nullptr;
 
@@ -21,12 +22,64 @@ RZUF3_Game::~RZUF3_Game()
 	g_game = nullptr;
 }
 
+bool RZUF3_Game::addConfigFile(RZUF3_ConfigFileDef def)
+{
+	auto it = m_configFiles.find(def.filepath);
+	if (it != m_configFiles.end())
+	{
+		spdlog::warn("Config file {} is already loaded", def.filepath);
+		return false;
+	}
+
+	RZUF3_ConfigFile* configFile = new RZUF3_ConfigFile(def);
+
+	m_configFiles[def.filepath] = configFile;
+
+	if (def.isDefaultConfig) {
+		if (m_defaultConfigFile != nullptr) {
+			spdlog::warn("Trying to set {} as default config file, but {} is already set", def.filepath, m_defaultConfigFile->getFilepath());
+			return false;
+		}
+
+		m_defaultConfigFile = configFile;
+	}
+
+	return true;
+}
+
 void RZUF3_Game::loadLanguage(std::string filepath)
 {
 	if(m_lang != nullptr) delete m_lang;
 
 	m_lang = new RZUF3_Lang(filepath);
 	m_lang->load();
+}
+
+void RZUF3_Game::loadLanguageFromConfigFile(std::string basepath, std::string valueKey)
+{
+	if(m_defaultConfigFile == nullptr)
+	{
+		spdlog::error("Cannot load language file from config file, no default config file set");
+		return;
+	}
+
+	std::string filename = m_defaultConfigFile->getValue(valueKey);
+	
+	if(filename == "")
+	{
+		spdlog::error("Cannot load language file from config file, key {} not found", valueKey);
+		return;
+	}
+
+	if(filename.find("..") != std::string::npos || filename.find("/") != std::string::npos || filename.find("\\") != std::string::npos)
+	{
+		spdlog::error("Cannot load language file from config file, invalid filename");
+		return;
+	}
+
+	std::string filepath = basepath + filename;
+
+	loadLanguage(filepath);
 }
 
 void RZUF3_Game::initWindow(int width, int height, bool fullscreen)
@@ -120,7 +173,7 @@ void RZUF3_Game::quit()
 
 void RZUF3_Game::setWindowTitle(std::string title, bool useLangFile)
 {
-	if(useLangFile) title = m_lang->getText(title);
+	if(useLangFile && m_lang != nullptr) title = m_lang->getText(title);
 	SDL_SetWindowTitle(m_window, title.c_str());
 }
 
@@ -227,16 +280,6 @@ bool RZUF3_Game::copyToClipboard(std::string text)
 	return SDL_SetClipboardText(text.c_str()) == 0;
 }
 
-std::string RZUF3_Game::getClipboardText()
-{
-	char* text = SDL_GetClipboardText();
-	if (text == nullptr) return "";
-	std::string result(text);
-	SDL_free(text);
-
-	return result;
-}
-
 void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 {
 	if (this->m_scene != nullptr)
@@ -257,6 +300,36 @@ void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 void RZUF3_Game::getWindowSize(int* width, int* height) const
 {
 	SDL_GetWindowSize(m_window, width, height);
+}
+
+std::string RZUF3_Game::getClipboardText()
+{
+	char* text = SDL_GetClipboardText();
+	if (text == nullptr) return "";
+	std::string result(text);
+	SDL_free(text);
+
+	return result;
+}
+
+RZUF3_ConfigFile* RZUF3_Game::getConfigFile(std::string id)
+{
+	if (id == "") {
+		if (m_defaultConfigFile == nullptr) {
+			spdlog::warn("Trying to access default config file, but none is set");
+			return nullptr;
+		}
+
+		return m_defaultConfigFile;
+	}
+
+	auto it = m_configFiles.find(id);
+	if (it == m_configFiles.end()) {
+		spdlog::warn("Config file {} not found", id);
+		return nullptr;
+	}
+
+	return it->second;
 }
 
 void RZUF3_Game::update(double dt)
@@ -353,5 +426,12 @@ void RZUF3_Game::clean()
 	SDL_Quit();
 	IMG_Quit();
 	TTF_Quit();
+
 	delete m_lang;
+
+	if(m_defaultConfigFile != nullptr) m_defaultConfigFile = nullptr;
+	for (auto& config : m_configFiles)
+	{
+		delete config.second;
+	}
 }

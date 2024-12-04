@@ -77,9 +77,10 @@ void RZUF3_TextInput::setMaxChars(int maxChars)
 	controlledSetText(m_text);
 }
 
-void RZUF3_TextInput::setStyle(RZUF3_TextInputStyle style)
+void RZUF3_TextInput::setStyle(RZUF3_TextInputStyle style, bool focused)
 {
-	m_options.style = style;
+	if(focused) m_options.focusedStyle = style;
+	else m_options.style = style;
 
 	updateStyle();
 	updateTextRenderer();
@@ -138,7 +139,7 @@ void RZUF3_TextInput::setCursorPosFromXY(int x, int y)
 {
 	if (m_textRenderer == nullptr) return;
 
-	RZUF3_TextInputStyle* style = getStyle(m_isFocused);
+	RZUF3_TextInputStyle* style = getCurrentStylePtr();
 
 	x += m_scrollX - style->horizontalPadding;
 	y += m_scrollY - style->verticalPadding;
@@ -191,9 +192,9 @@ void RZUF3_TextInput::removeText(bool backspace)
 	setCursorPos(newCursorPos);
 }
 
-RZUF3_TextInputStyle* RZUF3_TextInput::getStyle(bool focused)
+RZUF3_TextInputStyle RZUF3_TextInput::getStyle(bool focused) const
 {
-	return focused ? &m_options.focusedStyle : &m_options.style;
+	return focused ? m_options.focusedStyle : m_options.style;
 }
 
 std::string RZUF3_TextInput::getText() const
@@ -215,7 +216,7 @@ SDL_Rect RZUF3_TextInput::getBorderRect(bool focused)
 {
 	if (m_textRenderer == nullptr) return { 0, 0, 0, 0 };
 
-	RZUF3_TextInputStyle* style = getStyle(focused);
+	RZUF3_TextInputStyle* style = getCurrentStylePtr();
 
 	int textWidth = m_textRenderer->getWidth();
 	int textHeight = m_textRenderer->getHeight();
@@ -233,6 +234,7 @@ SDL_Rect RZUF3_TextInput::getBorderRect(bool focused)
 
 void RZUF3_TextInput::onMouseDown(RZUF3_MouseDownEvent* event)
 {
+	if(event->getButton() != SDL_BUTTON_LEFT) return;
 	setFocused(true);
 
 	int x = event->getX();
@@ -243,6 +245,7 @@ void RZUF3_TextInput::onMouseDown(RZUF3_MouseDownEvent* event)
 
 void RZUF3_TextInput::onMouseDownOutside(RZUF3_MouseDownOutsideEvent* event)
 {
+	if (event->getButton() != SDL_BUTTON_LEFT) return;
 	if (!m_isFocused) return;
 
 	setFocused(false);
@@ -277,7 +280,7 @@ void RZUF3_TextInput::onTimer(RZUF3_TimerEvent* event)
 void RZUF3_TextInput::onDraw(RZUF3_DrawEvent* event)
 {
 	RZUF3_Object* obj = m_object;
-	RZUF3_TextInputStyle* style = getStyle(m_isFocused);
+	RZUF3_TextInputStyle* style = getCurrentStylePtr();
 	SDL_Rect borderRect = getBorderRect(m_isFocused);
 
 	m_renderer->setAlign(RZUF3_Align_TopLeft);
@@ -457,12 +460,17 @@ void RZUF3_TextInput::controlledSetText(std::string text, bool noNewLineCheck)
 	updateCursorRectAndScroll();
 }
 
+RZUF3_TextInputStyle* RZUF3_TextInput::getCurrentStylePtr()
+{
+	return m_isFocused ? &m_options.focusedStyle : &m_options.style;
+}
+
 void RZUF3_TextInput::updateStyle()
 {
 	if (m_textRenderer == nullptr) return;
 	if (m_clickable == nullptr) return;
 
-	RZUF3_TextInputStyle* style = getStyle(m_isFocused);
+	RZUF3_TextInputStyle* style = getCurrentStylePtr();
 
 	m_textRenderer->setStyle(style->textStyle);
 
@@ -497,7 +505,7 @@ void RZUF3_TextInput::updateCursorRectAndScroll()
 	m_textRenderer->charIndexToPoint(cursorPos, x, y);
 	int lineHeight = m_textRenderer->getFontHeight();
 
-	RZUF3_TextInputStyle* style = getStyle(m_isFocused);
+	RZUF3_TextInputStyle* style = getCurrentStylePtr();
 
 	m_cachedCursorRect = {
 		style->horizontalPadding + style->rect.x + x - m_scrollX,

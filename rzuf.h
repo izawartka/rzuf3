@@ -15,6 +15,7 @@
 #include "anchor.h"
 #include "renderer.h"
 #include "strings_helper.h"
+#include "config_file.h"
 #include "lang.h"
 #include "text_style.h"
 
