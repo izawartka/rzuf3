@@ -219,9 +219,16 @@ void RZUF3_TextButton::onMouseDown(RZUF3_MouseDownEvent* event)
 
 void RZUF3_TextButton::onMouseUp(RZUF3_MouseUpEvent* event)
 {
+	bool wasPressed = m_state == RZUF3_TextButtonState::Pressed;
+
 	RZUF3_TextButtonState targetState = m_options.highlighted ? RZUF3_TextButtonState::NormalHighlighted : RZUF3_TextButtonState::Normal;
 	if(m_clickable->isInside()) targetState = RZUF3_TextButtonState::Hover;
 	setState(targetState);
+
+	if (wasPressed && m_clickable->isInside()) {
+		RZUF3_UIButtonClickEvent buttonEvent;
+		m_object->getEventsManager()->dispatchEvent(&buttonEvent);
+	}
 }
 
 void RZUF3_TextButton::onSetRect(RZUF3_SetRectEvent* event)

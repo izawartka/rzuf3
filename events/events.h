@@ -18,6 +18,7 @@
 #include "set_anchor.h"
 #include "get_anchor.h"
 #include "set_rect_event.h"
+#include "ui_button_click.h"
 #include "ui_value_change.h"
 #include "ui_set_value.h"
 #include "window_resize.h"
