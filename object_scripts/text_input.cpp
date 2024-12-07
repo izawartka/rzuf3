@@ -16,17 +16,13 @@ void RZUF3_TextInput::init()
 	m_options = mp_options;
 	setText(mp_options.text);
 
-	m_renderer = g_scene->getRenderer();
-
-	m_clickable = new RZUF3_Clickable();
-	m_object->addScript(m_clickable);
-	m_clickable->setOnHoverCursor(SDL_SYSTEM_CURSOR_IBEAM);
-
 	m_blinkTimer = new RZUF3_Timer("blinkTimer", 0);
 	m_object->addScript(m_blinkTimer);
 
+	createClickable(); // main clickable must be created first so it can set focus on text renderer before text renderer's clickable sends its events
 	createTextRenderer();
-	updateStyle();
+	updateClickable(); // then its rect has to be updated in case of dynamic text size
+	createBorderBox();
 
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_ADD_LISTENER(objEventsManager, MouseDown);
@@ -58,16 +54,21 @@ void RZUF3_TextInput::deinit()
 	_REMOVE_LISTENER(eventsManager, KeyDown);
 
 	removeTextRenderer();
-
-	m_object->removeScript(m_clickable);
-	delete m_clickable;
-	m_clickable = nullptr;
+	removeClickable();
+	removeBorderBox();
 
 	m_object->removeScript(m_blinkTimer);
 	delete m_blinkTimer;
 	m_blinkTimer = nullptr;
 
-	m_renderer = nullptr;
+	m_text.clear();
+	m_isFocused = false;
+	m_isBlinking = false;
+	m_scrollX = 0;
+	m_scrollY = 0;
+	m_cachedCursorRect = { 0, 0, 0, 0 };
+	m_isCtrlDown = false;
+	m_isShiftDown = false;
 }
 
 void RZUF3_TextInput::setMaxChars(int maxChars)
@@ -82,17 +83,11 @@ void RZUF3_TextInput::setStyle(RZUF3_TextInputStyle style, bool focused)
 	if(focused) m_options.focusedStyle = style;
 	else m_options.style = style;
 
-	updateStyle();
-	updateTextRenderer();
-	updateCursorRectAndScroll();
-}
+	if(focused != m_isFocused) return;
 
-void RZUF3_TextInput::setFocusedStyle(RZUF3_TextInputStyle style)
-{
-	m_options.focusedStyle = style;
-
-	updateStyle();
-	updateTextRenderer();
+	updateTextRendererStyle();
+	updateBorderBox();
+	updateClickable();
 	updateCursorRectAndScroll();
 }
 
@@ -160,7 +155,7 @@ void RZUF3_TextInput::addText(std::string text, bool noNewLineCheck)
 	std::string newText = m_text;
 
 	if(start != end) {
-		newText = newText.erase(start, start - end);
+		newText = newText.erase(start, end - start);
 	}
 	newText = newText.insert(start, text);
 	int newCursorPos = start + text.size();
@@ -192,26 +187,6 @@ void RZUF3_TextInput::removeText(bool backspace)
 	setCursorPos(newCursorPos);
 }
 
-RZUF3_TextInputStyle RZUF3_TextInput::getStyle(bool focused) const
-{
-	return focused ? m_options.focusedStyle : m_options.style;
-}
-
-std::string RZUF3_TextInput::getText() const
-{
-	return m_text;
-}
-
-bool RZUF3_TextInput::getMultiline() const
-{
-	return m_options.multiline;
-}
-
-bool RZUF3_TextInput::getFocused() const
-{
-	return m_isFocused;
-}
-
 SDL_Rect RZUF3_TextInput::getBorderRect(bool focused)
 {
 	if (m_textRenderer == nullptr) return { 0, 0, 0, 0 };
@@ -237,10 +212,7 @@ void RZUF3_TextInput::onMouseDown(RZUF3_MouseDownEvent* event)
 	if(event->getButton() != SDL_BUTTON_LEFT) return;
 	setFocused(true);
 
-	int x = event->getX();
-	int y = event->getY();
-
-	setCursorPosFromXY(x, y);
+	m_textRenderer->setFocused(true);
 }
 
 void RZUF3_TextInput::onMouseDownOutside(RZUF3_MouseDownOutsideEvent* event)
@@ -266,7 +238,9 @@ void RZUF3_TextInput::onSetRect(RZUF3_SetRectEvent* event)
 	m_options.style.rect = rect;
 	m_options.focusedStyle.rect = rect;
 
-	updateStyle();
+	updateTextRendererStyle();
+	updateBorderBox();
+	updateClickable();
 	updateCursorRectAndScroll();
 }
 
@@ -281,20 +255,14 @@ void RZUF3_TextInput::onDraw(RZUF3_DrawEvent* event)
 {
 	RZUF3_Object* obj = m_object;
 	RZUF3_TextInputStyle* style = getCurrentStylePtr();
-	SDL_Rect borderRect = getBorderRect(m_isFocused);
 
-	m_renderer->setAlign(RZUF3_Align_TopLeft);
-	m_renderer->setColor(style->bgColor);
-	m_renderer->fillRect(obj, borderRect);
-	m_renderer->setColor(style->borderColor);
-	m_renderer->drawRect(obj, borderRect, style->borderWidth);
-
+	if (m_borderBox) m_borderBox->draw();
 	if (m_textRenderer) m_textRenderer->draw();
 
 	if (m_isBlinking && m_isFocused) {
-		m_renderer->setColor(style->blinkColor);
-		m_renderer->setAlign(RZUF3_Align_TopLeft);
-		m_renderer->fillRect(obj, m_cachedCursorRect);
+		g_renderer->setColor(style->blinkColor);
+		g_renderer->setAlign(RZUF3_Align_TopLeft);
+		g_renderer->fillRect(obj, m_cachedCursorRect);
 	}
 }
 
@@ -308,7 +276,9 @@ void RZUF3_TextInput::onTextInputFocus(RZUF3_TextInputFocusEvent* event)
 		m_textRenderer->setForceFocus(m_isFocused);
 	}
 
-	updateStyle();
+	updateTextRendererStyle();
+	updateClickable();
+	updateBorderBox();
 	updateCursorRectAndScroll();
 }
 
@@ -381,6 +351,55 @@ void RZUF3_TextInput::onKeyUp(RZUF3_KeyUpEvent* event)
 	}
 }
 
+void RZUF3_TextInput::controlledSetText(std::string text, bool noNewLineCheck)
+{
+	if (!m_options.multiline && !noNewLineCheck) {
+		size_t pos = text.find("\n");
+		if (pos != std::string::npos) {
+			text = text.substr(0, pos);
+		}
+	}
+
+	int maxChars = m_options.maxChars;
+	if (maxChars > 0 && text.size() > maxChars) {
+		text = text.substr(0, maxChars);
+	}
+
+	m_text = text;
+
+	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
+	RZUF3_UIStringValueChangeEvent objEvent(m_text);
+	objEventsManager->dispatchEvent(&objEvent);
+
+	if(m_textRenderer) m_textRenderer->setText(m_text, false);
+
+	updateClickable();
+	updateBorderBox();
+	updateCursorRectAndScroll();
+}
+
+void RZUF3_TextInput::updateTextRendererStyle()
+{
+	if (m_textRenderer == nullptr) return;
+
+	RZUF3_TextInputStyle* style = getCurrentStylePtr();
+
+	m_textRenderer->setStyle(style->textStyle);
+
+	m_textRenderer->setDstPos(
+		style->rect.x + style->horizontalPadding,
+		style->rect.y + style->verticalPadding
+	);
+
+	m_textRenderer->setMaxSize(
+		style->rect.w ? (style->rect.w - style->horizontalPadding * 2) : 0,
+		style->rect.h ? (style->rect.h - style->verticalPadding * 2) : 0
+	);
+
+	m_blinkTimer->setInterval(style->blinkTime);
+	m_blinkTimer->setEnabled(m_isFocused);
+}
+
 void RZUF3_TextInput::removeTextRenderer()
 {
 	if(m_textRenderer == nullptr) return;
@@ -398,15 +417,20 @@ void RZUF3_TextInput::removeTextRenderer()
 void RZUF3_TextInput::createTextRenderer()
 {
 	if(m_textRenderer != nullptr) return;
+	RZUF3_TextInputStyle* style = getCurrentStylePtr();
 
 	RZUF3_TextSelRendererOptions textRendererOptions;
-	textRendererOptions.style = mp_options.style.textStyle;
+	textRendererOptions.style = m_options.style.textStyle;
 	textRendererOptions.text = m_text;
 	textRendererOptions.useLangFile = false;
 	textRendererOptions.alignment = RZUF3_Align_TopLeft;
 	textRendererOptions.useOnDraw = false;
 	textRendererOptions.useOnHoverCursor = false;
 	textRendererOptions.preventCtrlX = true;
+	textRendererOptions.dstRect.x = style->rect.x + style->horizontalPadding;
+	textRendererOptions.dstRect.y = style->rect.y + style->verticalPadding;
+	textRendererOptions.cropRect.w = style->rect.w ? (style->rect.w - style->horizontalPadding * 2) : 0;
+	textRendererOptions.cropRect.h = style->rect.h ? (style->rect.h - style->verticalPadding * 2) : 0;
 
 	m_textRenderer = new RZUF3_TextSelRenderer(textRendererOptions);
 
@@ -429,35 +453,63 @@ void RZUF3_TextInput::createTextRenderer()
 	_ADD_LISTENER(textRendererObject->getEventsManager(), TextSelectionChange);
 }
 
-void RZUF3_TextInput::updateTextRenderer()
+void RZUF3_TextInput::removeBorderBox()
 {
-	if (m_textRenderer == nullptr) return;
+	if(m_borderBox == nullptr) return;
 
-	m_textRenderer->setText(m_text);
+	m_object->removeScript(m_borderBox);
+	delete m_borderBox;
+	m_borderBox = nullptr;
 }
 
-void RZUF3_TextInput::controlledSetText(std::string text, bool noNewLineCheck)
+void RZUF3_TextInput::createBorderBox()
 {
-	if (!m_options.multiline && !noNewLineCheck) {
-		size_t pos = text.find("\n");
-		if (pos != std::string::npos) {
-			text = text.substr(0, pos);
-		}
-	}
+	if(m_borderBox != nullptr) return;
 
-	int maxChars = m_options.maxChars;
-	if (maxChars > 0 && text.size() > maxChars) {
-		text = text.substr(0, maxChars);
-	}
+	RZUF3_BorderBoxOptions borderBoxOptions;
+	borderBoxOptions.style = getCurrentStylePtr()->borderBoxStyle;
+	borderBoxOptions.useOnDraw = false;
+	borderBoxOptions.useOnSetRect = false;
+	borderBoxOptions.rect = getBorderRect(m_isFocused);
 
-	m_text = text;
+	m_borderBox = new RZUF3_BorderBox(borderBoxOptions);
+	m_object->addScript(m_borderBox);
+}
 
-	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
-	RZUF3_UIStringValueChangeEvent objEvent(m_text);
-	objEventsManager->dispatchEvent(&objEvent);
+void RZUF3_TextInput::updateBorderBox()
+{
+	if(m_borderBox == nullptr) return;
 
-	updateTextRenderer();
-	updateCursorRectAndScroll();
+	m_borderBox->setStyle(getCurrentStylePtr()->borderBoxStyle);
+	m_borderBox->setRect(getBorderRect(m_isFocused));
+}
+
+void RZUF3_TextInput::removeClickable()
+{
+	if(m_clickable == nullptr) return;
+
+	m_object->removeScript(m_clickable);
+	delete m_clickable;
+	m_clickable = nullptr;
+}
+
+void RZUF3_TextInput::createClickable()
+{
+	if(m_clickable != nullptr) return;
+
+	RZUF3_ClickableOptions clickableOptions;
+	clickableOptions.onHoverCursorId = SDL_SYSTEM_CURSOR_IBEAM;
+	clickableOptions.rect = getBorderRect(m_isFocused);
+
+	m_clickable = new RZUF3_Clickable(clickableOptions);
+	m_object->addScript(m_clickable);
+}
+
+void RZUF3_TextInput::updateClickable()
+{
+	if(m_clickable == nullptr) return;
+
+	m_clickable->setRect(getBorderRect(m_isFocused));
 }
 
 RZUF3_TextInputStyle* RZUF3_TextInput::getCurrentStylePtr()
@@ -465,37 +517,7 @@ RZUF3_TextInputStyle* RZUF3_TextInput::getCurrentStylePtr()
 	return m_isFocused ? &m_options.focusedStyle : &m_options.style;
 }
 
-void RZUF3_TextInput::updateStyle()
-{
-	if (m_textRenderer == nullptr) return;
-	if (m_clickable == nullptr) return;
-
-	RZUF3_TextInputStyle* style = getCurrentStylePtr();
-
-	m_textRenderer->setStyle(style->textStyle);
-
-	m_textRenderer->setDstPos(
-		style->rect.x + style->horizontalPadding,
-		style->rect.y + style->verticalPadding
-	);
-
-	m_textRenderer->setMaxSize(
-		style->rect.w ? (style->rect.w - style->horizontalPadding * 2) : 0,
-		style->rect.h ? (style->rect.h - style->verticalPadding * 2) : 0
-	);
-
-	m_clickable->setRect({
-		style->rect.x,
-		style->rect.y,
-		style->rect.w ? style->rect.w : m_textRenderer->getWidth() + style->horizontalPadding * 2,
-		style->rect.h ? style->rect.h : m_textRenderer->getHeight() + style->verticalPadding * 2
-	});
-
-	m_blinkTimer->setInterval(style->blinkTime);
-	m_blinkTimer->setEnabled(m_isFocused);
-}
-
-void RZUF3_TextInput::updateCursorRectAndScroll()
+void RZUF3_TextInput::updateCursorRectAndScroll(bool noAutoscroll)
 {
 	if(!m_textRenderer) return;
 
@@ -514,26 +536,28 @@ void RZUF3_TextInput::updateCursorRectAndScroll()
 		lineHeight
 	};
 
+	if(noAutoscroll) return;
+
 	int cursorOutX = m_cachedCursorRect.x + style->horizontalPadding - style->rect.x - style->rect.w;
 	if (cursorOutX > 0 && style->rect.w > 0) {
-		setScroll(m_scrollX + cursorOutX + 8, m_scrollY);
+		setScroll(m_scrollX + cursorOutX + 1, m_scrollY);
 	}
 
 	int cursorOutMinusX = m_cachedCursorRect.x - style->horizontalPadding - style->rect.x;
 	if (cursorOutMinusX < 0 && style->rect.w > 0) {
-		setScroll(m_scrollX + cursorOutMinusX - 8, m_scrollY);
+		setScroll(m_scrollX + cursorOutMinusX - 1, m_scrollY);
 	}
 
 	int cursorOutY = m_cachedCursorRect.y + lineHeight + style->verticalPadding - style->rect.y - style->rect.h;
 	if (cursorOutY > 0 && style->rect.h > 0) {
 
-		setScroll(m_scrollX, m_scrollY + cursorOutY + 8);
+		setScroll(m_scrollX, m_scrollY + cursorOutY + 1);
 	}
 
 	int cursorOutMinusY = m_cachedCursorRect.y - style->verticalPadding - style->rect.y;
 	if (cursorOutMinusY < 0 && style->rect.h > 0) {
 
-		setScroll(m_scrollX, m_scrollY + cursorOutMinusY - 8);
+		setScroll(m_scrollX, m_scrollY + cursorOutMinusY - 1);
 	}
 
 	// spdlog::debug("Cursor rect: p={} x={}, y={}, w={}, h={}", m_cursorPos, m_cachedCursorRect.x, m_cachedCursorRect.y, m_cachedCursorRect.w, m_cachedCursorRect.h);
@@ -551,5 +575,5 @@ void RZUF3_TextInput::setScroll(int x, int y)
 
 	m_textRenderer->setOffset(x, y);
 
-	updateCursorRectAndScroll();
+	updateCursorRectAndScroll(true);
 }

@@ -4,6 +4,7 @@
 #include "../renderer.h"
 #include "../text_style.h"
 #include "object_scripts.h"
+#include "border_box_style.h"
 
 class RZUF3_ObjectScript;
 class RZUF3_Renderer;
@@ -17,15 +18,13 @@ class RZUF3_Timer;
 class RZUF3_TextInputFocusEvent;
 class RZUF3_TextInputEvent;
 class RZUF3_TextEditingEvent;
+class RZUF3_BorderBox;
 
 struct RZUF3_TextInputStyle {
 	RZUF3_TextStyle textStyle;
-	SDL_Color borderColor = { 255, 255, 255, 255 };
-	SDL_Color checkColor = { 255, 255, 255, 255 };
-	SDL_Color bgColor = { 0, 0, 0, 0 };
+	RZUF3_BorderBoxStyle borderBoxStyle;
 	SDL_Color blinkColor = { 255, 255, 255, 255 };
 	SDL_Rect rect = { 0, 0, 128, 0 };
-	int borderWidth = 2;
 	int horizontalPadding = 5;
 	int verticalPadding = 5;
 	double blinkTime = 500.0;
@@ -49,7 +48,6 @@ public:
 
 	void setMaxChars(int maxChars);
 	void setStyle(RZUF3_TextInputStyle style, bool focused);
-	void setFocusedStyle(RZUF3_TextInputStyle style);
 	void setText(std::string text);
 	void setMultiline(bool multiline);
 	void setFocused(bool focused);
@@ -58,10 +56,10 @@ public:
 	void addText(std::string text, bool noNewLineCheck = false);
 	void removeText(bool backspace);
 
-	RZUF3_TextInputStyle getStyle(bool focused) const;
-	std::string getText() const;
-	bool getMultiline() const;
-	bool getFocused() const;
+	RZUF3_TextInputStyle getStyle(bool focused) const { return focused ? m_options.focusedStyle : m_options.style; }
+	std::string getText() const { return m_text; }
+	bool getMultiline() const { return m_options.multiline; }
+	bool getFocused() const { return m_isFocused; }
 	SDL_Rect getBorderRect(bool focused);
 
 protected:
@@ -77,13 +75,21 @@ protected:
 	void onKeyDown(RZUF3_KeyDownEvent* event);
 	void onKeyUp(RZUF3_KeyUpEvent* event);
 
-	RZUF3_TextInputStyle* getCurrentStylePtr();
+	void controlledSetText(std::string text, bool noNewLineCheck = false);
+	void updateTextRendererStyle();
+
 	void removeTextRenderer();
 	void createTextRenderer();
 	void updateTextRenderer();
-	void controlledSetText(std::string text, bool noNewLineCheck = false);
-	void updateStyle();
-	void updateCursorRectAndScroll();
+	void removeBorderBox();
+	void createBorderBox();
+	void updateBorderBox();
+	void removeClickable();
+	void createClickable();
+	void updateClickable();
+
+	RZUF3_TextInputStyle* getCurrentStylePtr();
+	void updateCursorRectAndScroll(bool noAutoscroll = false);
 	void setScroll(int x, int y);
 
 	RZUF3_TextInputOptions mp_options;
@@ -99,9 +105,9 @@ protected:
 	bool m_isCtrlDown = false;
 	bool m_isShiftDown = false;
 
-	RZUF3_Renderer* m_renderer = nullptr;
 	RZUF3_Clickable* m_clickable = nullptr;
 	RZUF3_TextSelRenderer* m_textRenderer = nullptr;
+	RZUF3_BorderBox* m_borderBox = nullptr;
 	RZUF3_Timer* m_blinkTimer = nullptr;
 
 	_DECLARE_LISTENER(MouseDown)

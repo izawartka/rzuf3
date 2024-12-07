@@ -256,7 +256,7 @@ void RZUF3_Game::requestTextInput(std::string id, SDL_Rect rect)
 	m_currentTextInputId = id;
 
 	RZUF3_TextInputFocusEvent event(id);
-	m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&event);
+	m_scene->getEventsManager()->dispatchEvent(&event);
 
 	SDL_SetTextInputRect(&rect);
 	SDL_StartTextInput();
@@ -272,7 +272,7 @@ void RZUF3_Game::stopTextInput(std::string id)
 	SDL_StopTextInput();
 
 	RZUF3_TextInputFocusEvent event("");
-	m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&event);
+	m_scene->getEventsManager()->dispatchEvent(&event);
 }
 
 bool RZUF3_Game::copyToClipboard(std::string text)
@@ -337,7 +337,7 @@ void RZUF3_Game::update(double dt)
 	if (m_scene != nullptr)
 	{
 		RZUF3_UpdateEvent rEvent(dt);
-		m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&rEvent);
+		m_scene->getEventsManager()->dispatchEvent(&rEvent);
 	}
 
 	m_counter++;
@@ -351,7 +351,7 @@ void RZUF3_Game::render(double dt)
 	if (m_scene != nullptr)
 	{
 		RZUF3_DrawEvent rEvent(dt);
-		m_scene->getEventsManager()->dispatchEvent((RZUF3_Event*)&rEvent);
+		m_scene->getEventsManager()->dispatchEvent(&rEvent);
 	}
 	SDL_RenderPresent(m_sdlRenderer);
 }
