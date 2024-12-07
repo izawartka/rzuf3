@@ -35,6 +35,8 @@ public:
 	void setUseOnSetRect(bool useOnSetRect);
 	void setInsideOnly(bool insideOnly);
 
+	bool isInside() const { return m_isInside; }
+
 	SDL_Rect getRect() const { return m_options.rect; }
 	RZUF3_Align getAlignment() const { return m_options.alignment; }
 	SDL_SystemCursor getOnHoverCursor() const { return m_options.onHoverCursorId; }

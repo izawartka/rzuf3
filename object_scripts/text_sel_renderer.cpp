@@ -25,7 +25,7 @@ void RZUF3_TextSelRenderer::init()
 	m_selEnd = m_cachedText.size();
 	createTextRenderers();
 	updateSelRects();
-	updateCombinedTexture();
+	createCombinedTexture();
 	cacheRealRects();
 
 	setUseOnDraw(m_options.useOnDraw);
@@ -110,7 +110,7 @@ void RZUF3_TextSelRenderer::setText(std::string text, bool resetSelection)
 	if(m_selEnd > m_cachedText.size()) m_selEnd = m_cachedText.size();
 
 	updateSelRects();
-	updateCombinedTexture();
+	createCombinedTexture();
 	cacheRealRects();
 	sendSelectionChangeEvent();
 }
@@ -128,7 +128,7 @@ void RZUF3_TextSelRenderer::setStyle(RZUF3_TextStyle style)
 	m_textRendererSelected->setStyle(style);
 
 	updateSelRects();
-	updateCombinedTexture();
+	createCombinedTexture();
 	cacheRealRects();
 }
 
@@ -228,7 +228,7 @@ void RZUF3_TextSelRenderer::setWrapLength(int wrapLength)
 	m_textRendererSelected->setWrapLength(wrapLength);
 
 	updateSelRects();
-	updateCombinedTexture();
+	createCombinedTexture();
 	cacheRealRects();
 }
 
@@ -265,7 +265,7 @@ void RZUF3_TextSelRenderer::setSelection(int start, int end)
 	m_isSelecting = false;
 
 	updateSelRects();
-	updateCombinedTexture();
+	createCombinedTexture();
 	sendSelectionChangeEvent();
 }
 
@@ -280,7 +280,7 @@ void RZUF3_TextSelRenderer::setSelectionEndFromXY(int x, int y, bool alsoStart)
 	m_selEnd = charIndex;
 
 	updateSelRects();
-	updateCombinedTexture();
+	createCombinedTexture();
 	sendSelectionChangeEvent();
 }
 
@@ -611,7 +611,7 @@ void RZUF3_TextSelRenderer::removeCombinedTexture()
 	m_realSrcRect = { 0, 0, 0, 0 };
 }
 
-void RZUF3_TextSelRenderer::updateCombinedTexture()
+void RZUF3_TextSelRenderer::createCombinedTexture()
 {
 	if(m_textRenderer == nullptr || m_textRendererSelected == nullptr) return;
 	if(m_combinedTexture != nullptr) SDL_DestroyTexture(m_combinedTexture);
@@ -624,7 +624,7 @@ void RZUF3_TextSelRenderer::updateCombinedTexture()
 
 	SDL_Texture* tempTexture = SDL_CreateTexture(
 		g_renderer->getSDLRenderer(),
-		SDL_PIXELFORMAT_ARGB8888,
+		SDL_PIXELFORMAT_RGBA8888,
 		SDL_TEXTUREACCESS_TARGET,
 		m_origSize.w,
 		m_origSize.h
@@ -644,13 +644,13 @@ void RZUF3_TextSelRenderer::updateCombinedTexture()
 		SDL_RenderCopy(g_renderer->getSDLRenderer(), selTexture, &rect, &rect);
 	}
 
-	bool success = g_renderer->createStaticTexture(m_combinedTexture, m_origSize.w, m_origSize.h);
+	if (!g_renderer->createStaticTexture(m_combinedTexture, m_origSize.w, m_origSize.h)) {
+		spdlog::error("TextSelRenderer: Failed to create combined texture");
+	}
 
 	SDL_SetRenderTarget(g_renderer->getSDLRenderer(), prevTarget);
 	SDL_DestroyTexture(tempTexture);
 	g_renderer->setUseObjectPos(prevUseObjectPos);
-
-	if (!success) spdlog::error("TextSelRenderer: Failed to create combined texture");
 }
 
 void RZUF3_TextSelRenderer::cacheLangFileText()

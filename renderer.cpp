@@ -136,7 +136,7 @@ bool RZUF3_Renderer::createStaticTexture(SDL_Texture* &texture, int width, int h
 		return false;
 	}
 
-	SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+	SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA8888);
 	if (surface == nullptr) {
 		spdlog::error("createStaticTexture: Failed to create surface: {}", SDL_GetError());
 		return false;
@@ -145,7 +145,7 @@ bool RZUF3_Renderer::createStaticTexture(SDL_Texture* &texture, int width, int h
 	SDL_RenderReadPixels(
 		g_renderer->getSDLRenderer(),
 		nullptr,
-		SDL_PIXELFORMAT_ARGB8888,
+		SDL_PIXELFORMAT_RGBA8888,
 		surface->pixels,
 		surface->pitch
 	);

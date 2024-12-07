@@ -2,6 +2,7 @@
 #include "../common.h"
 #include "../object_script.h"
 
+#include "border_box.h"
 #include "checkbox.h"
 #include "clickable.h"
 #include "draggable.h"
@@ -15,3 +16,4 @@
 #include "window_rect_anchor.h"
 #include "timer.h"
 #include "text_input.h"
+#include "text_button.h"

@@ -89,7 +89,7 @@ protected:
 	void removeTextRenderers();
 	void createTextRenderers();
 	void removeCombinedTexture();
-	void updateCombinedTexture();
+	void createCombinedTexture();
 	void cacheLangFileText();
 	void cacheRealRects();
 	void updateSelRects();
