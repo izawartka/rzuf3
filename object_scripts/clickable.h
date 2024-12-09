@@ -11,7 +11,7 @@ class RZUF3_MouseMoveEvent;
 class RZUF3_SetRectEvent;
 
 struct RZUF3_ClickableOptions {
-	SDL_Rect rect;
+	SDL_Rect rect = { 0, 0, 0, 0 };
 	bool useOnHoverCursor = true;
 	bool useOnSetRect = true;
 	bool insideOnly = true; // should only trigger MouseDown, MouseMove and MouseUp events when mouse is inside the rect

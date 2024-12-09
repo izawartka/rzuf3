@@ -1,5 +1,5 @@
 #pragma once
-#include "../events/draw.h"
+#include "../events/events.h"
 #include "../event_macros.h"
 #include "../renderer.h"
 #include "object_scripts.h"
@@ -19,7 +19,7 @@ struct RZUF3_BorderBoxOptions {
 	bool useOnSetRect = true;
 	bool useOnDraw = true;
 	RZUF3_Align alignment = RZUF3_Align_TopLeft;
-	SDL_Rect rect;
+	SDL_Rect rect = { 0, 0, 0, 0 };
 };
 
 class RZUF3_BorderBox : public RZUF3_ObjectScript {

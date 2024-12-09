@@ -4,7 +4,7 @@
 #include "scene.h"
 #include "events_manager.h"
 #include "event_macros.h"
-#include "config_file.h"
+#include "config_file/config_file.h"
 
 RZUF3_Game* g_game = nullptr;
 
@@ -22,7 +22,7 @@ RZUF3_Game::~RZUF3_Game()
 	g_game = nullptr;
 }
 
-bool RZUF3_Game::addConfigFile(RZUF3_ConfigFileDef def)
+bool RZUF3_Game::addConfigFile(const RZUF3_ConfigFileDef& def)
 {
 	auto it = m_configFiles.find(def.filepath);
 	if (it != m_configFiles.end())
@@ -63,15 +63,14 @@ void RZUF3_Game::loadLanguageFromConfigFile(std::string basepath, std::string va
 		return;
 	}
 
-	std::string filename = m_defaultConfigFile->getValue(valueKey);
-	
-	if(filename == "")
+	std::string filename;
+	if (!m_defaultConfigFile->getValue(valueKey, &filename))
 	{
-		spdlog::error("Cannot load language file from config file, key {} not found", valueKey);
+		spdlog::error("Cannot load language file from config file, value not found");
 		return;
 	}
 
-	if(filename.find("..") != std::string::npos || filename.find("/") != std::string::npos || filename.find("\\") != std::string::npos)
+	if(filename == "" || filename.find("..") != std::string::npos || filename.find("/") != std::string::npos || filename.find("\\") != std::string::npos)
 	{
 		spdlog::error("Cannot load language file from config file, invalid filename");
 		return;

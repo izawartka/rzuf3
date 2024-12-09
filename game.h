@@ -5,7 +5,7 @@
 #include "renderer.h"
 #include "events/events.h"
 #include "lang.h"
-#include "config_file.h"
+#include "config_file/config_file.h"
 
 #define RZUF3_GAME_FPS 60
 
@@ -14,7 +14,7 @@ public:
 	RZUF3_Game();
 	~RZUF3_Game();
 
-	bool addConfigFile(RZUF3_ConfigFileDef def);
+	bool addConfigFile(const RZUF3_ConfigFileDef& def);
 	void loadLanguage(std::string filepath);
 	void loadLanguageFromConfigFile(std::string basepath, std::string valueKey);
 	void initWindow(int width, int height, bool fullscreen);

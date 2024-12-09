@@ -209,7 +209,7 @@ void RZUF3_TextButton::onMouseEnter(RZUF3_MouseEnterEvent* event)
 void RZUF3_TextButton::onMouseLeave(RZUF3_MouseLeaveEvent* event)
 {
 	RZUF3_TextButtonState targetState = m_options.highlighted ? RZUF3_TextButtonState::NormalHighlighted : RZUF3_TextButtonState::Normal;
-	if(m_state <= RZUF3_TextButtonState::Hover) setState(targetState);
+	setState(targetState);
 }
 
 void RZUF3_TextButton::onMouseDown(RZUF3_MouseDownEvent* event)
