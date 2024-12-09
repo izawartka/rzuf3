@@ -301,9 +301,12 @@ void RZUF3_TextRenderer::onDraw(RZUF3_DrawEvent* event)
 
 void RZUF3_TextRenderer::removeFont()
 {
-	m_font == nullptr;
+	m_font = nullptr;
 
-	if (m_fontAsset != nullptr) g_scene->getAssetsManager()->removeAsset(m_fontAsset->getFilepath());
+	if (m_fontAsset != nullptr) {
+		g_scene->getAssetsManager()->removeAsset(m_fontAsset->getFilepath());
+		m_fontAsset = nullptr;
+	}
 }
 
 void RZUF3_TextRenderer::createFont()

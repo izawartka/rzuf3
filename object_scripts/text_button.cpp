@@ -372,22 +372,23 @@ void RZUF3_TextButton::createCombinedTexture()
 {
 	if(m_combinedTexture != nullptr) return;
 	if(m_textRenderer == nullptr || m_borderBox == nullptr) return;
-	RZUF3_TextButtonStyle* style = getCurrentStylePtr();
 
 	updateTextRenderer();
 	updateBorderBox();
 	updateClickable();
 
+	RZUF3_TextButtonStyle* style = getCurrentStylePtr();
 	SDL_Rect borderRect = getBorderRect();
+	SDL_Renderer* renderer = g_renderer->getSDLRenderer();
 
 	SDL_Texture* tempTexture = SDL_CreateTexture(
-		g_renderer->getSDLRenderer(), 
+		renderer, 
 		SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 
 		borderRect.w, borderRect.h
 	);
 
-	SDL_Texture* prevTarget = SDL_GetRenderTarget(g_renderer->getSDLRenderer());
-	SDL_SetRenderTarget(g_renderer->getSDLRenderer(), tempTexture);
+	SDL_Texture* prevTarget = SDL_GetRenderTarget(renderer);
+	SDL_SetRenderTarget(renderer, tempTexture);
 	bool prevUseObjectPos = g_renderer->getUseObjectPos();
 	g_renderer->setUseObjectPos(false);
 
@@ -398,7 +399,7 @@ void RZUF3_TextButton::createCombinedTexture()
 		spdlog::error("TextButton: Failed to create combined texture");
 	}
 
-	SDL_SetRenderTarget(g_renderer->getSDLRenderer(), prevTarget);
+	SDL_SetRenderTarget(renderer, prevTarget);
 	g_renderer->setUseObjectPos(prevUseObjectPos);
 
 	SDL_DestroyTexture(tempTexture);

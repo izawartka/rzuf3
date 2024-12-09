@@ -143,6 +143,11 @@ void RZUF3_Clickable::onMouseUp(RZUF3_MouseUpEvent* event)
 		RZUF3_MouseUpEvent objEvent(x, y, event->getButton());
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
+
+	if (!inside) {
+		RZUF3_MouseUpOutsideEvent objEvent(x, y, event->getButton());
+		m_objEventsManager->dispatchEvent(&objEvent);
+	}
 }
 
 void RZUF3_Clickable::onMouseMove(RZUF3_MouseMoveEvent* event)

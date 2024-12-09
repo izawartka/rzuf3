@@ -10,6 +10,7 @@
 #include "mouse_down.h"
 #include "mouse_down_outside.h"
 #include "mouse_up.h"
+#include "mouse_up_outside.h"
 #include "mouse_move.h"
 #include "mouse_leave.h"
 #include "mouse_enter.h"

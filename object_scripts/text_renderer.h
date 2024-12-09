@@ -44,7 +44,7 @@ public:
 	bool charIndexToPoint(int index, int& x, int& y);
 	void draw();
 
-	SDL_Texture* getTexture() const;
+	SDL_Texture* getTexture() const; // uncropped texture
 	RZUF3_TextStyle getStyle() const;
 	int getWidth() const;
 	int getHeight() const;
