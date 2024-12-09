@@ -4,7 +4,7 @@
 class RZUF3_UpdateEvent : public RZUF3_Event {
 public:
 	RZUF3_UpdateEvent(double dt) {
-		this->m_dt = dt;
+		m_dt = dt;
 	}
 
 	double getDt() const { return m_dt; }

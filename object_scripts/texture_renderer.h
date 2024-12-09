@@ -42,7 +42,6 @@ protected:
 	SDL_Rect m_dstRect = { 0, 0, 0, 0 };
 	SDL_Rect m_srcRect = { 0, 0, 0, 0 };
 	RZUF3_Align m_alignment = RZUF3_Align_TopLeft;
-	RZUF3_Renderer* m_renderer = nullptr;
 
 	_DECLARE_LISTENER(Draw)
 };

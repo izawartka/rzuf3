@@ -1,8 +1,8 @@
 #include "assets_manager.h"
 
-RZUF3_AssetsManager::RZUF3_AssetsManager(RZUF3_Renderer* renderer)
+RZUF3_AssetsManager::RZUF3_AssetsManager()
 {
-	this->m_renderer = renderer;
+
 }
 
 RZUF3_AssetsManager::~RZUF3_AssetsManager()

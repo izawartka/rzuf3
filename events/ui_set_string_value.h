@@ -4,7 +4,7 @@
 class RZUF3_UISetStringValueEvent : public RZUF3_Event {
 public:
 	RZUF3_UISetStringValueEvent(std::string value) {
-		this->m_value = value;
+		m_value = value;
 	}
 
 	std::string getValue() const { return m_value; }

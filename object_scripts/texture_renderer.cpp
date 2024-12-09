@@ -22,13 +22,12 @@ RZUF3_TextureRenderer::~RZUF3_TextureRenderer()
 
 void RZUF3_TextureRenderer::init()
 {
-	this->m_textureFilepath = mp_options.filepath;
-	this->m_dstRect = {mp_options.x, mp_options.y, 0, 0};
-	this->m_srcRect = this->mp_options.srcRect;
-	this->m_alignment = this->mp_options.alignment;
-	this->m_renderer = g_scene->getRenderer();
+	m_textureFilepath = mp_options.filepath;
+	m_dstRect = {mp_options.x, mp_options.y, 0, 0};
+	m_srcRect = mp_options.srcRect;
+	m_alignment = mp_options.alignment;
 
-	this->updateTexture();
+	updateTexture();
 
 	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 	_ADD_LISTENER(eventsManager, Draw);
@@ -40,41 +39,39 @@ void RZUF3_TextureRenderer::deinit()
 	_REMOVE_LISTENER(eventsManager, Draw);
 
 	removeTexture();
-
-	m_renderer = nullptr;
 }
 
 void RZUF3_TextureRenderer::setFilepath(std::string filepath)
 {
 	removeTexture();
-	this->m_textureFilepath = filepath;
+	m_textureFilepath = filepath;
 	updateTexture();
 }
 
 void RZUF3_TextureRenderer::setDstRect(SDL_Rect dstRect)
 {
-	this->m_dstRect = dstRect;
+	m_dstRect = dstRect;
 }
 
 void RZUF3_TextureRenderer::setDstPos(int x, int y)
 {
-	this->m_dstRect.x = x;
-	this->m_dstRect.y = y;
+	m_dstRect.x = x;
+	m_dstRect.y = y;
 }
 
 void RZUF3_TextureRenderer::setSrcRect(SDL_Rect srcRect)
 {
-	this->m_srcRect = srcRect;
+	m_srcRect = srcRect;
 }
 
 void RZUF3_TextureRenderer::setAlign(RZUF3_Align alignment)
 {
-	this->m_alignment = alignment;
+	m_alignment = alignment;
 }
 
 void RZUF3_TextureRenderer::clearSrcRect()
 {
-	this->m_srcRect = { 0, 0, 0, 0 };
+	m_srcRect = { 0, 0, 0, 0 };
 }
 
 void RZUF3_TextureRenderer::onDraw(RZUF3_DrawEvent* event)
@@ -87,8 +84,8 @@ void RZUF3_TextureRenderer::onDraw(RZUF3_DrawEvent* event)
 		srcRectPtr = &m_srcRect;
 	}
 
-	m_renderer->setAlign(m_alignment);
-	m_renderer->drawTexture(m_object, m_texture, srcRectPtr, m_dstRect);
+	g_renderer->setAlign(m_alignment);
+	g_renderer->drawTexture(m_object, m_texture, srcRectPtr, m_dstRect);
 }
 
 void RZUF3_TextureRenderer::removeTexture()
@@ -103,7 +100,7 @@ void RZUF3_TextureRenderer::removeTexture()
 
 void RZUF3_TextureRenderer::updateTexture()
 {
-	if (this->m_textureFilepath == "") return;
+	if (m_textureFilepath == "") return;
 
 	RZUF3_AssetsManager* assetsManager = g_scene->getAssetsManager();
 
@@ -115,11 +112,11 @@ void RZUF3_TextureRenderer::updateTexture()
 
 	if (textureAsset == nullptr)
 	{
-		spdlog::error("Texture {} could not be loaded", this->m_textureFilepath);
+		spdlog::error("Texture {} could not be loaded", m_textureFilepath);
 		return;
 	}
 
-	this->m_texture = (SDL_Texture*)textureAsset->getContent();
+	m_texture = (SDL_Texture*)textureAsset->getContent();
 
-	SDL_QueryTexture(this->m_texture, nullptr, nullptr, &this->m_dstRect.w, &this->m_dstRect.h);
+	SDL_QueryTexture(m_texture, nullptr, nullptr, &m_dstRect.w, &m_dstRect.h);
 }

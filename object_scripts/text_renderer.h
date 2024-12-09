@@ -70,7 +70,6 @@ protected:
 	TTF_Font* m_font = nullptr;
 	std::string m_cachedText = "";
 	SDL_Rect m_origSize = { 0, 0, 0, 0 };
-	RZUF3_Renderer* m_renderer = nullptr;
 	SDL_Texture* m_texture = nullptr;
 	bool m_hasOnDrawListener = false;
 	

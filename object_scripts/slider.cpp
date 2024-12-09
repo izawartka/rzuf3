@@ -22,7 +22,6 @@ void RZUF3_Slider::init()
 	m_min = mp_options.min;
 	m_max = mp_options.max;
 	m_style = mp_options.style;
-	m_renderer = g_scene->getRenderer();
 
 	m_clickable = new RZUF3_Clickable();
 	m_object->addScript(m_clickable);
@@ -50,8 +49,6 @@ void RZUF3_Slider::deinit()
 	m_object->removeScript(m_clickable);
 	delete m_clickable;
 	m_clickable = nullptr;
-
-	m_renderer = nullptr;
 }
 
 void RZUF3_Slider::setStyle(RZUF3_SliderStyle style)
@@ -123,9 +120,9 @@ void RZUF3_Slider::onDraw(RZUF3_DrawEvent* event)
 		m_style.sliderSize
 	};
 
-	m_renderer->setColor(m_style.sliderColor);
-	m_renderer->setAlign(RZUF3_Align_TopLeft);
-	m_renderer->fillRect(m_object, sliderRect);
+	g_renderer->setColor(m_style.sliderColor);
+	g_renderer->setAlign(RZUF3_Align_TopLeft);
+	g_renderer->fillRect(m_object, sliderRect);
 
 	double fraction = (double)(m_value - m_min) / (m_max - m_min);
 	int thumbPosX = fraction * (m_style.width - m_style.sliderSize);
@@ -137,9 +134,9 @@ void RZUF3_Slider::onDraw(RZUF3_DrawEvent* event)
 		m_style.thumbSize
 	};
 
-	m_renderer->setColor(m_style.thumbColor);
-	m_renderer->setAlign(RZUF3_Align_TopLeft);
-	m_renderer->fillCircle(m_object, thumbRect);
+	g_renderer->setColor(m_style.thumbColor);
+	g_renderer->setAlign(RZUF3_Align_TopLeft);
+	g_renderer->fillCircle(m_object, thumbRect);
 }
 
 void RZUF3_Slider::updateStyle()

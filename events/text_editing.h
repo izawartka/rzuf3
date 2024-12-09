@@ -4,9 +4,9 @@
 class RZUF3_TextEditingEvent : public RZUF3_Event {
 public:
 	RZUF3_TextEditingEvent(std::string text, int start, int length) {
-		this->m_text = text;
-		this->m_start = start;
-		this->m_length = length;
+		m_text = text;
+		m_start = start;
+		m_length = length;
 	}
 
 	std::string getText() const { return m_text; }

@@ -53,7 +53,6 @@ protected:
 	int m_max = 0;
 	int m_value = 0;
 	RZUF3_SliderStyle m_style;
-	RZUF3_Renderer* m_renderer = nullptr;
 	RZUF3_EventsManager* m_objEventsManager = nullptr;
 	RZUF3_Clickable* m_clickable = nullptr;
 

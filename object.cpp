@@ -5,10 +5,10 @@
 
 RZUF3_Object::RZUF3_Object(RZUF3_ObjectDefinition objectDefinition, RZUF3_Scene* scene)
 {
-	this->m_initialized = false;
-	this->m_name = objectDefinition.name;
-	this->m_scene = scene;
-	this->m_scripts = std::vector<RZUF3_ObjectScript*>();
+	m_initialized = false;
+	m_name = objectDefinition.name;
+	m_scene = scene;
+	m_scripts = std::vector<RZUF3_ObjectScript*>();
 
 	setParent(objectDefinition.parentName);
 	setPos(objectDefinition.pos);

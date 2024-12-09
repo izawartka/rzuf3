@@ -4,7 +4,7 @@
 class RZUF3_DrawEvent : public RZUF3_Event {
 public:
 	RZUF3_DrawEvent(double dt) {
-		this->m_dt = dt;
+		m_dt = dt;
 	}
 
 	double getDt() const { return m_dt; }

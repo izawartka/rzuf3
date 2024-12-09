@@ -2,10 +2,10 @@
 
 void RZUF3_ObjectScript::attach(RZUF3_Object* object)
 {
-	this->m_object = object;
+	m_object = object;
 }
 
 void RZUF3_ObjectScript::detach()
 {
-	this->m_object = nullptr;
+	m_object = nullptr;
 }

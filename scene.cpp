@@ -8,14 +8,13 @@
 
 RZUF3_Scene* g_scene = nullptr;
 
-RZUF3_Scene::RZUF3_Scene(RZUF3_SceneDefinition* sceneDefinition, RZUF3_Renderer* renderer)
+RZUF3_Scene::RZUF3_Scene(RZUF3_SceneDefinition* sceneDefinition)
 {
 	if(g_scene != nullptr) throw std::logic_error("Only one instance of RZUF3_Scene can be present at a time");
 	g_scene = this;
 
 	m_name = sceneDefinition->name;
-	m_renderer = renderer;
-	m_assetsManager = new RZUF3_AssetsManager(renderer);
+	m_assetsManager = new RZUF3_AssetsManager();
 	m_assetsManager->addAssets(sceneDefinition->staticAssets);
 	m_eventsManager = new RZUF3_EventsManager();
 
@@ -49,17 +48,17 @@ RZUF3_EventsManager* RZUF3_Scene::getEventsManager()
 	return m_eventsManager;
 }
 
-RZUF3_Renderer* RZUF3_Scene::getRenderer()
-{
-	return m_renderer;
-}
-
 void RZUF3_Scene::init()
 {
 	for (auto& object : m_objects)
 	{
 		object.second->init();
 	}
+}
+
+std::string RZUF3_Scene::getName() const
+{
+	return m_name;
 }
 
 RZUF3_Object* RZUF3_Scene::addObject(RZUF3_ObjectDefinition objectDef)

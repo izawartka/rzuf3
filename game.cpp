@@ -148,6 +148,8 @@ void RZUF3_Game::startGameLoop()
 
 	while (m_isRunning)
 	{
+		handleSceneSwap();
+
 		lastTime = now;
 		now = SDL_GetPerformanceCounter();
 
@@ -282,19 +284,13 @@ bool RZUF3_Game::copyToClipboard(std::string text)
 
 void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 {
-	if (this->m_scene != nullptr)
-	{
-		delete this->m_scene;
-	}
-
 	if (sceneDefinition == nullptr)
 	{
-		this->m_scene = nullptr;
+		spdlog::error("Trying to set nullptr as scene definition");
 		return;
 	}
 
-	this->m_scene = new RZUF3_Scene(sceneDefinition, this->m_renderer);
-	this->m_scene->init();
+	m_nextSceneDef = sceneDefinition;
 }
 
 void RZUF3_Game::getWindowSize(int* width, int* height) const
@@ -330,6 +326,22 @@ RZUF3_ConfigFile* RZUF3_Game::getConfigFile(std::string id)
 	}
 
 	return it->second;
+}
+
+void RZUF3_Game::handleSceneSwap()
+{
+	if (m_nextSceneDef == nullptr) return;
+
+	if (m_scene != nullptr)
+	{
+		spdlog::info("Destroying scene: {}", m_scene->getName());
+		delete m_scene;
+	}
+
+	spdlog::info("Creating scene: {}", m_nextSceneDef->name);
+	m_scene = new RZUF3_Scene(m_nextSceneDef);
+	m_nextSceneDef = nullptr;
+	m_scene->init();
 }
 
 void RZUF3_Game::update(double dt)

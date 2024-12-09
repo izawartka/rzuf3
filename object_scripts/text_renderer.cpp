@@ -22,7 +22,6 @@ void RZUF3_TextRenderer::init()
 {
 	m_options = mp_options;
 	m_origSize = { 0, 0, 0, 0 };
-	m_renderer = g_scene->getRenderer();
 
 	cacheLangFileText();
 	createFont();
@@ -36,7 +35,6 @@ void RZUF3_TextRenderer::deinit()
 	removeTexture();
 	removeFont();
 
-	m_renderer = nullptr;
 	m_cachedText = "";
 }
 
@@ -238,8 +236,8 @@ void RZUF3_TextRenderer::draw()
 	dstRect.w = dstRect.w > 0 ? dstRect.w : srcRect.w;
 	dstRect.h = dstRect.h > 0 ? dstRect.h : srcRect.h;
 
-	m_renderer->setAlign(m_options.alignment);
-	m_renderer->drawTexture(
+	g_renderer->setAlign(m_options.alignment);
+	g_renderer->drawTexture(
 		m_object,
 		m_texture,
 		&srcRect,
@@ -367,7 +365,7 @@ void RZUF3_TextRenderer::updateTexture()
 		return;
 	}
 
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(m_renderer->getSDLRenderer(), surface);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(g_renderer->getSDLRenderer(), surface);
 	SDL_SetTextureBlendMode(texture, m_options.style.blendMode);
 
 	SDL_FreeSurface(surface);
