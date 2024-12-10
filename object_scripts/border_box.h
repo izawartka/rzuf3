@@ -11,7 +11,6 @@ class RZUF3_Clickable;
 class RZUF3_TextRenderer;
 class RZUF3_DrawEvent;
 class RZUF3_MouseDownEvent;
-class RZUF3_UISetValueEvent;
 class RZUF3_DrawEvent;
 
 struct RZUF3_BorderBoxOptions {

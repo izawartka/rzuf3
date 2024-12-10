@@ -67,6 +67,7 @@ protected:
 	void onDraw(RZUF3_DrawEvent* event);
 
 	int getHalfRectTextLineHeightDiff() const;
+	void sendValueChangeEvent();
 
 	void removeTextRenderer();
 	void createTextRenderer();

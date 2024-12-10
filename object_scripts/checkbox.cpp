@@ -26,14 +26,14 @@ void RZUF3_Checkbox::init()
 	setUseOnDraw(m_options.useOnDraw);
 	setUseMouseEvents(m_options.useMouseEvents);
 
-	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
-	_ADD_LISTENER(eventsManager, UISetValue);
+	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
+	_ADD_LISTENER(objEventsManager, UISetValue);
 }
 
 void RZUF3_Checkbox::deinit()
 {
-	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
-	_REMOVE_LISTENER(eventsManager, UISetValue);
+	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
+	_REMOVE_LISTENER(objEventsManager, UISetValue);
 
 	setUseOnDraw(false);
 	setUseMouseEvents(false);
@@ -66,6 +66,7 @@ void RZUF3_Checkbox::setChecked(bool checked)
 	m_options.checked = checked;
 
 	removeCombinedTexture();
+	sendValueChangeEvent();
 }
 
 void RZUF3_Checkbox::setUseOnDraw(bool useOnDraw)
@@ -172,7 +173,9 @@ void RZUF3_Checkbox::onMouseUpOutside(RZUF3_MouseUpOutsideEvent* event)
 
 void RZUF3_Checkbox::onUISetValue(RZUF3_UISetValueEvent* event)
 {
-	bool checked = event->getValue() != 0;
+	if(event->getTypeIndex() != typeid(bool)) return;
+
+	bool checked = *(bool*)event->getValue();
 	setChecked(checked);
 }
 
@@ -190,6 +193,14 @@ int RZUF3_Checkbox::getHalfRectTextLineHeightDiff() const
 	int textLineHeight = m_textRenderer->getFontHeight();
 
 	return (rectSize - textLineHeight) / 2;
+}
+
+void RZUF3_Checkbox::sendValueChangeEvent()
+{
+	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
+	std::type_index typeIndex = typeid(bool);
+	RZUF3_UIValueChangeEvent objEvent(typeIndex, &m_options.checked, sizeof(bool));
+	objEventsManager->dispatchEvent(&objEvent);
 }
 
 void RZUF3_Checkbox::removeClickable()

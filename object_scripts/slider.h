@@ -5,7 +5,6 @@
 
 class RZUF3_ObjectScript;
 class RZUF3_MousePressedEvent;
-class RZUF3_UISetValueEvent;
 class RZUF3_DrawEvent;
 
 struct RZUF3_SliderStyle {

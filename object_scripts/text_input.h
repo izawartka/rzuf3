@@ -65,7 +65,7 @@ public:
 protected:
 	void onMouseDown(RZUF3_MouseDownEvent* event);
 	void onMouseDownOutside(RZUF3_MouseDownOutsideEvent* event);
-	void onUISetStringValue(RZUF3_UISetStringValueEvent* event);
+	void onUISetValue(RZUF3_UISetValueEvent* event);
 	void onSetRect(RZUF3_SetRectEvent* event);
 	void onTimer(RZUF3_TimerEvent* event);
 	void onDraw(RZUF3_DrawEvent* event);
@@ -112,7 +112,7 @@ protected:
 
 	_DECLARE_LISTENER(MouseDown)
 	_DECLARE_LISTENER(MouseDownOutside)
-	_DECLARE_LISTENER(UISetStringValue)
+	_DECLARE_LISTENER(UISetValue)
 	_DECLARE_LISTENER(SetRect)
 	_DECLARE_LISTENER(Timer)
 	_DECLARE_LISTENER(Draw)

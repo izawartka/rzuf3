@@ -27,7 +27,7 @@ void RZUF3_TextInput::init()
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_ADD_LISTENER(objEventsManager, MouseDown);
 	_ADD_LISTENER(objEventsManager, MouseDownOutside);
-	_ADD_LISTENER(objEventsManager, UISetStringValue);
+	_ADD_LISTENER(objEventsManager, UISetValue);
 	_ADD_LISTENER(objEventsManager, SetRect);
 	_ADD_LISTENER(objEventsManager, Timer);
 
@@ -43,7 +43,7 @@ void RZUF3_TextInput::deinit()
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_REMOVE_LISTENER(objEventsManager, MouseDown);
 	_REMOVE_LISTENER(objEventsManager, MouseDownOutside);
-	_REMOVE_LISTENER(objEventsManager, UISetStringValue);
+	_REMOVE_LISTENER(objEventsManager, UISetValue);
 	_REMOVE_LISTENER(objEventsManager, SetRect);
 	_REMOVE_LISTENER(objEventsManager, Timer);
 
@@ -223,11 +223,12 @@ void RZUF3_TextInput::onMouseDownOutside(RZUF3_MouseDownOutsideEvent* event)
 	setFocused(false);
 }
 
-void RZUF3_TextInput::onUISetStringValue(RZUF3_UISetStringValueEvent* event)
+void RZUF3_TextInput::onUISetValue(RZUF3_UISetValueEvent* event)
 {
-	std::string text = event->getValue();
+	if(event->getTypeIndex() != typeid(std::string)) return;
 
-	setText(text);
+	std::string value = *(std::string*)event->getValue();
+	setText(value);
 }
 
 /* updates rect for both focused and unfocused style */
@@ -368,7 +369,8 @@ void RZUF3_TextInput::controlledSetText(std::string text, bool noNewLineCheck)
 	m_text = text;
 
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
-	RZUF3_UIStringValueChangeEvent objEvent(m_text);
+	std::type_index typeIndex = typeid(std::string);
+	RZUF3_UIValueChangeEvent objEvent(typeIndex, &m_text, sizeof(std::string));
 	objEventsManager->dispatchEvent(&objEvent);
 
 	if(m_textRenderer) m_textRenderer->setText(m_text, false);

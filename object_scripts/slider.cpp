@@ -77,7 +77,8 @@ void RZUF3_Slider::setValue(int value)
 
 	if (m_objEventsManager == nullptr) return;
 
-	RZUF3_UIValueChangeEvent objEvent(m_value);
+	std::type_index typeIndex = typeid(int);
+	RZUF3_UIValueChangeEvent objEvent(typeIndex, &m_value, sizeof(int));
 	m_objEventsManager->dispatchEvent(&objEvent);
 }
 
@@ -102,7 +103,10 @@ void RZUF3_Slider::onMousePressed(RZUF3_MousePressedEvent* event)
 
 void RZUF3_Slider::onUISetValue(RZUF3_UISetValueEvent* event)
 {
-	setValue(event->getValue());
+	if (event->getTypeIndex() != typeid(int)) return;
+	int value = *(int*)event->getValue();
+	
+	setValue(value);
 }
 
 void RZUF3_Slider::onDraw(RZUF3_DrawEvent* event)

@@ -23,8 +23,6 @@
 #include "ui_value_change.h"
 #include "ui_set_value.h"
 #include "window_resize.h"
-#include "ui_set_string_value.h"
-#include "ui_string_value_change.h"
 #include "timer.h"
 #include "text_sel_focus.h"
 #include "text_input_focus.h"
