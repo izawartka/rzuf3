@@ -1,22 +1,12 @@
 #pragma once
 #include "../events/events.h"
 #include "../event_macros.h"
-#include "../text_style.h"
-#include "border_box_style.h"
 #include "object_scripts.h"
+#include "checkbox_style.h"
 
 class RZUF3_TextRenderer;
 class RZUF3_BorderBox;
 class RZUF3_Clickable;
-
-struct RZUF3_CheckboxStyle {
-	RZUF3_TextStyle textStyle;
-	RZUF3_BorderBoxStyle rectStyle;
-	RZUF3_BorderBoxStyle checkStyle;
-	int checkSize = 8;
-	int rectSize = 16;
-	int textOffset = 6;
-};
 
 struct RZUF3_CheckboxOptions {
 	RZUF3_CheckboxStyle style;
@@ -26,8 +16,6 @@ struct RZUF3_CheckboxOptions {
 	bool useMouseEvents = true;
 	bool useLangFile = true;
 	RZUF3_Align alignment = RZUF3_Align_TopLeft;
-
-	bool sp_defaultColors = true;
 };
 
 class RZUF3_Checkbox : public RZUF3_ObjectScript {
@@ -81,8 +69,6 @@ protected:
 
 	void removeCombinedTexture();
 	void createCombinedTexture();
-	
-	void resolveSpecialOptions();
 
 	RZUF3_CheckboxOptions mp_options;
 

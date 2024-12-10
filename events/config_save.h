@@ -3,9 +3,9 @@
 
 class RZUF3_ConfigFile;
 
-class RZUF3_ConfigSaveLoadEvent : public RZUF3_Event {
+class RZUF3_ConfigSaveEvent : public RZUF3_Event {
 public:
-	RZUF3_ConfigSaveLoadEvent(RZUF3_ConfigFile* configFile) {
+	RZUF3_ConfigSaveEvent(RZUF3_ConfigFile* configFile) {
 		m_configFile = configFile;
 	}
 

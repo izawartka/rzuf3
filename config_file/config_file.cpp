@@ -149,18 +149,12 @@ bool RZUF3_ConfigFile::load()
 	file.close();
 
 	spdlog::info("Loaded config file: {}", filepath);
-	m_loaded = true;
-
-	RZUF3_ConfigSaveLoadEvent saveLoadEvent(this);
-	if(g_scene) g_scene->getEventsManager()->dispatchEvent(&saveLoadEvent);
 
 	return true;
 }
 
 bool RZUF3_ConfigFile::save()
 {
-	if(!m_loaded) return false;
-
 	const std::string& filepath = m_def->filepath;
 	std::ofstream file(filepath, std::ios::out | std::ios::trunc);
 
@@ -177,7 +171,7 @@ bool RZUF3_ConfigFile::save()
 
 	file.close();
 
-	RZUF3_ConfigSaveLoadEvent saveLoadEvent(this);
+	RZUF3_ConfigSaveEvent saveLoadEvent(this);
 	if(g_scene) g_scene->getEventsManager()->dispatchEvent(&saveLoadEvent);
 
 	return true;

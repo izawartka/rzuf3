@@ -15,7 +15,6 @@ void RZUF3_TextButton::init()
 	m_options = mp_options;
 	m_state = m_options.highlighted ? RZUF3_TextButtonState::NormalHighlighted : RZUF3_TextButtonState::Normal;
 
-	resolveSpecialOptions();
 	cacheLangFileText();
 
 	createTextRenderer();
@@ -43,7 +42,7 @@ void RZUF3_TextButton::deinit()
 
 void RZUF3_TextButton::setStyle(RZUF3_TextButtonStyle style, RZUF3_TextButtonState state)
 {
-	m_options.styles[(int)state] = style;
+	m_options.styleSet.styles[(int)state] = style;
 	if(state == m_state) removeCombinedTexture();
 }
 
@@ -151,7 +150,7 @@ void RZUF3_TextButton::setRect(SDL_Rect rect)
 {
 	for (int i = 0; i < RZUF3_TEXT_BUTTON_STATE_COUNT; i++)
 	{
-		m_options.styles[i].rect = rect;
+		m_options.styleSet.styles[i].rect = rect;
 	}
 
 	removeCombinedTexture();
@@ -405,41 +404,6 @@ void RZUF3_TextButton::createCombinedTexture()
 	SDL_DestroyTexture(tempTexture);
 }
 
-void RZUF3_TextButton::resolveSpecialOptions()
-{
-	if (m_options.sp_copyStylesFromNormal) {
-		for (int i = 1; i < RZUF3_TEXT_BUTTON_STATE_COUNT; i++) {
-			m_options.styles[i] = m_options.styles[0];
-		}
-	}
-
-	if (m_options.sp_defaultColors) {
-		RZUF3_TextButtonStyle& normalStyle = m_options.styles[(int)RZUF3_TextButtonState::Normal];
-		normalStyle.borderBoxStyle.color = { 128, 128, 128, 255 };
-		normalStyle.borderBoxStyle.infillColor = { 0, 0, 0, 255 };
-		normalStyle.textStyle.color = { 255, 255, 255, 255 };
-		normalStyle.textStyle.bgColor = { 0, 0, 0, 255 };
-
-		RZUF3_TextButtonStyle& normalHighlightedStyle = m_options.styles[(int)RZUF3_TextButtonState::NormalHighlighted];
-		normalHighlightedStyle.borderBoxStyle.color = { 128, 128, 255, 255 };
-		normalHighlightedStyle.borderBoxStyle.infillColor = { 32, 32, 64, 255 };
-		normalHighlightedStyle.textStyle.color = { 255, 255, 255, 255 };
-		normalHighlightedStyle.textStyle.bgColor = { 32, 32, 64, 255 };
-
-		RZUF3_TextButtonStyle& hoverStyle = m_options.styles[(int)RZUF3_TextButtonState::Hover];
-		hoverStyle.borderBoxStyle.color = { 64, 64, 128, 255 };
-		hoverStyle.borderBoxStyle.infillColor = { 0, 0, 0, 255 };
-		hoverStyle.textStyle.color = { 255, 255, 255, 255 };
-		hoverStyle.textStyle.bgColor = { 0, 0, 0, 255 };
-
-		RZUF3_TextButtonStyle& pressedStyle = m_options.styles[(int)RZUF3_TextButtonState::Pressed];
-		pressedStyle.borderBoxStyle.color = { 64, 64, 128, 255 };
-		pressedStyle.borderBoxStyle.infillColor = { 32, 32, 64, 255 };
-		pressedStyle.textStyle.color = { 255, 255, 255, 255 };
-		pressedStyle.textStyle.bgColor = { 32, 32, 64, 255 };
-	}
-}
-
 void RZUF3_TextButton::cacheLangFileText()
 {
 	m_cachedText = m_options.useLangFile ? g_lang->getText(m_options.text) : m_options.text;
@@ -447,5 +411,5 @@ void RZUF3_TextButton::cacheLangFileText()
 
 RZUF3_TextButtonStyle* RZUF3_TextButton::getCurrentStylePtr()
 {
-	return &m_options.styles[(int)m_state];
+	return &m_options.styleSet.styles[(int)m_state];
 }

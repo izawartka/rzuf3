@@ -4,7 +4,7 @@
 
 RZUF3_TextSelRenderer::RZUF3_TextSelRenderer(std::string fontFilepath, std::string text)
 {
-	mp_options.style.fontFilepath = fontFilepath;
+	mp_options.style.textStyle.fontFilepath = fontFilepath;
 	mp_options.text = text;
 }
 
@@ -55,8 +55,8 @@ void RZUF3_TextSelRenderer::deinit()
 
 void RZUF3_TextSelRenderer::setFontFilepath(std::string fontFilepath)
 {
-	RZUF3_TextStyle style = m_options.style;
-	style.fontFilepath = fontFilepath;
+	RZUF3_TextSelStyle style = m_options.style;
+	style.textStyle.fontFilepath = fontFilepath;
 
 	setStyle(style);
 }
@@ -115,17 +115,17 @@ void RZUF3_TextSelRenderer::setText(std::string text, bool resetSelection)
 	sendSelectionChangeEvent();
 }
 
-void RZUF3_TextSelRenderer::setStyle(RZUF3_TextStyle style)
+void RZUF3_TextSelRenderer::setStyle(RZUF3_TextSelStyle style)
 {
-	if(!m_textRenderer || !m_textRendererSelected) return;
+	if (!m_textRenderer || !m_textRendererSelected) return;
 
 	m_options.style = style;
-	m_textRenderer->setStyle(style);
+	m_textRenderer->setStyle(style.textStyle);
 
-	style.color = m_options.selStyle.color;
-	style.bgColor = m_options.selStyle.bgColor;
+	style.textStyle.color = style.textSelColor;
+	style.textStyle.bgColor = style.textSelBgColor;
 
-	m_textRendererSelected->setStyle(style);
+	m_textRendererSelected->setStyle(style.textStyle);
 
 	updateSelRects();
 	createCombinedTexture();
@@ -313,14 +313,9 @@ SDL_Texture* RZUF3_TextSelRenderer::getTexture() const
 	return m_combinedTexture;
 }
 
-RZUF3_TextStyle RZUF3_TextSelRenderer::getStyle() const
+RZUF3_TextSelStyle RZUF3_TextSelRenderer::getStyle() const
 {
 	return m_options.style;
-}
-
-RZUF3_TextSelStyle RZUF3_TextSelRenderer::getSelStyle() const
-{
-	return m_options.selStyle;
 }
 
 int RZUF3_TextSelRenderer::getWidth() const
@@ -552,6 +547,15 @@ int RZUF3_TextSelRenderer::getNeighbourCharIndexVertically(int index, bool up)
 	return pointToCharIndex(newX, newY);
 }
 
+RZUF3_TextRendererStyle RZUF3_TextSelRenderer::getSelectedTextStyle() const
+{
+	RZUF3_TextRendererStyle style = m_options.style.textStyle;
+	style.color = m_options.style.textSelColor;
+	style.bgColor = m_options.style.textSelBgColor;
+
+	return style;
+}
+
 void RZUF3_TextSelRenderer::removeTextRenderers()
 {
 	if (m_textRenderer != nullptr) {
@@ -581,7 +585,7 @@ void RZUF3_TextSelRenderer::createTextRenderers()
 	options.cropRect = { 0, 0, 0, 0 };
 
 	options.wrapLength = m_options.wrapLength;
-	options.style = m_options.style;
+	options.style = m_options.style.textStyle;
 	m_textRenderer = new RZUF3_TextRenderer(options);
 	if (!m_textRenderer) {
 		spdlog::error("TextSelRenderer: Failed to create original text renderer");
@@ -589,8 +593,7 @@ void RZUF3_TextSelRenderer::createTextRenderers()
 	}
 	m_object->addScript(m_textRenderer);
 
-	options.style.color = m_options.selStyle.color;
-	options.style.bgColor = m_options.selStyle.bgColor;
+	options.style = getSelectedTextStyle();
 	m_textRendererSelected = new RZUF3_TextRenderer(options);
 	if (!m_textRendererSelected) {
 		spdlog::error("TextSelRenderer: Failed to create selected text renderer");

@@ -13,7 +13,6 @@ public:
 	bool getValue(std::string key, void*& value, size_t& size);
 	bool setValue(std::string key, void* value);
 
-	bool isLoaded() const { return m_loaded; }
 	std::string getFilepath() { return m_def->filepath; }
 
 	bool saveConfig() { return save(); }
@@ -24,5 +23,4 @@ private:
 
 	const RZUF3_ConfigFileDef* m_def;
 	std::map<std::string, std::pair<RZUF3_ConfigEntryDef*, std::string>> m_values;
-	bool m_loaded = false;
 };

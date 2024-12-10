@@ -2,9 +2,8 @@
 #include "../events/draw.h"
 #include "../event_macros.h"
 #include "../renderer.h"
-#include "../text_style.h"
 #include "object_scripts.h"
-#include "border_box_style.h"
+#include "text_input_style.h"
 
 class RZUF3_ObjectScript;
 class RZUF3_Renderer;
@@ -20,22 +19,11 @@ class RZUF3_TextInputEvent;
 class RZUF3_TextEditingEvent;
 class RZUF3_BorderBox;
 
-struct RZUF3_TextInputStyle {
-	RZUF3_TextStyle textStyle;
-	RZUF3_BorderBoxStyle borderBoxStyle;
-	SDL_Color blinkColor = { 255, 255, 255, 255 };
-	SDL_Rect rect = { 0, 0, 128, 0 };
-	int horizontalPadding = 5;
-	int verticalPadding = 5;
-	double blinkTime = 500.0;
-};
-
 struct RZUF3_TextInputOptions {
 	std::string text;
 	bool multiline = false;
 	int maxChars = 0;
-	RZUF3_TextInputStyle style;
-	RZUF3_TextInputStyle focusedStyle;
+	RZUF3_TextInputStyleSet styleSet;
 };
 
 class RZUF3_TextInput : public RZUF3_ObjectScript {
@@ -56,7 +44,7 @@ public:
 	void addText(std::string text, bool noNewLineCheck = false);
 	void removeText(bool backspace);
 
-	RZUF3_TextInputStyle getStyle(bool focused) const { return focused ? m_options.focusedStyle : m_options.style; }
+	RZUF3_TextInputStyle getStyle(bool focused) const { return m_options.styleSet.styles[focused ? 1 : 0]; }
 	std::string getText() const { return m_text; }
 	bool getMultiline() const { return m_options.multiline; }
 	bool getFocused() const { return m_isFocused; }

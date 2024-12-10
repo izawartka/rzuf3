@@ -18,7 +18,6 @@ RZUF3_Checkbox::~RZUF3_Checkbox()
 void RZUF3_Checkbox::init()
 {
 	m_options = mp_options;
-	resolveSpecialOptions();
 
 	createTextRenderer();
 	createBorderBoxes();
@@ -326,19 +325,6 @@ void RZUF3_Checkbox::updateBorderBoxes()
 
 	m_rectBorderBox->setRect({0, baseY, rectSize, rectSize});
 	m_checkBorderBox->setRect({checkPadding, baseY + checkPadding, checkSize, checkSize});
-}
-
-void RZUF3_Checkbox::resolveSpecialOptions()
-{
-	if (m_options.sp_defaultColors)
-	{
-		m_options.style.rectStyle.color = {255, 255, 255, 255};
-		m_options.style.rectStyle.infillColor = {0, 0, 0, 0};
-		m_options.style.checkStyle.color = {255, 255, 255, 255};
-		m_options.style.checkStyle.infillColor = {255, 255, 255, 255};
-		m_options.style.textStyle.color = {255, 255, 255, 255};
-		m_options.style.textStyle.bgColor = {0, 0, 0, 0};
-	}
 }
 
 void RZUF3_Checkbox::removeCombinedTexture()

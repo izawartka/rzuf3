@@ -80,9 +80,7 @@ void RZUF3_TextInput::setMaxChars(int maxChars)
 
 void RZUF3_TextInput::setStyle(RZUF3_TextInputStyle style, bool focused)
 {
-	if(focused) m_options.focusedStyle = style;
-	else m_options.style = style;
-
+	m_options.styleSet.styles[focused ? 1 : 0] = style;
 	if(focused != m_isFocused) return;
 
 	updateTextRendererStyle();
@@ -236,8 +234,8 @@ void RZUF3_TextInput::onSetRect(RZUF3_SetRectEvent* event)
 {
 	SDL_Rect rect = event->getRect();
 
-	m_options.style.rect = rect;
-	m_options.focusedStyle.rect = rect;
+	m_options.styleSet.styles[0].rect = rect;
+	m_options.styleSet.styles[1].rect = rect;
 
 	updateTextRendererStyle();
 	updateBorderBox();
@@ -386,7 +384,11 @@ void RZUF3_TextInput::updateTextRendererStyle()
 
 	RZUF3_TextInputStyle* style = getCurrentStylePtr();
 
-	m_textRenderer->setStyle(style->textStyle);
+	RZUF3_TextSelStyle textSelStyle;
+	textSelStyle.textStyle = style->textStyle;
+	textSelStyle.textSelBgColor = style->textSelBgColor;
+	textSelStyle.textSelColor = style->textSelColor;
+	m_textRenderer->setStyle(textSelStyle);
 
 	m_textRenderer->setDstPos(
 		style->rect.x + style->horizontalPadding,
@@ -422,7 +424,9 @@ void RZUF3_TextInput::createTextRenderer()
 	RZUF3_TextInputStyle* style = getCurrentStylePtr();
 
 	RZUF3_TextSelRendererOptions textRendererOptions;
-	textRendererOptions.style = m_options.style.textStyle;
+	textRendererOptions.style.textStyle = style->textStyle;
+	textRendererOptions.style.textSelBgColor = style->textSelBgColor;
+	textRendererOptions.style.textSelColor = style->textSelColor;
 	textRendererOptions.text = m_text;
 	textRendererOptions.useLangFile = false;
 	textRendererOptions.alignment = RZUF3_Align_TopLeft;
@@ -516,7 +520,7 @@ void RZUF3_TextInput::updateClickable()
 
 RZUF3_TextInputStyle* RZUF3_TextInput::getCurrentStylePtr()
 {
-	return m_isFocused ? &m_options.focusedStyle : &m_options.style;
+	return &m_options.styleSet.styles[m_isFocused ? 1 : 0];
 }
 
 void RZUF3_TextInput::updateCursorRectAndScroll(bool noAutoscroll)

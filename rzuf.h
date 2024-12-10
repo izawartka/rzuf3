@@ -17,7 +17,6 @@
 #include "strings_helper.h"
 #include "config_file/config_file.h"
 #include "lang.h"
-#include "text_style.h"
 
 #include "asset.h"
 #include "assets/texture.h"

@@ -40,7 +40,7 @@ void RZUF3_TextRenderer::deinit()
 
 void RZUF3_TextRenderer::setFontFilepath(std::string fontFilepath)
 {
-	RZUF3_TextStyle style = m_options.style;
+	RZUF3_TextRendererStyle style = m_options.style;
 	style.fontFilepath = fontFilepath;
 
 	setStyle(style);
@@ -78,7 +78,7 @@ void RZUF3_TextRenderer::setText(std::string text)
 	updateTexture();
 }
 
-void RZUF3_TextRenderer::setStyle(RZUF3_TextStyle style)
+void RZUF3_TextRenderer::setStyle(RZUF3_TextRendererStyle style)
 {
 	bool fontChanged = m_options.style.fontFilepath != style.fontFilepath;
 	m_options.style = style;
@@ -250,7 +250,7 @@ SDL_Texture* RZUF3_TextRenderer::getTexture() const
 	return m_texture;
 }
 
-RZUF3_TextStyle RZUF3_TextRenderer::getStyle() const
+RZUF3_TextRendererStyle RZUF3_TextRenderer::getStyle() const
 {
 	return m_options.style;
 }

@@ -1,9 +1,6 @@
 #pragma once
 #include "common.h"
 
-#pragma once
-#include "common.h"
-
 class RZUF3_Lang {
 public:
 	RZUF3_Lang(std::string filepath);

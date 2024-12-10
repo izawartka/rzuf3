@@ -3,31 +3,14 @@
 #include "../event_macros.h"
 #include "../renderer.h"
 #include "object_scripts.h"
-#include "border_box_style.h"
+#include "text_button_style.h"
 
 class RZUF3_BorderBox;
 class RZUF3_Clickable;
 class RZUF3_TextRenderer;
 
-enum class RZUF3_TextButtonState {
-	Normal,
-	NormalHighlighted,
-	Hover,
-	Pressed
-};
-
-#define RZUF3_TEXT_BUTTON_STATE_COUNT 4
-
-struct RZUF3_TextButtonStyle {
-	RZUF3_BorderBoxStyle borderBoxStyle;
-	RZUF3_TextStyle textStyle;
-	int horizontalPadding = 5;
-	int verticalPadding = 5;
-	SDL_Rect rect = { 0, 0, 0, 0 };
-};
-
 struct RZUF3_TextButtonOptions {
-	RZUF3_TextButtonStyle styles[RZUF3_TEXT_BUTTON_STATE_COUNT];
+	RZUF3_TextButtonStyleSet styleSet;
 	std::string text;
 	bool highlighted = false;
 	bool useLangFile = true;
@@ -35,9 +18,6 @@ struct RZUF3_TextButtonOptions {
 	bool useOnDraw = true;
 	bool useMouseEvents = true;
 	RZUF3_Align alignment = RZUF3_Align_TopLeft;
-
-	bool sp_copyStylesFromNormal = true;
-	bool sp_defaultColors = true;
 };
 
 class RZUF3_TextButton : public RZUF3_ObjectScript {
@@ -61,14 +41,13 @@ public:
 	void draw();
 	void setState(RZUF3_TextButtonState state);
 
-	RZUF3_TextButtonStyle getStyle(RZUF3_TextButtonState state) const { return m_options.styles[(int)state]; }
+	RZUF3_TextButtonStyle getStyle(RZUF3_TextButtonState state) const { return m_options.styleSet.styles[(int)state]; }
 	bool getHighlighted() const { return m_options.highlighted; }
 	bool getUseLangFile() const { return m_options.useLangFile; }
 	bool getUseOnSetRect() const { return m_options.useOnSetRect; }
 	bool getUseOnDraw() const { return m_options.useOnDraw; }
 	bool getUseMouseEvents() const { return m_options.useMouseEvents; }
 	RZUF3_Align getAlignment() const { return m_options.alignment; }
-	SDL_Rect getRect(RZUF3_TextButtonState state) const { return m_options.styles[(int)state].rect; }
 
 	RZUF3_TextButtonState getState() const { return m_state; }
 	SDL_Texture* getTexture();
@@ -95,7 +74,6 @@ protected:
 	void removeCombinedTexture();
 	void createCombinedTexture();
 
-	void resolveSpecialOptions();
 	void cacheLangFileText();
 	RZUF3_TextButtonStyle* getCurrentStylePtr();
 

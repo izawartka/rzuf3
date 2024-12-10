@@ -1,7 +1,7 @@
 #pragma once
 #include "../events/draw.h"
 #include "../event_macros.h"
-#include "../text_style.h"
+#include "text_renderer_style.h"
 #include "object_scripts.h"
 
 class RZUF3_ObjectScript;
@@ -11,7 +11,7 @@ struct RZUF3_TextRendererOptions {
 	std::string text;
 	SDL_Rect dstRect = { 0, 0, 0, 0 };
 	SDL_Rect cropRect = { 0, 0, 0, 0 };
-	RZUF3_TextStyle style;
+	RZUF3_TextRendererStyle style;
 	bool useOnDraw = true;
 	bool metricsOnly = false;
 	bool useLangFile = true;
@@ -34,7 +34,7 @@ public:
 	void setOffset(int offsetX, int offsetY);
 	void setMaxSize(int maxWidth, int maxHeight);
 	void setText(std::string text);
-	void setStyle(RZUF3_TextStyle style);
+	void setStyle(RZUF3_TextRendererStyle style);
 	void setUseLangFile(bool useLangFile);
 	void setUseOnDraw(bool useOnDraw);
 	void setWrapLength(int wrapLength);
@@ -45,7 +45,7 @@ public:
 	void draw();
 
 	SDL_Texture* getTexture() const; // uncropped texture
-	RZUF3_TextStyle getStyle() const;
+	RZUF3_TextRendererStyle getStyle() const;
 	int getWidth() const;
 	int getHeight() const;
 	bool getUseOnDraw() const;

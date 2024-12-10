@@ -57,6 +57,7 @@ void RZUF3_Game::loadLanguage(std::string filepath)
 
 void RZUF3_Game::loadLanguageFromConfigFile(std::string basepath, std::string valueKey)
 {
+	/// TODO: Reload after config entry update
 	if(m_defaultConfigFile == nullptr)
 	{
 		spdlog::error("Cannot load language file from config file, no default config file set");

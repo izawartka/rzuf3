@@ -1,23 +1,17 @@
 #pragma once
 #include "../events/events.h"
 #include "../event_macros.h"
-#include "../text_style.h"
+#include "text_sel_renderer_style.h"
 #include "text_renderer.h"
 #include "object_scripts.h"
 
 class RZUF3_ObjectScript;
 
-struct RZUF3_TextSelStyle {
-	SDL_Color color = { 0, 0, 0, 255 };
-	SDL_Color bgColor = { 255, 255, 255, 255 };
-};
-
 struct RZUF3_TextSelRendererOptions {
 	std::string text;
 	SDL_Rect dstRect = { 0, 0, 0, 0 };
 	SDL_Rect cropRect = { 0, 0, 0, 0 };
-	RZUF3_TextStyle style;
-	RZUF3_TextSelStyle selStyle;
+	RZUF3_TextSelStyle style;
 	bool useOnDraw = true;
 	bool useMouseEvents = true;
 	bool useKeyboardEvents = true;
@@ -44,7 +38,7 @@ public:
 	void setOffset(int offsetX, int offsetY);
 	void setMaxSize(int maxWidth, int maxHeight);
 	void setText(std::string text, bool resetSelection = true);
-	void setStyle(RZUF3_TextStyle style);
+	void setStyle(RZUF3_TextSelStyle style);
 	void setUseLangFile(bool useLangFile);
 	void setUseOnDraw(bool useOnDraw);
 	void setUseMouseEvents(bool useMouseEvents);
@@ -60,8 +54,7 @@ public:
 	void draw();
 
 	SDL_Texture* getTexture() const;
-	RZUF3_TextStyle getStyle() const;
-	RZUF3_TextSelStyle getSelStyle() const;
+	RZUF3_TextSelStyle getStyle() const;
 	int getWidth() const;
 	int getHeight() const;
 	bool getUseOnDraw() const;
@@ -85,6 +78,7 @@ protected:
 	void onMouseMove(RZUF3_MouseMoveEvent* event);
 
 	int getNeighbourCharIndexVertically(int index, bool up);
+	RZUF3_TextRendererStyle getSelectedTextStyle() const;
 
 	void removeTextRenderers();
 	void createTextRenderers();
