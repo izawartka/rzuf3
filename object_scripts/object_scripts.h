@@ -17,3 +17,4 @@
 #include "timer.h"
 #include "text_input.h"
 #include "text_button.h"
+#include "ui_config_sync.h"
