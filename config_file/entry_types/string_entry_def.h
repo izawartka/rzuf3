@@ -6,8 +6,9 @@ public:
     explicit RZUF3_ConfigStringEntryDef(const std::string& defaultValue)
         : RZUF3_ConfigEntryDef(defaultValue) {}
 
-    bool parse(std::string& input, void* output) const override {
-        *static_cast<std::string*>(output) = input;
+    bool parse(std::string& input, void*& output, size_t& size) const override {
+        output = new std::string(input);
+        size = sizeof(std::string);
         return true;
     }
 
@@ -22,6 +23,10 @@ public:
 
     std::unique_ptr<RZUF3_ConfigEntryDef> clone() const override {
 		return std::make_unique<RZUF3_ConfigStringEntryDef>(m_defaultValue);
+	}
+
+    std::type_index getType() const override {
+		return typeid(std::string);
 	}
 };
 

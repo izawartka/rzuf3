@@ -1,10 +1,10 @@
 #include "enum_entry_def.h"
 
-bool RZUF3_ConfigEnumEntryDef::parse(std::string& input, void* output) const
+bool RZUF3_ConfigEnumEntryDef::parse(std::string& input, void*& output, size_t& size) const
 {
 	if (!validate(input)) return false;
 
-	*static_cast<std::string*>(output) = input;
+	output = new std::string(input);
 	return true;
 }
 
