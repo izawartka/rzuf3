@@ -57,6 +57,7 @@ private:
 	unsigned int m_counter = 0;
 	RZUF3_Scene* m_scene = nullptr;
 	RZUF3_SceneDefinition* m_nextSceneDef = nullptr;
+	bool m_debugSceneSwapCounter = false;
 	RZUF3_Lang* m_lang = nullptr;
 	std::string m_currentTextInputId = "";
 	SDL_Color m_clearColor = { 0, 0, 0, 255 };

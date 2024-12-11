@@ -25,6 +25,13 @@ RZUF3_Object::~RZUF3_Object()
 	{
 		removeScript(m_scripts.back());
 	}
+
+	while (!m_children.empty())
+	{
+		m_children.begin()->second->setParent(nullptr);
+	}
+
+	setParent(nullptr);
 }
 
 void RZUF3_Object::init()
@@ -98,19 +105,16 @@ void RZUF3_Object::updateAbsolutePos()
 	}
 }
 
-bool RZUF3_Object::setParent(RZUF3_Object* parent)
+void RZUF3_Object::setParent(RZUF3_Object* parent)
 {
-	if(parent == nullptr) return false;
-
 	if (m_parent != nullptr) {
 		m_parent->m_children.erase(m_name);
 	}
 
 	m_parent = parent;
-	m_parent->m_children.insert(std::pair(m_name, this));
+	if (m_parent) m_parent->m_children.insert(std::pair(m_name, this));
 
 	updateAbsolutePos();
-	return true;
 }
 
 bool RZUF3_Object::setParent(std::string parentName)
@@ -124,7 +128,8 @@ bool RZUF3_Object::setParent(std::string parentName)
 		return false;
 	}
 
-	return setParent(parent);
+	setParent(parent);
+	return true;
 }
 
 RZUF3_EventsManager* RZUF3_Object::getEventsManager()

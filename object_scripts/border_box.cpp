@@ -37,10 +37,12 @@ void RZUF3_BorderBox::setUseOnSetRect(bool useOnSetRect)
 	if (useOnSetRect && !m_hasOnSetRectListener)
 	{
 		_ADD_LISTENER(eventsManager, SetRect);
+		m_hasOnSetRectListener = true;
 	}
 	else if (!useOnSetRect && m_hasOnSetRectListener)
 	{
 		_REMOVE_LISTENER(eventsManager, SetRect);
+		m_hasOnSetRectListener = false;
 	}
 }
 
@@ -52,10 +54,12 @@ void RZUF3_BorderBox::setUseOnDraw(bool useOnDraw)
 	if (useOnDraw && !m_hasOnDrawListener)
 	{
 		_ADD_LISTENER(eventsManager, Draw);
+		m_hasOnDrawListener = true;
 	}
 	else if (!useOnDraw && m_hasOnDrawListener)
 	{
 		_REMOVE_LISTENER(eventsManager, Draw);
+		m_hasOnDrawListener = false;
 	}
 }
 

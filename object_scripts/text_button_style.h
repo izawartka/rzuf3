@@ -15,8 +15,8 @@ enum class RZUF3_TextButtonState {
 struct RZUF3_TextButtonStyle {
 	RZUF3_BorderBoxStyle borderBoxStyle;
 	RZUF3_TextRendererStyle textStyle;
-	int horizontalPadding = 5;
-	int verticalPadding = 5;
+	int horizontalPadding = 16;
+	int verticalPadding = 4;
 	SDL_Rect rect = { 0, 0, 0, 0 };
 };
 

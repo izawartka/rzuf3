@@ -29,7 +29,7 @@ public:
 
 	void setPos(RZUF3_Pos pos);
 	void updateAbsolutePos();
-	bool setParent(RZUF3_Object* parent);
+	void setParent(RZUF3_Object* parent);
 	bool setParent(std::string parentName);
 
 	RZUF3_EventsManager* getEventsManager();

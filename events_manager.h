@@ -9,7 +9,15 @@ struct RZUF3_EventListener;
 class RZUF3_EventsManager {
 public:
     RZUF3_EventsManager() {}
-    ~RZUF3_EventsManager() {}
+    ~RZUF3_EventsManager() {
+#ifdef _DEBUG
+        for (auto& listeners : m_eventListeners) {
+            if (listeners.second.size() == 0) continue;
+
+            spdlog::warn("Deleting EventsManager without removing all event listeners! ({} left) This may lead to unexpected behavior in the future", listeners.second.size());
+        }
+#endif // _DEBUG
+    }
 
     using EventListenerList = std::vector<RZUF3_EventListener>;
     using EventListenersByType = std::unordered_map<std::type_index, EventListenerList>;
@@ -47,10 +55,6 @@ public:
                 ),
                 it->second.end()
             );
-
-            if (it->second.empty()) {
-                m_eventListeners.erase(it);
-            }
         }
     }
 
@@ -62,8 +66,18 @@ public:
             return;
         }
 
-        for (auto& eventListener : it->second) {
-			eventListener.callback(event);
+        EventListenerList& eventListeners = it->second;
+        int lastSize = eventListeners.size();
+
+        for (int i = 0; i < lastSize; i++) {
+            eventListeners[i].callback(event);
+
+            int size = eventListeners.size();
+            if (size < lastSize) {
+                i -= lastSize - size;
+			}
+
+            lastSize = size;
 		}
     }
 

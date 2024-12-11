@@ -17,8 +17,8 @@ struct RZUF3_TextInputStyle {
 	RZUF3_BorderBoxStyle borderBoxStyle;
 	SDL_Color blinkColor = { 255, 255, 255, 255 };
 	SDL_Rect rect = { 0, 0, 128, 0 };
-	int horizontalPadding = 5;
-	int verticalPadding = 5;
+	int horizontalPadding = 4;
+	int verticalPadding = 4;
 	double blinkTime = 500.0;
 };
 

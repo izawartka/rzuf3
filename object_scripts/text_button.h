@@ -22,6 +22,7 @@ struct RZUF3_TextButtonOptions {
 
 class RZUF3_TextButton : public RZUF3_ObjectScript {
 public:
+	RZUF3_TextButton(std::string fontFilepath, std::string text);
 	RZUF3_TextButton(RZUF3_TextButtonOptions options);
 	~RZUF3_TextButton();
 
@@ -29,6 +30,7 @@ public:
 	void deinit();
 
 	void setStyle(RZUF3_TextButtonStyle style, RZUF3_TextButtonState state);
+	void setStyleSet(RZUF3_TextButtonStyleSet styleSet);
 	void setText(std::string text);
 	void setHighlighted(bool highlighted);
 	void setUseLangFile(bool useLangFile);
@@ -42,6 +44,7 @@ public:
 	void setState(RZUF3_TextButtonState state);
 
 	RZUF3_TextButtonStyle getStyle(RZUF3_TextButtonState state) const { return m_options.styleSet.styles[(int)state]; }
+	RZUF3_TextButtonStyleSet getStyleSet() const { return m_options.styleSet; }
 	bool getHighlighted() const { return m_options.highlighted; }
 	bool getUseLangFile() const { return m_options.useLangFile; }
 	bool getUseOnSetRect() const { return m_options.useOnSetRect; }

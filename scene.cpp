@@ -29,8 +29,22 @@ RZUF3_Scene::~RZUF3_Scene()
 {
 	for (auto& object : m_objectsToDelete)
 	{
+#ifdef _DEBUG
+		std::string name = object->getName();
 		delete object;
+		m_objects.erase(name);
+#else
+		delete object;
+#endif // _DEBUG
 	}
+
+#ifdef _DEBUG
+	for (auto& object : m_objects)
+	{
+		spdlog::warn("Object {} was not removed before scene destruction", object.first);
+	}
+#endif // _DEBUG
+
 
 	delete m_assetsManager;
 	delete m_eventsManager;

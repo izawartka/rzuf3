@@ -291,6 +291,7 @@ void RZUF3_Game::setScene(RZUF3_SceneDefinition* sceneDefinition)
 	}
 
 	m_nextSceneDef = sceneDefinition;
+	m_debugSceneSwapCounter = true;
 }
 
 void RZUF3_Game::getWindowSize(int* width, int* height) const
@@ -340,7 +341,13 @@ void RZUF3_Game::handleSceneSwap()
 
 	spdlog::info("Creating scene: {}", m_nextSceneDef->name);
 	m_scene = new RZUF3_Scene(m_nextSceneDef);
+#ifdef _DEBUG 
+	if (!m_debugSceneSwapCounter) m_nextSceneDef = nullptr;
+	else spdlog::info("Only in debug mode: scene will be reloaded to test scripts deinitialization");
+	m_debugSceneSwapCounter = false;
+#else
 	m_nextSceneDef = nullptr;
+#endif
 	m_scene->init();
 }
 

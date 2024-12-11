@@ -30,7 +30,7 @@ RZUF3_Asset* RZUF3_AssetsManager::addAsset(RZUF3_AssetDefinition assetDefinition
 
 	if (it != m_assets.end())
 	{
-		spdlog::debug("Reusing asset {}", it->second->getFilepath());
+		// spdlog::debug("Reusing asset {}", it->second->getFilepath());
 		it->second->addReference();
 		return it->second;
 	}

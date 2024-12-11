@@ -1,6 +1,14 @@
 #include "text_button.h"
 #include "../lang.h"
 
+RZUF3_TextButton::RZUF3_TextButton(std::string fontFilepath, std::string text)
+{
+	mp_options.styleSet.styles[(int)RZUF3_TextButtonState::Normal].textStyle.fontFilepath = fontFilepath;
+	mp_options.styleSet.copyFromNormal();
+	mp_options.styleSet.defaultColors();
+	mp_options.text = text;
+}
+
 RZUF3_TextButton::RZUF3_TextButton(RZUF3_TextButtonOptions options)
 {
 	mp_options = options;
@@ -46,9 +54,15 @@ void RZUF3_TextButton::setStyle(RZUF3_TextButtonStyle style, RZUF3_TextButtonSta
 	if(state == m_state) removeCombinedTexture();
 }
 
+void RZUF3_TextButton::setStyleSet(RZUF3_TextButtonStyleSet styleSet)
+{
+	m_options.styleSet = styleSet;
+	removeCombinedTexture();
+}
+
 void RZUF3_TextButton::setText(std::string text)
 {
-	mp_options.text = text;
+	m_options.text = text;
 	cacheLangFileText();
 	removeCombinedTexture();
 }
@@ -225,7 +239,7 @@ void RZUF3_TextButton::onMouseUp(RZUF3_MouseUpEvent* event)
 	setState(targetState);
 
 	if (wasPressed && m_clickable->isInside()) {
-		RZUF3_UIButtonClickEvent buttonEvent;
+		RZUF3_UIButtonClickEvent buttonEvent(m_object->getName());
 		m_object->getEventsManager()->dispatchEvent(&buttonEvent);
 	}
 }
