@@ -10,6 +10,13 @@ struct RZUF3_DropDownStyle {
 	int arrowSize = 4;
 	int arrowOffset = 4;
 
+	void setFontFilepath(std::string filepath) {
+		for (int i = 0; i < RZUF3_TEXT_BUTTON_STATE_COUNT; i++) {
+			button.styles[i].textStyle.fontFilepath = filepath;
+			item.styles[i].textStyle.fontFilepath = filepath;
+		}
+	}
+
 	void defaultColors() {
 		button.defaultColors();
 		item.defaultColors();

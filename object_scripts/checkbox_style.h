@@ -12,7 +12,7 @@ struct RZUF3_CheckboxStyle {
 	int textOffset = 6;
 
 	void defaultColors() {
-		rectStyle.color = { 255, 255, 255, 255 };
+		rectStyle.color = { 200, 200, 200, 255 };
 		rectStyle.infillColor = { 0, 0, 0, 0 };
 		checkStyle.color = { 255, 255, 255, 255 };
 		checkStyle.infillColor = { 255, 255, 255, 255 };

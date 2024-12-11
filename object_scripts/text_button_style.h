@@ -25,7 +25,7 @@ struct RZUF3_TextButtonStyleSet {
 
 	void defaultColors() {
 		RZUF3_TextButtonStyle& normalStyle = styles[(int)RZUF3_TextButtonState::Normal];
-		normalStyle.borderBoxStyle.color = { 128, 128, 128, 255 };
+		normalStyle.borderBoxStyle.color = { 200, 200, 200, 255 };
 		normalStyle.borderBoxStyle.infillColor = { 0, 0, 0, 255 };
 		normalStyle.textStyle.color = { 255, 255, 255, 255 };
 		normalStyle.textStyle.bgColor = { 0, 0, 0, 255 };

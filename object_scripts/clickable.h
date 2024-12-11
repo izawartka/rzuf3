@@ -42,6 +42,7 @@ public:
 	SDL_SystemCursor getOnHoverCursor() const { return m_options.onHoverCursorId; }
 	bool getUseOnSetRect() const { return m_options.useOnSetRect; }
 	bool getInsideOnly() const { return m_options.insideOnly; }
+	void getLastMousePos(int& x, int& y) const { x = m_lastX; y = m_lastY; }
 
 protected:
 	void onUpdate(RZUF3_UpdateEvent* event);

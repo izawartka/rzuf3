@@ -43,6 +43,7 @@ void RZUF3_UIConfigSync::deinit()
 
 void RZUF3_UIConfigSync::setConfigName(std::string configName)
 {
+	m_options.configName = configName;
 	m_configFile = g_game->getConfigFile(configName);
 	updateType();
 }
