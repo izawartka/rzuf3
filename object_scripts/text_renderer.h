@@ -55,6 +55,7 @@ public:
 
 protected:
 	void onDraw(RZUF3_DrawEvent* event);
+	void onLangChange(RZUF3_LangChangeEvent* event);
 
 	void removeFont();
 	void createFont();
@@ -72,6 +73,8 @@ protected:
 	SDL_Rect m_origSize = { 0, 0, 0, 0 };
 	SDL_Texture* m_texture = nullptr;
 	bool m_hasOnDrawListener = false;
+	bool m_hasOnLangChangeListener = false;
 	
 	_DECLARE_LISTENER(Draw)
+	_DECLARE_LISTENER(LangChange)
 };

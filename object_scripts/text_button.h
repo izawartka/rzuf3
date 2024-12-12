@@ -57,12 +57,13 @@ public:
 	SDL_Rect getBorderRect();
 
 protected:
+	void onDraw(RZUF3_DrawEvent* event);
+	void onLangChange(RZUF3_LangChangeEvent* event);
 	void onMouseEnter(RZUF3_MouseEnterEvent* event);
 	void onMouseLeave(RZUF3_MouseLeaveEvent* event);
 	void onMouseDown(RZUF3_MouseDownEvent* event);
 	void onMouseUp(RZUF3_MouseUpEvent* event);
 	void onSetRect(RZUF3_SetRectEvent* event);
-	void onDraw(RZUF3_DrawEvent* event);
 
 	void removeTextRenderer();
 	void createTextRenderer();
@@ -86,18 +87,20 @@ protected:
 
 	std::string m_cachedText = "";
 	RZUF3_TextButtonState m_state = RZUF3_TextButtonState::Normal;
-	bool m_hasOnSetRectListener = false;
 	bool m_hasOnDrawListener = false;
+	bool m_hasOnLangChangeListener = false;
+	bool m_hasOnSetRectListener = false;
 	bool m_hasMouseEventsListener = false;
 	RZUF3_Clickable* m_clickable = nullptr;
 	RZUF3_TextRenderer* m_textRenderer = nullptr;
 	RZUF3_BorderBox* m_borderBox = nullptr;
 	SDL_Texture* m_combinedTexture = nullptr;
 
+	_DECLARE_LISTENER(Draw)
+	_DECLARE_LISTENER(LangChange)
 	_DECLARE_LISTENER(MouseEnter)
 	_DECLARE_LISTENER(MouseLeave)
 	_DECLARE_LISTENER(MouseDown)
 	_DECLARE_LISTENER(MouseUp)
 	_DECLARE_LISTENER(SetRect)
-	_DECLARE_LISTENER(Draw)
 };

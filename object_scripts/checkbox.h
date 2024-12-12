@@ -48,11 +48,12 @@ public:
 	SDL_Rect getRect() const;
 
 protected:
+	void onDraw(RZUF3_DrawEvent* event);
+	void onLangChange(RZUF3_LangChangeEvent* event);
 	void onMouseDown(RZUF3_MouseDownEvent* event);
 	void onMouseUp(RZUF3_MouseUpEvent* event);
 	void onMouseUpOutside(RZUF3_MouseUpOutsideEvent* event);
 	void onUISetValue(RZUF3_UISetValueEvent* event);
-	void onDraw(RZUF3_DrawEvent* event);
 
 	int getHalfRectTextLineHeightDiff() const;
 	void sendValueChangeEvent();
@@ -75,6 +76,7 @@ protected:
 	RZUF3_CheckboxOptions m_options;
 	bool m_pressed = false;
 	bool m_hasOnDrawListener = false;
+	bool m_hasOnLangChangeListener = false;
 	bool m_hasMouseEventsListener = false;
 	RZUF3_TextRenderer* m_textRenderer = nullptr;
 	RZUF3_BorderBox* m_rectBorderBox = nullptr;
@@ -84,6 +86,7 @@ protected:
 	bool m_subScriptsOptionsChanged = false;
 
 	_DECLARE_LISTENER(Draw)
+	_DECLARE_LISTENER(LangChange)
 	_DECLARE_LISTENER(MouseDown)
 	_DECLARE_LISTENER(MouseUp)
 	_DECLARE_LISTENER(MouseUpOutside)

@@ -8,10 +8,11 @@ struct RZUF3_ConfigFileDef {
     std::string filepath;
     bool isDefaultConfig = false;
     bool autosave = true;
+    bool ignoreUnchanged = true;
 
     RZUF3_ConfigFileDef(std::initializer_list<std::pair<std::string, std::unique_ptr<RZUF3_ConfigEntryDef>>> configEntries,
-        const std::string& filepath, bool isDefaultConfig, bool autosave)
-        : filepath(filepath), isDefaultConfig(isDefaultConfig), autosave(autosave) {
+        const std::string& filepath, bool isDefaultConfig, bool autosave, bool ignoreUnchanged)
+        : filepath(filepath), isDefaultConfig(isDefaultConfig), autosave(autosave), ignoreUnchanged(ignoreUnchanged) {
 
         for (auto& entry : configEntries) {
             entries.insert(std::make_pair(entry.first, entry.second->clone()));

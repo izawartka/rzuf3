@@ -28,6 +28,7 @@ void RZUF3_TextSelRenderer::init()
 	createCombinedTexture();
 	cacheRealRects();
 
+	setUseLangFile(m_options.useLangFile);
 	setUseOnDraw(m_options.useOnDraw);
 	setUseKeyboardEvents(m_options.useKeyboardEvents);
 	setUseMouseEvents(m_options.useMouseEvents);
@@ -39,6 +40,8 @@ void RZUF3_TextSelRenderer::deinit()
 {
 	_REMOVE_LISTENER(g_scene->getEventsManager(), TextSelFocus);
 
+	m_options.useLangFile = false;
+	setUseLangFile(false);
 	setUseOnDraw(false);
 	setUseKeyboardEvents(false);
 	setUseMouseEvents(false);
@@ -134,8 +137,20 @@ void RZUF3_TextSelRenderer::setStyle(RZUF3_TextSelStyle style)
 
 void RZUF3_TextSelRenderer::setUseLangFile(bool useLangFile)
 {
+	bool wasTheSame = m_options.useLangFile == useLangFile;
 	m_options.useLangFile = useLangFile;
-	setText(m_options.text, true);
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+
+	if (useLangFile && !m_hasOnLangChangeListener) {
+		_ADD_LISTENER(eventsManager, LangChange);
+		m_hasOnLangChangeListener = true;
+	}
+	else if (!useLangFile && m_hasOnLangChangeListener) {
+		_REMOVE_LISTENER(eventsManager, LangChange);
+		m_hasOnLangChangeListener = false;
+	}
+
+	if(!wasTheSame) setText(m_options.text, true);
 }
 
 void RZUF3_TextSelRenderer::setUseOnDraw(bool useOnDraw)
@@ -391,6 +406,13 @@ std::string RZUF3_TextSelRenderer::getSelectedText() const
 void RZUF3_TextSelRenderer::onDraw(RZUF3_DrawEvent* event)
 {
 	if (m_options.useOnDraw) draw();
+}
+
+void RZUF3_TextSelRenderer::onLangChange(RZUF3_LangChangeEvent* event)
+{
+	if(!m_options.useLangFile) return;
+
+	setText(m_cachedText, true);
 }
 
 void RZUF3_TextSelRenderer::onTextSelFocus(RZUF3_TextSelFocusEvent* event)

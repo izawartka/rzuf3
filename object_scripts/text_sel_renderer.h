@@ -70,6 +70,7 @@ public:
 
 protected:
 	void onDraw(RZUF3_DrawEvent* event);
+	void onLangChange(RZUF3_LangChangeEvent* event);
 	void onTextSelFocus(RZUF3_TextSelFocusEvent* event);
 	void onKeyDown(RZUF3_KeyDownEvent* event);
 	void onKeyUp(RZUF3_KeyUpEvent* event);
@@ -108,11 +109,13 @@ protected:
 	bool m_hasOnDrawListener = false;
 	bool m_hasMouseEventsListener = false;
 	bool m_hasKeyboardEventsListener = false;
+	bool m_hasOnLangChangeListener = false;
 	SDL_Rect m_realSrcRect = { 0, 0, 0, 0 };
 	SDL_Rect m_realDstRect = { 0, 0, 0, 0 };
 	std::vector<SDL_Rect> m_selRects;
 	
 	_DECLARE_LISTENER(Draw)
+	_DECLARE_LISTENER(LangChange)
 	_DECLARE_LISTENER(TextSelFocus)
 	_DECLARE_LISTENER(KeyDown)
 	_DECLARE_LISTENER(KeyUp)

@@ -32,3 +32,4 @@
 #include "text_selection_change.h"
 #include "config_entry_update.h"
 #include "config_save.h"
+#include "lang_change.h"

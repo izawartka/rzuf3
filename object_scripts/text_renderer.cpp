@@ -23,14 +23,17 @@ void RZUF3_TextRenderer::init()
 	m_options = mp_options;
 	m_origSize = { 0, 0, 0, 0 };
 
-	cacheLangFileText();
 	createFont();
-	updateTexture();
+	setUseLangFile(m_options.useLangFile);
 	setUseOnDraw(m_options.useOnDraw);
 }
 
 void RZUF3_TextRenderer::deinit()
 {
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+	_REMOVE_LISTENER(eventsManager, LangChange);
+	m_hasOnLangChangeListener = false;
+
 	setUseOnDraw(false);
 	removeTexture();
 	removeFont();
@@ -94,6 +97,17 @@ void RZUF3_TextRenderer::setStyle(RZUF3_TextRendererStyle style)
 void RZUF3_TextRenderer::setUseLangFile(bool useLangFile)
 {
 	m_options.useLangFile = useLangFile;
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+
+	if(useLangFile && !m_hasOnLangChangeListener)
+	{
+		_ADD_LISTENER(eventsManager, LangChange);
+		m_hasOnLangChangeListener = true;
+	} 
+	else if(!useLangFile && m_hasOnLangChangeListener) {
+		_REMOVE_LISTENER(eventsManager, LangChange);
+		m_hasOnLangChangeListener = false;
+	}
 
 	cacheLangFileText();
 	removeTexture();
@@ -295,6 +309,14 @@ void RZUF3_TextRenderer::onDraw(RZUF3_DrawEvent* event)
 {
 	if (!m_options.useOnDraw || m_options.metricsOnly) return;
 	draw();
+}
+
+void RZUF3_TextRenderer::onLangChange(RZUF3_LangChangeEvent* event)
+{
+	if (!m_options.useLangFile) return;
+	cacheLangFileText();
+	removeTexture();
+	updateTexture();
 }
 
 void RZUF3_TextRenderer::removeFont()

@@ -29,6 +29,7 @@ void RZUF3_TextButton::init()
 	createClickable();
 	createBorderBox();
 
+	setUseLangFile(m_options.useLangFile);
 	setUseOnSetRect(m_options.useOnSetRect);
 	setUseOnDraw(m_options.useOnDraw);
 	setUseMouseEvents(m_options.useMouseEvents);
@@ -36,6 +37,8 @@ void RZUF3_TextButton::init()
 
 void RZUF3_TextButton::deinit()
 {
+	m_options.useLangFile = false;
+	setUseLangFile(false);
 	setUseOnSetRect(false);
 	setUseOnDraw(false);
 	setUseMouseEvents(false);
@@ -87,9 +90,20 @@ void RZUF3_TextButton::setHighlighted(bool highlighted)
 
 void RZUF3_TextButton::setUseLangFile(bool useLangFile)
 {
-	if(m_options.useLangFile == useLangFile) return;
-
+	bool wasTheSame = m_options.useLangFile == useLangFile;
 	m_options.useLangFile = useLangFile;
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+
+	if (useLangFile && !m_hasOnLangChangeListener) {
+		_ADD_LISTENER(eventsManager, LangChange);
+		m_hasOnLangChangeListener = true;
+	}
+	else if (!useLangFile && m_hasOnLangChangeListener) {
+		_REMOVE_LISTENER(eventsManager, LangChange);
+		m_hasOnLangChangeListener = false;
+	}
+
+	if (wasTheSame) return;
 	cacheLangFileText();
 	removeCombinedTexture();
 }
@@ -214,6 +228,19 @@ SDL_Rect RZUF3_TextButton::getBorderRect()
 	};
 }
 
+void RZUF3_TextButton::onDraw(RZUF3_DrawEvent* event)
+{
+	if (m_options.useOnDraw) draw();
+}
+
+void RZUF3_TextButton::onLangChange(RZUF3_LangChangeEvent* event)
+{
+	if(!m_options.useLangFile) return;
+
+	cacheLangFileText();
+	removeCombinedTexture();
+}
+
 void RZUF3_TextButton::onMouseEnter(RZUF3_MouseEnterEvent* event)
 {
 	if(m_state < RZUF3_TextButtonState::Hover) setState(RZUF3_TextButtonState::Hover);
@@ -247,11 +274,6 @@ void RZUF3_TextButton::onMouseUp(RZUF3_MouseUpEvent* event)
 void RZUF3_TextButton::onSetRect(RZUF3_SetRectEvent* event)
 {
 	if(m_options.useOnSetRect) setRect(event->getRect());
-}
-
-void RZUF3_TextButton::onDraw(RZUF3_DrawEvent* event)
-{
-	if(m_options.useOnDraw) draw();
 }
 
 void RZUF3_TextButton::removeTextRenderer()

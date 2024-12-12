@@ -42,6 +42,7 @@ public:
 	bool getSelecting() const { return m_isSelecting; }
 
 private:
+	void onLangChange(RZUF3_LangChangeEvent* event);
 	void onSetRect(RZUF3_SetRectEvent* event);
 	void onUIButtonClick(RZUF3_UIButtonClickEvent* event);
 	void onUISetValue(RZUF3_UISetValueEvent* event);
@@ -65,6 +66,7 @@ private:
 
 	RZUF3_DropDownOptions m_options;
 	bool m_hasOnSetRectListener = false;
+	bool m_hasLangChangeListener = false;
 	RZUF3_TextButton* m_button = nullptr;
 	RZUF3_BorderBox* m_itemsBorder = nullptr;
 	RZUF3_Clickable* m_clickable = nullptr;
@@ -76,6 +78,7 @@ private:
 	SDL_Rect m_itemsRect = { 0, 0, 0, 0 };
 	SDL_Rect m_expandedRect = { 0, 0, 0, 0 };
 
+	_DECLARE_LISTENER(LangChange)
 	_DECLARE_LISTENER(Draw)
 	_DECLARE_LISTENER(SetRect)
 	_DECLARE_LISTENER_MULTI(UIButtonClick)

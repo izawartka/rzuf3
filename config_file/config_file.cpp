@@ -25,6 +25,77 @@ RZUF3_ConfigFile::~RZUF3_ConfigFile()
 
 }
 
+
+bool RZUF3_ConfigFile::setValue(std::string key, void* value)
+{
+	auto it = m_values.find(key);
+
+	if (it == m_values.end())
+	{
+		spdlog::error("Config file {}: Key not found: {}", m_def->filepath, key);
+		return false;
+	}
+
+	RZUF3_ConfigEntryDef* entry = it->second.first;
+	std::string& strValue = it->second.second;
+	std::string newStrValue;
+
+	if (!entry->serialize(value, newStrValue))
+	{
+		spdlog::error("Config file {}: Could not serialize value for key: {}", m_def->filepath, key);
+		return false;
+	}
+
+	if(m_def->ignoreUnchanged && strValue == newStrValue) return true;
+	strValue = newStrValue;
+
+	bool saved = false;
+	if (m_def->autosave) saved = save();
+
+	for (auto& listener : m_specialListeners[key]) {
+		listener.second(saved);
+	}
+
+	RZUF3_ConfigEntryUpdateEvent updateEvent(this, key, saved);
+	if (g_scene) g_scene->getEventsManager()->dispatchEvent(&updateEvent);
+
+	return true;
+}
+
+int RZUF3_ConfigFile::addSpecialListener(std::string key, RZUF3_ConfigFileSpecialListener listener)
+{
+	auto it = m_values.find(key);
+
+	if (it == m_values.end())
+	{
+		spdlog::error("Config file {}: Cannot add special listener, key not found: {}", m_def->filepath, key);
+		return -1;
+	}
+
+	RZUF3_ConfigEntryDef* entry = it->second.first;
+
+	m_specialListeners[key][m_nextSpecialListenerId] = listener;
+
+	return m_nextSpecialListenerId++;
+}
+
+bool RZUF3_ConfigFile::removeSpecialListener(int id)
+{
+	for (auto& entry : m_specialListeners)
+	{
+		auto it = entry.second.find(id);
+		if (it != entry.second.end())
+		{
+			entry.second.erase(it);
+			return true;
+		}
+	}
+
+	spdlog::error("Config file {}: Cannot remove special listener, id not found: {}", m_def->filepath, id);
+
+	return false;
+}
+
 std::type_index RZUF3_ConfigFile::getType(std::string key)
 {
 	auto it = m_values.find(key);
@@ -65,34 +136,6 @@ bool RZUF3_ConfigFile::getValue(std::string key, void*& value, size_t& size)
 	std::string& strValue = it->second.second;
 
 	return entry->parse(strValue, value, size);
-}
-
-bool RZUF3_ConfigFile::setValue(std::string key, void* value)
-{
-	auto it = m_values.find(key);
-
-	if (it == m_values.end())
-	{
-		spdlog::error("Config file {}: Key not found: {}", m_def->filepath, key);
-		return false;
-	}
-
-	RZUF3_ConfigEntryDef* entry = it->second.first;
-	std::string& strValue = it->second.second;
-
-	if (!entry->serialize(value, strValue))
-	{
-		spdlog::error("Config file {}: Could not serialize value for key: {}", m_def->filepath, key);
-		return false;
-	}
-
-	bool saved = false;
-	if (m_def->autosave) saved = save();
-
-	RZUF3_ConfigEntryUpdateEvent updateEvent(this, key, saved);
-	if (g_scene) g_scene->getEventsManager()->dispatchEvent(&updateEvent);
-
-	return true;
 }
 
 bool RZUF3_ConfigFile::load()
@@ -140,6 +183,10 @@ bool RZUF3_ConfigFile::load()
 
 		it->second.second = value;
 
+		for (auto& listener : m_specialListeners[key]) {
+			listener.second(true);
+		}
+
 		if (g_scene) {
 			RZUF3_ConfigEntryUpdateEvent updateEvent(this, key, true);
 			g_scene->getEventsManager()->dispatchEvent(&updateEvent);
@@ -171,8 +218,8 @@ bool RZUF3_ConfigFile::save()
 
 	file.close();
 
-	RZUF3_ConfigSaveEvent saveLoadEvent(this);
-	if(g_scene) g_scene->getEventsManager()->dispatchEvent(&saveLoadEvent);
+	RZUF3_ConfigSaveEvent saveEvent(this);
+	if(g_scene) g_scene->getEventsManager()->dispatchEvent(&saveEvent);
 
 	return true;
 }

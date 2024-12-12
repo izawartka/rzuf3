@@ -15,8 +15,10 @@ public:
 	~RZUF3_Game();
 
 	bool addConfigFile(const RZUF3_ConfigFileDef& def);
+	bool removeConfigFile(std::string id);
 	void loadLanguage(std::string filepath);
-	void loadLanguageFromConfigFile(std::string basepath, std::string valueKey);
+	void setLanguageFromConfigFile(std::string basepath, std::string valueKey);
+	void unsetLanguageFromConfigFile();
 	void initWindow(int width, int height, bool fullscreen);
 	void startGameLoop();
 
@@ -44,6 +46,8 @@ public:
 	RZUF3_ConfigFile* getConfigFile(std::string id = "");
 
 private:
+	void onLangFromConfigChanged(bool saved);
+
 	void handleSceneSwap();
 	void update(double dt);
 	void render(double dt);
@@ -59,6 +63,10 @@ private:
 	RZUF3_SceneDefinition* m_nextSceneDef = nullptr;
 	bool m_debugSceneSwapCounter = false;
 	RZUF3_Lang* m_lang = nullptr;
+	int m_langFromConfigListenerId = -1;
+	std::string m_windowTitleLangKey = "";
+	std::string m_langFromConfigBasepath = "";
+	std::string m_langFromConfigValueKey = "";
 	std::string m_currentTextInputId = "";
 	SDL_Color m_clearColor = { 0, 0, 0, 255 };
 	std::map<std::string, RZUF3_ConfigFile*> m_configFiles;

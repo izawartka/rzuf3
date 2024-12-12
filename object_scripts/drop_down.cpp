@@ -37,16 +37,22 @@ void RZUF3_DropDown::init()
 
 	setUseOnSetRect(m_options.useOnSetRect);
 
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+	_ADD_LISTENER(eventsManager, LangChange);
+
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_ADD_LISTENER(objEventsManager, UISetValue);
 }
 
 void RZUF3_DropDown::deinit()
 {
-	setUseOnSetRect(false);
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+	_REMOVE_LISTENER(eventsManager, LangChange);
 
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_REMOVE_LISTENER(objEventsManager, UISetValue);
+
+	setUseOnSetRect(false);
 
 	setSelecting(false);
 	removeClickable();
@@ -141,6 +147,15 @@ void RZUF3_DropDown::setSelecting(bool isSelecting)
 		removeItemsBorder();
 		removeItemButtons();
 	}
+}
+
+void RZUF3_DropDown::onLangChange(RZUF3_LangChangeEvent* event)
+{
+	cacheLangFileTexts();
+	createItemButtons();
+	updateSelectedItem();
+	updatePositions();
+	if(!m_isSelecting) removeItemButtons();
 }
 
 void RZUF3_DropDown::onSetRect(RZUF3_SetRectEvent* event)

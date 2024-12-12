@@ -24,6 +24,7 @@ void RZUF3_Checkbox::init()
 
 	setUseOnDraw(m_options.useOnDraw);
 	setUseMouseEvents(m_options.useMouseEvents);
+	setUseLangFile(m_options.useLangFile);
 
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_ADD_LISTENER(objEventsManager, UISetValue);
@@ -36,6 +37,7 @@ void RZUF3_Checkbox::deinit()
 
 	setUseOnDraw(false);
 	setUseMouseEvents(false);
+	setUseLangFile(false);
 
 	removeTextRenderer();
 	removeBorderBoxes();
@@ -115,8 +117,20 @@ void RZUF3_Checkbox::setUseMouseEvents(bool useMouseEvents)
 
 void RZUF3_Checkbox::setUseLangFile(bool useLangFile)
 {
+	bool wasTheSame = m_options.useLangFile == useLangFile;
 	m_options.useLangFile = useLangFile;
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
 
+	if (useLangFile && !m_hasOnLangChangeListener) {
+		_ADD_LISTENER(eventsManager, LangChange);
+		m_hasOnLangChangeListener = true;
+	}
+	else if (!useLangFile && m_hasOnLangChangeListener) {
+		_REMOVE_LISTENER(eventsManager, LangChange);
+		m_hasOnLangChangeListener = false;
+	}
+
+	if (wasTheSame) return;
 	removeCombinedTexture();
 	m_subScriptsOptionsChanged = true;
 }
@@ -148,6 +162,20 @@ SDL_Rect RZUF3_Checkbox::getRect() const
 	return {0, 0, width, height};
 }
 
+void RZUF3_Checkbox::onDraw(RZUF3_DrawEvent* event)
+{
+	if (!m_options.useOnDraw) return;
+	draw();
+}
+
+void RZUF3_Checkbox::onLangChange(RZUF3_LangChangeEvent* event)
+{
+	if(!m_options.useLangFile) return;
+
+	removeCombinedTexture();
+	m_subScriptsOptionsChanged = true;
+}
+
 void RZUF3_Checkbox::onMouseDown(RZUF3_MouseDownEvent* event)
 {
 	if(!m_options.useMouseEvents) return;
@@ -176,12 +204,6 @@ void RZUF3_Checkbox::onUISetValue(RZUF3_UISetValueEvent* event)
 
 	bool checked = *(bool*)event->getValue();
 	setChecked(checked);
-}
-
-void RZUF3_Checkbox::onDraw(RZUF3_DrawEvent* event)
-{
-	if(!m_options.useOnDraw) return;
-	draw();
 }
 
 int RZUF3_Checkbox::getHalfRectTextLineHeightDiff() const

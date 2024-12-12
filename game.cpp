@@ -47,39 +47,81 @@ bool RZUF3_Game::addConfigFile(const RZUF3_ConfigFileDef& def)
 	return true;
 }
 
+bool RZUF3_Game::removeConfigFile(std::string id)
+{
+	if (m_defaultConfigFile && m_defaultConfigFile->getFilepath() == id)
+	{
+		spdlog::warn("Trying to remove default config file {}", id);
+		return false;
+	}
+
+	auto it = m_configFiles.find(id);
+	if (it == m_configFiles.end())
+	{
+		spdlog::warn("Config file {} not found", id);
+		return false;
+	}
+
+	delete it->second;
+	m_configFiles.erase(it);
+
+	return true;
+}
+
 void RZUF3_Game::loadLanguage(std::string filepath)
 {
 	if(m_lang != nullptr) delete m_lang;
 
 	m_lang = new RZUF3_Lang(filepath);
 	m_lang->load();
+
+	if(m_windowTitleLangKey.size()) setWindowTitle(m_windowTitleLangKey, true);
+
+	if (m_scene) {
+		RZUF3_LangChangeEvent event(m_lang);
+		m_scene->getEventsManager()->dispatchEvent(&event);
+	}
 }
 
-void RZUF3_Game::loadLanguageFromConfigFile(std::string basepath, std::string valueKey)
+void RZUF3_Game::setLanguageFromConfigFile(std::string basepath, std::string valueKey)
 {
-	/// TODO: Reload after config entry update
 	if(m_defaultConfigFile == nullptr)
 	{
-		spdlog::error("Cannot load language file from config file, no default config file set");
+		spdlog::error("Cannot set language file from config file, no default config file set");
 		return;
 	}
 
-	std::string filename;
-	if (!m_defaultConfigFile->getValue(valueKey, &filename))
+	m_langFromConfigBasepath = basepath;
+	m_langFromConfigValueKey = valueKey;
+	m_langFromConfigListenerId = m_defaultConfigFile->addSpecialListener(valueKey, std::bind(&RZUF3_Game::onLangFromConfigChanged, this, std::placeholders::_1));
+
+	spdlog::info("Language file set from config file");
+
+	std::string value;
+	m_defaultConfigFile->getValue(valueKey, &value);
+	onLangFromConfigChanged(true);
+}
+
+void RZUF3_Game::unsetLanguageFromConfigFile()
+{
+	if(m_defaultConfigFile == nullptr)
 	{
-		spdlog::error("Cannot load language file from config file, value not found");
+		spdlog::error("Cannot unset language file from config file, no default config file set");
 		return;
 	}
 
-	if(filename == "" || filename.find("..") != std::string::npos || filename.find("/") != std::string::npos || filename.find("\\") != std::string::npos)
+	if(m_langFromConfigListenerId == -1)
 	{
-		spdlog::error("Cannot load language file from config file, invalid filename");
+		spdlog::error("Cannot unset language file from config file, no listener set");
 		return;
 	}
 
-	std::string filepath = basepath + filename;
+	m_defaultConfigFile->removeSpecialListener(m_langFromConfigListenerId);
+	m_langFromConfigListenerId = -1;
+	m_langFromConfigValueKey = "";
+	m_langFromConfigBasepath = "";
 
-	loadLanguage(filepath);
+	spdlog::info("Language file unset from config file");
 }
 
 void RZUF3_Game::initWindow(int width, int height, bool fullscreen)
@@ -175,6 +217,7 @@ void RZUF3_Game::quit()
 
 void RZUF3_Game::setWindowTitle(std::string title, bool useLangFile)
 {
+	m_windowTitleLangKey = useLangFile ? title : "";
 	if(useLangFile && m_lang != nullptr) title = m_lang->getText(title);
 	SDL_SetWindowTitle(m_window, title.c_str());
 }
@@ -327,6 +370,24 @@ RZUF3_ConfigFile* RZUF3_Game::getConfigFile(std::string id)
 	}
 
 	return it->second;
+}
+
+void RZUF3_Game::onLangFromConfigChanged(bool saved)
+{
+	if (m_defaultConfigFile == nullptr) return;
+
+	std::string filename;
+	m_defaultConfigFile->getValue(m_langFromConfigValueKey, &filename);
+
+	if (filename == "" || filename.find("..") != std::string::npos || filename.find("/") != std::string::npos || filename.find("\\") != std::string::npos)
+	{
+		spdlog::error("Cannot load language file from config file, invalid filename");
+		return;
+	}
+
+	std::string filepath = m_langFromConfigBasepath + filename;
+
+	loadLanguage(filepath);
 }
 
 void RZUF3_Game::handleSceneSwap()
