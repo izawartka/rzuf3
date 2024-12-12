@@ -197,8 +197,14 @@ void RZUF3_Renderer::screenToRectXY(RZUF3_Object* parentObject, SDL_Rect& rect, 
 	y -= rect.y;
 }
 
-bool RZUF3_Renderer::isXYInside(SDL_Rect& rect, int x, int y)
+bool RZUF3_Renderer::isXYInside(SDL_Rect& rect, int x, int y, bool ignoreRectXY)
 {
+	if(!ignoreRectXY)
+	{
+		x -= rect.x;
+		y -= rect.y;
+	}
+
 	if (x < 0 || x >= rect.w) return false;
 	if (y < 0 || y >= rect.h) return false;
 

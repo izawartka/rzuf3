@@ -15,6 +15,8 @@ struct RZUF3_ClickableOptions {
 	bool useOnHoverCursor = true;
 	bool useOnSetRect = true;
 	bool insideOnly = true; // should only trigger MouseDown, MouseMove and MouseUp events when mouse is inside the rect
+	bool blockUnderneath = true;
+	bool ignoreNotOnTop = false; // MouseDown and MouseUp events will be triggered even if the clickable is not on top
 	SDL_SystemCursor onHoverCursorId = SDL_SYSTEM_CURSOR_HAND;
 	RZUF3_Align alignment = RZUF3_Align_TopLeft;
 };
@@ -35,8 +37,9 @@ public:
 	void setUseOnSetRect(bool useOnSetRect);
 	void setInsideOnly(bool insideOnly);
 
-	bool isInside() const { return m_isInside; }
+	bool isOnTop(int x, int y, bool rectSpace = true);
 
+	bool isInside() const { return m_isInside; }
 	SDL_Rect getRect() const { return m_options.rect; }
 	RZUF3_Align getAlignment() const { return m_options.alignment; }
 	SDL_SystemCursor getOnHoverCursor() const { return m_options.onHoverCursorId; }
@@ -49,6 +52,7 @@ protected:
 	void onMouseDown(RZUF3_MouseDownEvent* event);
 	void onMouseUp(RZUF3_MouseUpEvent* event);
 	void onMouseMove(RZUF3_MouseMoveEvent* event);
+	void onGetTopClickable(RZUF3_GetTopClickableEvent* event);
 	void onSetRect(RZUF3_SetRectEvent* event);
 
 	void removeOnHoverCursor();
@@ -72,5 +76,6 @@ protected:
 	_DECLARE_LISTENER(MouseDown)
 	_DECLARE_LISTENER(MouseUp)
 	_DECLARE_LISTENER(MouseMove)
+	_DECLARE_LISTENER(GetTopClickable)
 	_DECLARE_LISTENER(SetRect)
 };

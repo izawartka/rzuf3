@@ -33,3 +33,4 @@
 #include "config_entry_update.h"
 #include "config_save.h"
 #include "lang_change.h"
+#include "get_top_clickable.h"

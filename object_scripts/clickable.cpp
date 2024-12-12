@@ -30,6 +30,7 @@ void RZUF3_Clickable::init()
 	_ADD_LISTENER(eventsManager, MouseDown);
 	_ADD_LISTENER(eventsManager, MouseUp);
 	_ADD_LISTENER(eventsManager, MouseMove);
+	_ADD_LISTENER(eventsManager, GetTopClickable);
 
 	m_objEventsManager = m_object->getEventsManager();
 	setUseOnSetRect(m_options.useOnSetRect);
@@ -42,6 +43,7 @@ void RZUF3_Clickable::deinit()
 	_REMOVE_LISTENER(eventsManager, MouseDown);
 	_REMOVE_LISTENER(eventsManager, MouseUp);
 	_REMOVE_LISTENER(eventsManager, MouseMove);
+	_REMOVE_LISTENER(eventsManager, GetTopClickable);
 
 	setUseOnSetRect(false);
 	m_objEventsManager = nullptr;
@@ -92,6 +94,23 @@ void RZUF3_Clickable::setInsideOnly(bool insideOnly)
 	m_options.insideOnly = insideOnly;
 }
 
+bool RZUF3_Clickable::isOnTop(int x, int y, bool rectSpace)
+{
+	if (rectSpace) {
+		SDL_Rect rect = getAlignedRect();
+		x += rect.x;
+		y += rect.y;
+	}
+
+	RZUF3_Renderer::objectToScreenXY(m_object, x, y);
+
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+	RZUF3_GetTopClickableEvent event(x, y);
+	eventsManager->dispatchEvent(&event);
+
+	return event.getTopClickable() == this;
+}
+
 void RZUF3_Clickable::onUpdate(RZUF3_UpdateEvent* event)
 {
 	if (m_isLeftPressed) {
@@ -111,9 +130,9 @@ void RZUF3_Clickable::onMouseDown(RZUF3_MouseDownEvent* event)
 	int y = event->getY();
 	SDL_Rect rect = getAlignedRect();
 	RZUF3_Renderer::screenToRectXY(m_object, rect, x, y);
-	bool inside = RZUF3_Renderer::isXYInside(rect, x, y);
+	bool inside = RZUF3_Renderer::isXYInside(rect, x, y, true);
 
-	if (inside || !m_options.insideOnly) {
+	if (!m_options.insideOnly || (inside && (m_options.ignoreNotOnTop || isOnTop(x, y)))) {
 		if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = true;
 		if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = true;
 
@@ -137,9 +156,9 @@ void RZUF3_Clickable::onMouseUp(RZUF3_MouseUpEvent* event)
 	if (event->getButton() == SDL_BUTTON_LEFT) m_isLeftPressed = false;
 	if (event->getButton() == SDL_BUTTON_RIGHT) m_isRightPressed = false;
 
-	bool inside = RZUF3_Renderer::isXYInside(rect, x, y);
+	bool inside = RZUF3_Renderer::isXYInside(rect, x, y, true);
 
-	if (inside || !m_options.insideOnly) {
+	if (!m_options.insideOnly || (inside && (m_options.ignoreNotOnTop || isOnTop(x, y)))) {
 		RZUF3_MouseUpEvent objEvent(x, y, event->getButton());
 		m_objEventsManager->dispatchEvent(&objEvent);
 	}
@@ -156,7 +175,7 @@ void RZUF3_Clickable::onMouseMove(RZUF3_MouseMoveEvent* event)
 	int y = event->getY();
 	SDL_Rect rect = getAlignedRect();
 	RZUF3_Renderer::screenToRectXY(m_object, rect, x, y);
-	bool insideNow = RZUF3_Renderer::isXYInside(rect, x, y);
+	bool insideNow = RZUF3_Renderer::isXYInside(rect, x, y, true);
 	m_lastX = x;
 	m_lastY = y;
 
@@ -192,6 +211,21 @@ void RZUF3_Clickable::onMouseMove(RZUF3_MouseMoveEvent* event)
 
 	RZUF3_MouseMoveEvent objEvent(x, y, movX, movY);
 	m_objEventsManager->dispatchEvent(&objEvent);
+}
+
+void RZUF3_Clickable::onGetTopClickable(RZUF3_GetTopClickableEvent* event)
+{
+	if(!m_options.blockUnderneath) return;
+
+	SDL_Rect rect = getAlignedRect();
+	RZUF3_Renderer::objectToScreenRect(m_object, rect);
+
+	int x = event->getX();
+	int y = event->getY();
+
+	if (RZUF3_Renderer::isXYInside(rect, x, y)) {
+		event->respond(this);
+	}
 }
 
 void RZUF3_Clickable::onSetRect(RZUF3_SetRectEvent* event)

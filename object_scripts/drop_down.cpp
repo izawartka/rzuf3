@@ -272,6 +272,8 @@ void RZUF3_DropDown::createClickable()
 	options.rect = m_expandedRect;
 	options.alignment = RZUF3_Align_TopLeft;
 	options.useOnSetRect = false;
+	options.ignoreNotOnTop = true;
+	options.blockUnderneath = false;
 
 	m_clickable = new RZUF3_Clickable(options);
 

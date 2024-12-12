@@ -182,6 +182,7 @@ void RZUF3_TextSelRenderer::setUseMouseEvents(bool useMouseEvents)
 		clickableOptions.rect = m_realDstRect;
 		clickableOptions.alignment = m_options.alignment;
 		clickableOptions.insideOnly = false;
+		clickableOptions.blockUnderneath = false;
 
 		m_clickable = new RZUF3_Clickable(clickableOptions);
 		m_object->addScript(m_clickable);
