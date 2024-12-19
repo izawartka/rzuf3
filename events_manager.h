@@ -11,31 +11,35 @@ public:
     RZUF3_EventsManager() {}
     ~RZUF3_EventsManager() {
 #ifdef _DEBUG
-        for (auto& listeners : m_eventListeners) {
-            if (listeners.second.size() == 0) continue;
+        for (auto& eventTypes : m_eventTypes) {
+            if (eventTypes.second.listeners.size() == 0) continue;
 
-            spdlog::warn("Deleting EventsManager without removing all event listeners! ({} left) This may lead to unexpected behavior in the future", listeners.second.size());
+            spdlog::warn("Deleting EventsManager without removing all event listeners! ({} left) This may lead to unexpected behavior in the future", eventTypes.second.listeners.size());
         }
 #endif // _DEBUG
     }
 
-    using EventListenerList = std::vector<RZUF3_EventListener>;
+    struct EventListenerList {
+        std::vector<RZUF3_EventListener> listeners;
+        std::vector<int> dispatchIterators;
+	};
+
     using EventListenersByType = std::unordered_map<std::type_index, EventListenerList>;
 
     template <class T>
     typename std::enable_if<std::is_base_of<RZUF3_Event, T>::value, int>::type
         addEventListener(RZUF3_EventCallback callback) {
-        std::type_index eventType(typeid(T));
+        std::type_index eventTypeIndex(typeid(T));
 
         int id = m_nextEventListenerID++;
 
         RZUF3_EventListener eventListener(
             id,
-            eventType,
+            eventTypeIndex,
             callback
         );
 
-        m_eventListeners[eventType].push_back(eventListener);
+        m_eventTypes[eventTypeIndex].listeners.push_back(eventListener);
 
         return id;
     }
@@ -43,45 +47,51 @@ public:
     template <class T>
     typename std::enable_if<std::is_base_of<RZUF3_Event, T>::value, void>::type
         removeEventListener(int eventListenerID) {
-        std::type_index eventType(typeid(T));
+        std::type_index eventTypeIndex(typeid(T));
 
-        auto it = m_eventListeners.find(eventType);
-        if (it != m_eventListeners.end()) {
-            it->second.erase(
-                std::remove_if(
-                    it->second.begin(),
-                    it->second.end(),
-                    [eventListenerID](RZUF3_EventListener& eventListener) { return eventListener.id == eventListenerID; }
-                ),
-                it->second.end()
-            );
+        auto eventTypeIt = m_eventTypes.find(eventTypeIndex);
+        if (eventTypeIt == m_eventTypes.end()) return;
+
+        auto& eventListenerList = eventTypeIt->second;
+        auto& eventListeners = eventListenerList.listeners;
+        auto eventListenerIt = std::find_if(
+            eventListeners.begin(),
+            eventListeners.end(),
+			[eventListenerID](RZUF3_EventListener& eventListener) { return eventListener.id == eventListenerID; }
+		);
+
+        if (eventListenerIt == eventListeners.end()) return;
+
+        for (auto& dispatchIterator : eventListenerList.dispatchIterators) {
+            if (dispatchIterator >= eventListenerIt - eventListeners.begin()) {
+                dispatchIterator--;
+            }
         }
+
+        eventListeners.erase(eventListenerIt);
     }
 
     void dispatchEvent(RZUF3_Event* event) {
-        std::type_index eventType(typeid(*event));
-        auto it = m_eventListeners.find(eventType);
+        std::type_index eventTypeIndex(typeid(*event));
+        auto eventTypeIt = m_eventTypes.find(eventTypeIndex);
 
-        if (it == m_eventListeners.end()) {
+        if (eventTypeIt == m_eventTypes.end()) {
             return;
         }
 
-        EventListenerList& eventListeners = it->second;
-        int lastSize = eventListeners.size();
+        EventListenerList& eventListenerList = eventTypeIt->second;
+        auto& eventListeners = eventListenerList.listeners;
+        eventListenerList.dispatchIterators.push_back(0);
+        int& i = eventListenerList.dispatchIterators.back();
 
-        for (int i = 0; i < lastSize; i++) {
+        for (i = 0; i < eventListeners.size(); i++) {
             eventListeners[i].callback(event);
-
-            int size = eventListeners.size();
-            if (size < lastSize) {
-                i -= lastSize - size;
-			}
-
-            lastSize = size;
 		}
+
+        if(eventListenerList.dispatchIterators.size() > 0) eventListenerList.dispatchIterators.pop_back();
     }
 
 private:
-    EventListenersByType m_eventListeners;
+    EventListenersByType m_eventTypes;
     int m_nextEventListenerID = 0;
 };

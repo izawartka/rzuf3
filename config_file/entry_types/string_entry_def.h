@@ -8,7 +8,7 @@ public:
 
     bool parse(std::string& input, void*& output, size_t& size) const override {
         output = new std::string(input);
-        size = sizeof(std::string);
+        size = sizeof(input);
         return true;
     }
 

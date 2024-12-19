@@ -10,14 +10,45 @@ public:
 	RZUF3_ConfigFile(const RZUF3_ConfigFileDef& def);
 	~RZUF3_ConfigFile();
 
-	bool setValue(std::string key, void* value);
+	template<class T>
+	bool setValue(std::string key, T value)
+	{
+		if (std::type_index(typeid(T)) != getType(key))
+		{
+			spdlog::error("Config file {}: Type mismatch while setting key: {}", m_def->filepath, key);
+			return false;
+		}
+
+		return setValueRaw(key, (void*)&value);
+	}
+
+	template<class T>
+	bool getValue(std::string key, T& value)
+	{
+		if (std::type_index(typeid(T)) != getType(key))
+		{
+			spdlog::error("Config file {}: Type mismatch while getting key: {}", m_def->filepath, key);
+			return false;
+		}
+
+		size_t size = 0;
+		T* valuePtr = nullptr;
+		if(!getValueRaw(key, (void*&)valuePtr, size)) return false;
+		if(valuePtr == nullptr || size == 0) return false;
+
+		value = *valuePtr;
+		delete valuePtr;
+
+		return true;
+	}
+
+	bool setValueRaw(std::string key, void* value);
 	bool saveConfig() { return save(); }
 	int addSpecialListener(std::string key, RZUF3_ConfigFileSpecialListener listener);
 	bool removeSpecialListener(int id);
 
 	std::type_index getType(std::string key);
-	bool getValue(std::string key, void* value);
-	bool getValue(std::string key, void*& value, size_t& size);
+	bool getValueRaw(std::string key, void*& value, size_t& size);
 
 	std::string getFilepath() { return m_def->filepath; }
 private:

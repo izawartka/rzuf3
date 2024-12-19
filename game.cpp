@@ -97,8 +97,6 @@ void RZUF3_Game::setLanguageFromConfigFile(std::string basepath, std::string val
 
 	spdlog::info("Language file set from config file");
 
-	std::string value;
-	m_defaultConfigFile->getValue(valueKey, &value);
 	onLangFromConfigChanged(true);
 }
 
@@ -377,7 +375,7 @@ void RZUF3_Game::onLangFromConfigChanged(bool saved)
 	if (m_defaultConfigFile == nullptr) return;
 
 	std::string filename;
-	m_defaultConfigFile->getValue(m_langFromConfigValueKey, &filename);
+	m_defaultConfigFile->getValue(m_langFromConfigValueKey, filename);
 
 	if (filename == "" || filename.find("..") != std::string::npos || filename.find("/") != std::string::npos || filename.find("\\") != std::string::npos)
 	{

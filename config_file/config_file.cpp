@@ -26,8 +26,10 @@ RZUF3_ConfigFile::~RZUF3_ConfigFile()
 }
 
 
-bool RZUF3_ConfigFile::setValue(std::string key, void* value)
+bool RZUF3_ConfigFile::setValueRaw(std::string key, void* value)
 {
+	if(value == nullptr) return false;
+
 	auto it = m_values.find(key);
 
 	if (it == m_values.end())
@@ -109,20 +111,7 @@ std::type_index RZUF3_ConfigFile::getType(std::string key)
 	return it->second.first->getType();
 }
 
-bool RZUF3_ConfigFile::getValue(std::string key, void* value)
-{
-	void* valuePtr = nullptr;
-	size_t size = 0;
-
-	if (!getValue(key, valuePtr, size)) return false;
-
-	memcpy(value, valuePtr, size);
-	delete valuePtr;
-
-	return true;
-}
-
-bool RZUF3_ConfigFile::getValue(std::string key, void*& value, size_t& size)
+bool RZUF3_ConfigFile::getValueRaw(std::string key, void*& value, size_t& size)
 {
 	auto it = m_values.find(key);
 

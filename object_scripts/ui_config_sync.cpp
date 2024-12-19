@@ -79,10 +79,10 @@ void RZUF3_UIConfigSync::updateUIValue()
 	if (!m_configFile) return;
 	if (m_type == typeid(void)) return;
 
-	void* value = nullptr;
+	uint8_t* value = nullptr;
 	size_t size = 0;
 
-	if (!m_configFile->getValue(m_options.key, value, size)) return;
+	if (!m_configFile->getValueRaw(m_options.key, (void*&)value, size)) return;
 
 	m_tempDisableOnUIValueChange = true;
 
@@ -113,7 +113,7 @@ void RZUF3_UIConfigSync::onUIValueChange(RZUF3_UIValueChangeEvent* event)
 
 	void* value = event->getValue();
 
-	m_configFile->setValue(m_options.key, value);
+	m_configFile->setValueRaw(m_options.key, value);
 }
 
 void RZUF3_UIConfigSync::updateType()
