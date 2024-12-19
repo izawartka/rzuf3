@@ -373,6 +373,7 @@ void RZUF3_TextRenderer::updateTexture()
 		return;
 	}
 
+#if SDL_TTF_VERSION_ATLEAST(2, 20, 0)
 	SDL_Surface* surface = TTF_RenderUTF8_LCD_Wrapped(
 		m_font,
 		m_cachedText.c_str(),
@@ -380,6 +381,15 @@ void RZUF3_TextRenderer::updateTexture()
 		m_options.style.bgColor, 
 		m_options.wrapLength
 	);
+#else
+#pragma message("SDL TTF version is less than 2.20.0, using TTF_RenderUTF8_Blended_Wrapped instead of TTF_RenderUTF8_LCD_Wrapped")
+	SDL_Surface* surface = TTF_RenderUTF8_Blended_Wrapped(
+		m_font,
+		m_cachedText.c_str(),
+		m_options.style.color,
+		m_options.wrapLength
+	);
+#endif
 
 	if (surface == NULL)
 	{

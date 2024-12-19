@@ -179,7 +179,7 @@ void RZUF3_DropDown::onUIButtonClick(RZUF3_UIButtonClickEvent* event)
 	}
 
 	std::string objectName = m_object->getName();
-	if (!id._Starts_with(objectName + "_item_")) return;
+	if (!std::equal(objectName.begin(), objectName.end(), id.begin())) return;
 
 	size_t index = std::stoi(id.substr(objectName.size() + 6));
 	setSelectedItemIndex(index, true);
