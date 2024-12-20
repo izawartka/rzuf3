@@ -37,7 +37,7 @@ public:
 private:
 	bool m_initialized;
 	RZUF3_Scene* m_scene;
-	RZUF3_EventsManager m_eventsManager;
+	RZUF3_EventsManager* m_eventsManager = nullptr;
 	std::string m_name;
 	std::vector<RZUF3_ObjectScript*> m_scripts;
 	std::map<std::string, RZUF3_Object*> m_children;

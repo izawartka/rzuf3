@@ -47,7 +47,7 @@ RZUF3_Scene::~RZUF3_Scene()
 
 
 	delete m_assetsManager;
-	delete m_eventsManager;
+	m_eventsManager->destroy();
 
 	g_scene = nullptr;
 }

@@ -27,7 +27,10 @@ void RZUF3_UIConfigSync::init()
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_ADD_LISTENER(objEventsManager, UIValueChange);
 
-	if(m_options.updateUIValueOnInit) updateUIValue();
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+	_ADD_LISTENER(eventsManager, Update);
+
+	m_willUpdateUIValue = m_options.updateUIValueOnInit;
 }
 
 void RZUF3_UIConfigSync::deinit()
@@ -35,8 +38,12 @@ void RZUF3_UIConfigSync::deinit()
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	_REMOVE_LISTENER(objEventsManager, UIValueChange);
 
+	RZUF3_EventsManager* eventsManager = g_scene->getEventsManager();
+	_REMOVE_LISTENER(eventsManager, Update);
+
 	setUseOnConfigEntryUpdate(false);
 
+	m_tempDisableOnUIValueChange = false;
 	m_configFile = nullptr;
 	m_type = typeid(void);
 }
@@ -71,37 +78,48 @@ void RZUF3_UIConfigSync::setUseOnConfigEntryUpdate(bool useOnConfigEntryUpdate)
 	else if (!useOnConfigEntryUpdate && m_hasOnConfigEntryUpdateListener) {
 		_REMOVE_LISTENER(eventsManager, ConfigEntryUpdate);
 		m_hasOnConfigEntryUpdateListener = false;
+		m_tempDisableOnConfigEntryUpdate = false;
 	}
 }
 
 void RZUF3_UIConfigSync::updateUIValue()
 {
+	m_willUpdateUIValue = false;
 	if (!m_configFile) return;
 	if (m_type == typeid(void)) return;
 
-	uint8_t* value = nullptr;
+	RZUF3_ConfigFileEntry* entry = m_configFile->getEntryRaw(m_options.key);
+	if (entry == nullptr) return;
+
 	size_t size = 0;
+	void* value = nullptr;
 
-	if (!m_configFile->getValueRaw(m_options.key, (void*&)value, size)) return;
-
-	m_tempDisableOnUIValueChange = true;
+	if (!entry->def->parse(entry->stringValue, value, size)) return;
 
 	RZUF3_EventsManager* objEventsManager = m_object->getEventsManager();
 	RZUF3_UISetValueEvent objEvent(m_type, value, size);
-	objEventsManager->dispatchEvent(&objEvent);
 
+	m_tempDisableOnUIValueChange = true;
+	objEventsManager->dispatchEvent(&objEvent);
 	m_tempDisableOnUIValueChange = false;
-	delete value;
+
+	entry->def->destroyValue(value);
 }
 
 void RZUF3_UIConfigSync::onConfigEntryUpdate(RZUF3_ConfigEntryUpdateEvent* event)
 {
+	if(m_tempDisableOnConfigEntryUpdate) return;
 	if(!m_options.useOnConfigEntryUpdate) return;
 	if(m_configFile != event->getConfigFile()) return;
 	if (m_options.key != event->getKey()) return;
 	if(m_options.savedChangesOnly && !event->isSaved()) return;
 
-	updateUIValue();
+	m_willUpdateUIValue = true;
+}
+
+void RZUF3_UIConfigSync::onUpdate(RZUF3_UpdateEvent* event)
+{
+	if (m_willUpdateUIValue) updateUIValue();
 }
 
 void RZUF3_UIConfigSync::onUIValueChange(RZUF3_UIValueChangeEvent* event)
@@ -113,7 +131,11 @@ void RZUF3_UIConfigSync::onUIValueChange(RZUF3_UIValueChangeEvent* event)
 
 	void* value = event->getValue();
 
-	m_configFile->setValueRaw(m_options.key, value);
+	m_tempDisableOnConfigEntryUpdate = true;
+	if (!m_configFile->setValueRaw(m_options.key, value, m_type) && m_options.revertIfSetConfigValueFailed) {
+		m_willUpdateUIValue = true;
+	}
+	m_tempDisableOnConfigEntryUpdate = false;
 }
 
 void RZUF3_UIConfigSync::updateType()
@@ -121,5 +143,9 @@ void RZUF3_UIConfigSync::updateType()
 	m_type = typeid(void);
 
 	if (m_configFile == nullptr) return;
-	m_type = m_configFile->getType(m_options.key);
+
+	RZUF3_ConfigFileEntry* entry = m_configFile->getEntryRaw(m_options.key);
+	if (entry == nullptr) return;
+
+	m_type = entry->def->getType();
 }

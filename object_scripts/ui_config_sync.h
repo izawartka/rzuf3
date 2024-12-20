@@ -10,6 +10,7 @@ struct RZUF3_UIConfigSyncOptions {
 	bool savedChangesOnly = false;
 	bool updateUIValueOnInit = true;
 	bool useOnConfigEntryUpdate = true;
+	bool revertIfSetConfigValueFailed = true;
 };
 
 class RZUF3_UIConfigSync : public RZUF3_ObjectScript {
@@ -36,6 +37,7 @@ public:
 
 protected:
 	void onConfigEntryUpdate(RZUF3_ConfigEntryUpdateEvent* event);
+	void onUpdate(RZUF3_UpdateEvent* event);
 	void onUIValueChange(RZUF3_UIValueChangeEvent* event);
 
 	void updateType();
@@ -47,7 +49,10 @@ protected:
 	std::type_index m_type = typeid(void);
 	bool m_hasOnConfigEntryUpdateListener = false;
 	bool m_tempDisableOnUIValueChange = false;
+	bool m_tempDisableOnConfigEntryUpdate = false;
+	bool m_willUpdateUIValue = false;
 
 	_DECLARE_LISTENER(ConfigEntryUpdate)
+	_DECLARE_LISTENER(Update)
 	_DECLARE_LISTENER(UIValueChange)
 };

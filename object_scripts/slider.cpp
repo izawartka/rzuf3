@@ -104,6 +104,7 @@ void RZUF3_Slider::onMousePressed(RZUF3_MousePressedEvent* event)
 void RZUF3_Slider::onUISetValue(RZUF3_UISetValueEvent* event)
 {
 	if (event->getTypeIndex() != typeid(int)) return;
+	if (event->getValue() == nullptr) return;
 	int value = *(int*)event->getValue();
 	
 	setValue(value);

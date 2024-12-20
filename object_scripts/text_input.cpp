@@ -224,6 +224,7 @@ void RZUF3_TextInput::onMouseDownOutside(RZUF3_MouseDownOutsideEvent* event)
 void RZUF3_TextInput::onUISetValue(RZUF3_UISetValueEvent* event)
 {
 	if(event->getTypeIndex() != typeid(std::string)) return;
+	if (event->getValue() == nullptr) return;
 
 	std::string value = *(std::string*)event->getValue();
 	setText(value);

@@ -10,8 +10,8 @@ RZUF3_ConfigFile::RZUF3_ConfigFile(const RZUF3_ConfigFileDef& def)
 	for (auto& entry : def.entries)
 	{
 		RZUF3_ConfigEntryDef* entryDef = entry.second.get();
-		auto pair = std::make_pair(entryDef, entryDef->getDefaultValue());
-		m_values.insert(std::make_pair(entry.first, pair));
+		RZUF3_ConfigFileEntry newEntry = { entryDef, entryDef->getDefaultValue() };
+		m_entries.insert(std::make_pair(entry.first, newEntry));
 	}
 
 	if (!load()) {
@@ -25,24 +25,23 @@ RZUF3_ConfigFile::~RZUF3_ConfigFile()
 
 }
 
-
-bool RZUF3_ConfigFile::setValueRaw(std::string key, void* value)
+bool RZUF3_ConfigFile::setValueRaw(std::string key, void* value, std::type_index type)
 {
 	if(value == nullptr) return false;
 
-	auto it = m_values.find(key);
+	RZUF3_ConfigFileEntry* entry = getEntryRaw(key);
+	if (entry == nullptr) return false;
 
-	if (it == m_values.end())
+	if (type != entry->def->getType())
 	{
-		spdlog::error("Config file {}: Key not found: {}", m_def->filepath, key);
+		spdlog::error("Config file {}: Type mismatch while setting key: {}", m_def->filepath, key);
 		return false;
 	}
 
-	RZUF3_ConfigEntryDef* entry = it->second.first;
-	std::string& strValue = it->second.second;
+	std::string& strValue = entry->stringValue;
 	std::string newStrValue;
 
-	if (!entry->serialize(value, newStrValue))
+	if (!entry->def->serialize(value, newStrValue))
 	{
 		spdlog::error("Config file {}: Could not serialize value for key: {}", m_def->filepath, key);
 		return false;
@@ -66,15 +65,11 @@ bool RZUF3_ConfigFile::setValueRaw(std::string key, void* value)
 
 int RZUF3_ConfigFile::addSpecialListener(std::string key, RZUF3_ConfigFileSpecialListener listener)
 {
-	auto it = m_values.find(key);
-
-	if (it == m_values.end())
-	{
-		spdlog::error("Config file {}: Cannot add special listener, key not found: {}", m_def->filepath, key);
+	RZUF3_ConfigEntryDef* entry = getEntryRaw(key)->def;
+	if (entry == nullptr) {
+		spdlog::error("Config file {}: Cannot add special listener", m_def->filepath);
 		return -1;
 	}
-
-	RZUF3_ConfigEntryDef* entry = it->second.first;
 
 	m_specialListeners[key][m_nextSpecialListenerId] = listener;
 
@@ -98,33 +93,17 @@ bool RZUF3_ConfigFile::removeSpecialListener(int id)
 	return false;
 }
 
-std::type_index RZUF3_ConfigFile::getType(std::string key)
+RZUF3_ConfigFileEntry* RZUF3_ConfigFile::getEntryRaw(std::string key)
 {
-	auto it = m_values.find(key);
+	auto it = m_entries.find(key);
 
-	if (it == m_values.end())
+	if (it == m_entries.end())
 	{
 		spdlog::error("Config file {}: Key not found: {}", m_def->filepath, key);
-		return typeid(void);
+		return nullptr;
 	}
 
-	return it->second.first->getType();
-}
-
-bool RZUF3_ConfigFile::getValueRaw(std::string key, void*& value, size_t& size)
-{
-	auto it = m_values.find(key);
-
-	if (it == m_values.end())
-	{
-		spdlog::error("Config file {}: Key not found: {}", m_def->filepath, key);
-		return false;
-	}
-
-	RZUF3_ConfigEntryDef* entry = it->second.first;
-	std::string& strValue = it->second.second;
-
-	return entry->parse(strValue, value, size);
+	return &it->second;
 }
 
 bool RZUF3_ConfigFile::load()
@@ -161,16 +140,16 @@ bool RZUF3_ConfigFile::load()
 		RZUF3_StringsHelper::trim(key);
 		RZUF3_StringsHelper::trim(value);
 
-		auto it = m_values.find(key);
-		if (it == m_values.end()) continue;
+		auto it = m_entries.find(key);
+		if (it == m_entries.end()) continue;
 
-		RZUF3_ConfigEntryDef* entry = it->second.first;
-		if (!entry->validate(value)) {
+		RZUF3_ConfigFileEntry& entry = it->second;
+		if (!entry.def->validate(value)) {
 			spdlog::warn("Config file {}: Invalid value for key {}, using default value", filepath, key);
-			value = entry->getDefaultValue();
+			value = entry.def->getDefaultValue();
 		}
 
-		it->second.second = value;
+		entry.stringValue = value;
 
 		for (auto& listener : m_specialListeners[key]) {
 			listener.second(true);
@@ -200,9 +179,9 @@ bool RZUF3_ConfigFile::save()
 		return false;
 	}
 
-	for (auto it = m_values.begin(); it != m_values.end(); it++)
+	for (auto it = m_entries.begin(); it != m_entries.end(); it++)
 	{
-		file << it->first << "=" << it->second.second << std::endl;
+		file << it->first << "=" << it->second.stringValue << std::endl;
 	}
 
 	file.close();

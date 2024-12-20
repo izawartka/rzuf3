@@ -101,6 +101,11 @@ void RZUF3_DropDown::setSelectedItemIndex(int selectedItemIndex, bool endSelecti
 {
 	if (selectedItemIndex < 0 || selectedItemIndex >= m_options.items.size()) return;
 
+	if (selectedItemIndex == m_options.selectedItemIndex) {
+		if (endSelecting) setSelecting(false);
+		return;
+	}
+
 	m_options.selectedItemIndex = selectedItemIndex;
 	createItemButtons();
 	updateSelectedItem();
@@ -187,11 +192,15 @@ void RZUF3_DropDown::onUIButtonClick(RZUF3_UIButtonClickEvent* event)
 
 void RZUF3_DropDown::onUISetValue(RZUF3_UISetValueEvent* event)
 {
+	/// TODO: if called by an event send as a result of onUIValueChange, it corrupts the memory
+
+	if(event->getValue() == nullptr) return;
 	std::type_index typeIndex = event->getTypeIndex();
 	if (typeIndex == typeid(int))
 	{
 		int value = *static_cast<int*>(event->getValue());
 		setSelectedItemIndex(value);
+		return;
 	}
 	else if (typeIndex != typeid(std::string)) return;
 

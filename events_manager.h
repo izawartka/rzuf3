@@ -18,6 +18,10 @@ public:
         }
 #endif // _DEBUG
     }
+    void destroy() {
+        m_destroyed = true;
+        if(m_dispatchDepth <= 0) delete this;
+    }
 
     struct EventListenerList {
         std::vector<RZUF3_EventListener> listeners;
@@ -82,16 +86,26 @@ public:
         EventListenerList& eventListenerList = eventTypeIt->second;
         auto& eventListeners = eventListenerList.listeners;
         eventListenerList.dispatchIterators.push_back(0);
+        m_dispatchDepth++;
         int& i = eventListenerList.dispatchIterators.back();
 
         for (i = 0; i < eventListeners.size(); i++) {
             eventListeners[i].callback(event);
+            if (m_destroyed) break;
 		}
 
-        if(eventListenerList.dispatchIterators.size() > 0) eventListenerList.dispatchIterators.pop_back();
+        eventListenerList.dispatchIterators.pop_back();
+        m_dispatchDepth--;
+
+        if (m_dispatchDepth < 0) {
+			spdlog::error("EventsManager dispatch depth is negative!");
+		}
+        if (m_destroyed && m_dispatchDepth <= 0) delete this;
     }
 
 private:
     EventListenersByType m_eventTypes;
     int m_nextEventListenerID = 0;
+    int m_dispatchDepth = 0;
+    bool m_destroyed = false;
 };

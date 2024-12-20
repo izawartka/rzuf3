@@ -422,6 +422,8 @@ void RZUF3_TextButton::createCombinedTexture()
 		borderRect.w, borderRect.h
 	);
 
+	if (tempTexture == nullptr) return;
+
 	SDL_Texture* prevTarget = SDL_GetRenderTarget(renderer);
 	SDL_SetRenderTarget(renderer, tempTexture);
 	bool prevUseObjectPos = g_renderer->getUseObjectPos();

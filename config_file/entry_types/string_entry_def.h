@@ -8,7 +8,7 @@ public:
 
     bool parse(std::string& input, void*& output, size_t& size) const override {
         output = new std::string(input);
-        size = sizeof(input);
+        size = sizeof(output);
         return true;
     }
 
@@ -27,6 +27,10 @@ public:
 
     std::type_index getType() const override {
 		return typeid(std::string);
+	}
+
+    void destroyValue(void* value) const override {
+		delete static_cast<std::string*>(value);
 	}
 };
 

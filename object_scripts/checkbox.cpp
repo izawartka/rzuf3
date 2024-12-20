@@ -201,6 +201,7 @@ void RZUF3_Checkbox::onMouseUpOutside(RZUF3_MouseUpOutsideEvent* event)
 void RZUF3_Checkbox::onUISetValue(RZUF3_UISetValueEvent* event)
 {
 	if(event->getTypeIndex() != typeid(bool)) return;
+	if(event->getValue() == nullptr) return;
 
 	bool checked = *(bool*)event->getValue();
 	setChecked(checked);

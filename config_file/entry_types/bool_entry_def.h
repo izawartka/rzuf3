@@ -17,6 +17,10 @@ public:
     std::type_index getType() const override {
 		return typeid(bool);
 	}
+
+    void destroyValue(void* value) const override {
+		delete static_cast<bool*>(value);
+	}
 };
 
 inline auto RZUF3_ConfigBoolEntry(const bool defaultValue) {

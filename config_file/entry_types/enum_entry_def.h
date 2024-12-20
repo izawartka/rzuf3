@@ -18,6 +18,10 @@ public:
 		return typeid(std::string);
 	}
 
+    void destroyValue(void* value) const override {
+		delete static_cast<std::string*>(value);
+	}
+
 private:
     std::vector<std::string> m_allowedValues;
 

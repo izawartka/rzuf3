@@ -18,6 +18,7 @@ public:
     virtual bool parse(std::string&, void*& output, size_t& size) const = 0;
     virtual bool serialize(void* input, std::string& output) const = 0;
     virtual bool validate(std::string& input) const = 0;
+    virtual void destroyValue(void* value) const = 0;
     virtual std::type_index getType() const = 0;
 
     virtual std::unique_ptr<RZUF3_ConfigEntryDef> clone() const = 0;

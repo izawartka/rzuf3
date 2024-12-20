@@ -9,6 +9,7 @@ RZUF3_Object::RZUF3_Object(RZUF3_ObjectDefinition objectDefinition, RZUF3_Scene*
 	m_name = objectDefinition.name;
 	m_scene = scene;
 	m_scripts = std::vector<RZUF3_ObjectScript*>();
+	m_eventsManager = new RZUF3_EventsManager();
 
 	setParent(objectDefinition.parentName);
 	setPos(objectDefinition.pos);
@@ -32,6 +33,8 @@ RZUF3_Object::~RZUF3_Object()
 	}
 
 	setParent(nullptr);
+
+	m_eventsManager->destroy();
 }
 
 void RZUF3_Object::init()
@@ -134,5 +137,5 @@ bool RZUF3_Object::setParent(std::string parentName)
 
 RZUF3_EventsManager* RZUF3_Object::getEventsManager()
 {
-	return &m_eventsManager;
+	return m_eventsManager;
 }

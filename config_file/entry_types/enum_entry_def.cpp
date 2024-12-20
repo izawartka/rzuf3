@@ -5,7 +5,7 @@ bool RZUF3_ConfigEnumEntryDef::parse(std::string& input, void*& output, size_t& 
 	if (!validate(input)) return false;
 
 	output = new std::string(input);
-	size = sizeof(input);
+	size = sizeof(output);
 	return true;
 }
 
