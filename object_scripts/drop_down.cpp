@@ -192,8 +192,6 @@ void RZUF3_DropDown::onUIButtonClick(RZUF3_UIButtonClickEvent* event)
 
 void RZUF3_DropDown::onUISetValue(RZUF3_UISetValueEvent* event)
 {
-	/// TODO: if called by an event send as a result of onUIValueChange, it corrupts the memory
-
 	if(event->getValue() == nullptr) return;
 	std::type_index typeIndex = event->getTypeIndex();
 	if (typeIndex == typeid(int))

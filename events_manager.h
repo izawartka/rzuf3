@@ -85,16 +85,20 @@ public:
 
         EventListenerList& eventListenerList = eventTypeIt->second;
         auto& eventListeners = eventListenerList.listeners;
-        eventListenerList.dispatchIterators.push_back(0);
-        m_dispatchDepth++;
-        int& i = eventListenerList.dispatchIterators.back();
+        auto& dispatchIterators = eventListenerList.dispatchIterators;
+        dispatchIterators.push_back(0);
+        size_t dispatchIteratorIndex = dispatchIterators.size() - 1;
 
-        for (i = 0; i < eventListeners.size(); i++) {
+        m_dispatchDepth++;
+
+        for(int i = 0; i < eventListeners.size(); i++) {
             eventListeners[i].callback(event);
             if (m_destroyed) break;
+
+            i = dispatchIterators.at(dispatchIteratorIndex)++;
 		}
 
-        eventListenerList.dispatchIterators.pop_back();
+        dispatchIterators.pop_back();
         m_dispatchDepth--;
 
         if (m_dispatchDepth < 0) {

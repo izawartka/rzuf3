@@ -114,7 +114,7 @@ void RZUF3_UIConfigSync::onConfigEntryUpdate(RZUF3_ConfigEntryUpdateEvent* event
 	if (m_options.key != event->getKey()) return;
 	if(m_options.savedChangesOnly && !event->isSaved()) return;
 
-	m_willUpdateUIValue = true;
+	updateUIValue();
 }
 
 void RZUF3_UIConfigSync::onUpdate(RZUF3_UpdateEvent* event)
@@ -133,7 +133,7 @@ void RZUF3_UIConfigSync::onUIValueChange(RZUF3_UIValueChangeEvent* event)
 
 	m_tempDisableOnConfigEntryUpdate = true;
 	if (!m_configFile->setValueRaw(m_options.key, value, m_type) && m_options.revertIfSetConfigValueFailed) {
-		m_willUpdateUIValue = true;
+		updateUIValue();
 	}
 	m_tempDisableOnConfigEntryUpdate = false;
 }

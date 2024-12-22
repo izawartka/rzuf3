@@ -498,9 +498,9 @@ void RZUF3_Game::clean()
 {
 	spdlog::info("Cleaning the game");
 	delete m_scene;
-	SDL_DestroyWindow(m_window);
 	delete m_renderer;
-	SDL_DestroyRenderer(m_sdlRenderer);
+	if(m_sdlRenderer) SDL_DestroyRenderer(m_sdlRenderer);
+	if(m_window) SDL_DestroyWindow(m_window);
 	SDL_Quit();
 	IMG_Quit();
 	TTF_Quit();
