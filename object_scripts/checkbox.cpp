@@ -381,6 +381,7 @@ void RZUF3_Checkbox::createCombinedTexture()
 	SDL_SetRenderTarget(renderer, tempTexture);
 	bool prevUseObjectPos = g_renderer->getUseObjectPos();
 	g_renderer->setUseObjectPos(false);
+	g_renderer->setAlign(RZUF3_Align_TopLeft);
 
 	int textW = m_textRenderer->getWidth();
 	int textH = m_textRenderer->getHeight();
