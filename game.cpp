@@ -340,6 +340,11 @@ void RZUF3_Game::getWindowSize(int* width, int* height) const
 	SDL_GetWindowSize(m_window, width, height);
 }
 
+bool RZUF3_Game::getWindowFullscreen() const
+{
+	return SDL_GetWindowFlags(m_window) & SDL_WINDOW_FULLSCREEN;
+}
+
 std::string RZUF3_Game::getClipboardText()
 {
 	char* text = SDL_GetClipboardText();
