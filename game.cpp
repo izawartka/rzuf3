@@ -345,6 +345,23 @@ bool RZUF3_Game::getWindowFullscreen() const
 	return SDL_GetWindowFlags(m_window) & SDL_WINDOW_FULLSCREEN;
 }
 
+bool RZUF3_Game::getScreenSize(int* width, int* height) const
+{
+	SDL_DisplayMode mode;
+	if (SDL_GetCurrentDisplayMode(0, &mode) != 0)
+	{
+		spdlog::error("Failed to get current display mode: {}", SDL_GetError());
+		return false;
+	}
+
+	if(width != nullptr)
+		*width = mode.w;
+
+	if(height != nullptr)
+		*height = mode.h;
+	return true;
+}
+
 std::string RZUF3_Game::getClipboardText()
 {
 	char* text = SDL_GetClipboardText();

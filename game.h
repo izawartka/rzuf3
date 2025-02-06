@@ -43,6 +43,7 @@ public:
 	bool isRunning() const { return m_isRunning; }
 	void getWindowSize(int* width, int* height) const;
 	bool getWindowFullscreen() const;
+	bool getScreenSize(int* width, int* height) const;
 	std::string getClipboardText();
 	RZUF3_ConfigFile* getConfigFile(std::string id = "");
 
