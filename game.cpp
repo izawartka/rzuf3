@@ -354,11 +354,8 @@ bool RZUF3_Game::getScreenSize(int* width, int* height) const
 		return false;
 	}
 
-	if(width != nullptr)
-		*width = mode.w;
-
-	if(height != nullptr)
-		*height = mode.h;
+	if (width != nullptr) *width = mode.w;
+	if (height != nullptr) *height = mode.h;
 	return true;
 }
 

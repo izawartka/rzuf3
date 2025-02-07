@@ -22,6 +22,7 @@ void RZUF3_Slider::init()
 	m_min = mp_options.min;
 	m_max = mp_options.max;
 	m_style = mp_options.style;
+	m_alignment = mp_options.alignment;
 
 	m_clickable = new RZUF3_Clickable();
 	m_object->addScript(m_clickable);
@@ -57,6 +58,12 @@ void RZUF3_Slider::setStyle(RZUF3_SliderStyle style)
 	updateStyle();
 }
 
+void RZUF3_Slider::setAlignment(RZUF3_Align alignment)
+{
+	m_alignment = alignment;
+	updateStyle();
+}
+
 void RZUF3_Slider::setMin(int min)
 {
 	m_min = min;
@@ -85,6 +92,11 @@ void RZUF3_Slider::setValue(int value)
 RZUF3_SliderStyle RZUF3_Slider::getStyle() const
 {
 	return m_style;
+}
+
+RZUF3_Align RZUF3_Slider::getAlignment() const
+{
+	return m_alignment;
 }
 
 int RZUF3_Slider::getValue() const
@@ -118,12 +130,21 @@ void RZUF3_Slider::onDraw(RZUF3_DrawEvent* event)
 	int sliderHalfSize = m_style.sliderSize / 2;
 	int thumbHalfSize = m_style.thumbSize / 2;
 
+	SDL_Rect refRect = {
+		0,
+		0,
+		sliderOffset*2 + m_style.width,
+		std::max(m_style.sliderSize, m_style.thumbSize)
+	};
+
 	SDL_Rect sliderRect = {
 		sliderOffset,
 		sliderOffset,
 		m_style.width,
 		m_style.sliderSize
 	};
+
+	RZUF3_Renderer::alignRect(sliderRect, m_alignment, &refRect);
 
 	g_renderer->setColor(m_style.sliderColor);
 	g_renderer->setAlign(RZUF3_Align_TopLeft);
@@ -138,6 +159,8 @@ void RZUF3_Slider::onDraw(RZUF3_DrawEvent* event)
 		m_style.thumbSize,
 		m_style.thumbSize
 	};
+
+	RZUF3_Renderer::alignRect(thumbRect, m_alignment, &refRect);
 
 	g_renderer->setColor(m_style.thumbColor);
 	g_renderer->setAlign(RZUF3_Align_TopLeft);
@@ -154,6 +177,8 @@ void RZUF3_Slider::updateStyle()
 		m_style.width + sliderOffset*2,
 		std::max(m_style.sliderSize, m_style.thumbSize)
 	};
+
+	RZUF3_Renderer::alignRect(rect, m_alignment);
 
 	m_clickable->setRect(rect);
 }

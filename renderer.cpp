@@ -211,39 +211,41 @@ bool RZUF3_Renderer::isXYInside(SDL_Rect& rect, int x, int y, bool ignoreRectXY)
 	return true;
 }
 
-void RZUF3_Renderer::alignRect(SDL_Rect& rect, RZUF3_Align alignment)
+void RZUF3_Renderer::alignRect(SDL_Rect& rect, RZUF3_Align alignment, SDL_Rect* refRect)
 {
+	if(refRect == nullptr) refRect = &rect;
+
 	switch (alignment)
 	{
 	case RZUF3_Align_TopLeft:
 		break;
 	case RZUF3_Align_Top:
-		rect.x -= rect.w / 2;
+		rect.x -= refRect->w / 2;
 		break;
 	case RZUF3_Align_TopRight:
-		rect.x -= rect.w;
+		rect.x -= refRect->w;
 		break;
 	case RZUF3_Align_Left:
-		rect.y -= rect.h / 2;
+		rect.y -= refRect->h / 2;
 		break;
 	case RZUF3_Align_Center:
-		rect.x -= rect.w / 2;
-		rect.y -= rect.h / 2;
+		rect.x -= refRect->w / 2;
+		rect.y -= refRect->h / 2;
 		break;
 	case RZUF3_Align_Right:
-		rect.x -= rect.w;
-		rect.y -= rect.h / 2;
+		rect.x -= refRect->w;
+		rect.y -= refRect->h / 2;
 		break;
 	case RZUF3_Align_BottomLeft:
-		rect.y -= rect.h;
+		rect.y -= refRect->h;
 		break;
 	case RZUF3_Align_Bottom:
-		rect.x -= rect.w / 2;
-		rect.y -= rect.h;
+		rect.x -= refRect->w / 2;
+		rect.y -= refRect->h;
 		break;
 	case RZUF3_Align_BottomRight:
-		rect.x -= rect.w;
-		rect.y -= rect.h;
+		rect.x -= refRect->w;
+		rect.y -= refRect->h;
 		break;
 	}
 }

@@ -43,7 +43,7 @@ public:
 	static void objectToScreenRect(RZUF3_Object* parentObject, SDL_Rect& rect);
 	static void screenToRectXY(RZUF3_Object* parentObject, SDL_Rect& rect, int& x, int& y);
 	static bool isXYInside(SDL_Rect& rect, int x, int y, bool ignoreRectXY = false);
-	static void alignRect(SDL_Rect& rect, RZUF3_Align alignment);
+	static void alignRect(SDL_Rect& rect, RZUF3_Align alignment, SDL_Rect* refRect = nullptr);
 
 private:
 

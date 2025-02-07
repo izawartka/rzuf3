@@ -20,6 +20,7 @@ struct RZUF3_SliderOptions {
 	int max;
 	int value;
 	RZUF3_SliderStyle style;
+	RZUF3_Align alignment = RZUF3_Align_TopLeft;
 };
 
 class RZUF3_Slider : public RZUF3_ObjectScript {
@@ -32,11 +33,13 @@ public:
 	void deinit();
 
 	void setStyle(RZUF3_SliderStyle style);
+	void setAlignment(RZUF3_Align alignment);
 	void setMin(int min);
 	void setMax(int max);
 	void setValue(int value);
 
 	RZUF3_SliderStyle getStyle() const;
+	RZUF3_Align getAlignment() const;
 	int getValue() const;
 
 protected:
@@ -52,6 +55,7 @@ protected:
 	int m_max = 0;
 	int m_value = 0;
 	RZUF3_SliderStyle m_style;
+	RZUF3_Align m_alignment = RZUF3_Align_TopLeft;
 	RZUF3_EventsManager* m_objEventsManager = nullptr;
 	RZUF3_Clickable* m_clickable = nullptr;
 
