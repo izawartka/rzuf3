@@ -155,7 +155,7 @@ void RZUF3_Game::initWindow(int width, int height, bool fullscreen)
 	}
 
 	m_renderer = new RZUF3_Renderer(m_sdlRenderer);
-	setWindowSize(width, height);
+	m_renderer->setWindowSize(width, height);
 
 	spdlog::info("Renderer Created");
 
