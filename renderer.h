@@ -34,6 +34,7 @@ public:
 	void drawTextureOpaque(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect, Uint8 opacity);
 	void fillCircle(RZUF3_Object* parentObject, SDL_Rect rect);
 	bool createStaticTexture(SDL_Texture* &texture, int width, int height);
+	bool isRectOnScreen(SDL_Rect& rect, bool fully = false) const;
 
 	SDL_Renderer* getSDLRenderer() { return m_renderer; }
 	bool getUseObjectPos() const { return m_useObjectPos; }

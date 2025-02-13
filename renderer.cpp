@@ -163,6 +163,21 @@ bool RZUF3_Renderer::createStaticTexture(SDL_Texture* &texture, int width, int h
 	return true;
 }
 
+bool RZUF3_Renderer::isRectOnScreen(SDL_Rect& rect, bool fully) const
+{
+	int nodesOnScreen = 0;
+	int x2 = rect.x + rect.w;
+	int y2 = rect.y + rect.h;
+
+	if (rect.x >= 0 && rect.x < m_winWidth) nodesOnScreen++;
+	if (rect.y >= 0 && rect.y < m_winHeight) nodesOnScreen++;
+	if (x2 >= 0 && x2 < m_winWidth) nodesOnScreen++;
+	if (y2 >= 0 && y2 < m_winHeight) nodesOnScreen++;
+
+	if (fully) return nodesOnScreen == 4;
+	return nodesOnScreen > 0;
+}
+
 void RZUF3_Renderer::screenToObjectXY(RZUF3_Object* parentObject, int& x, int& y)
 {
 	RZUF3_Pos objectPos = parentObject->getAbsolutePos();
