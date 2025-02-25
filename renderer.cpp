@@ -163,6 +163,48 @@ bool RZUF3_Renderer::createStaticTexture(SDL_Texture* &texture, int width, int h
 	return true;
 }
 
+bool RZUF3_Renderer::createCacheTexture(SDL_Texture*& texture, int width, int height, std::function<void()> drawFunction)
+{
+	if (texture != nullptr)
+	{
+		spdlog::error("RZUF3_Renderer: Target cached texture should be nullptr");
+		return false;
+	}
+
+	SDL_Texture* tempTexture = SDL_CreateTexture(
+		m_renderer,
+		SDL_PIXELFORMAT_RGBA8888, 
+		SDL_TEXTUREACCESS_TARGET,
+		width,
+		height
+	);
+
+	if (tempTexture == nullptr)
+	{
+		spdlog::error("RZUF3_Renderer: Failed to create temporary texture for caching: {}", SDL_GetError());
+		return false;
+	}
+
+	SDL_Texture* prevTarget = SDL_GetRenderTarget(m_renderer);
+	SDL_SetRenderTarget(m_renderer, tempTexture);
+	bool prevUseObjectPos = getUseObjectPos();
+	setUseObjectPos(false);
+	setAlign(RZUF3_Align_TopLeft);
+
+	drawFunction();
+
+	bool staticTextureSuccess = createStaticTexture(texture, width, height);
+	if (!staticTextureSuccess) {
+		spdlog::error("RZUF3_Renderer: Failed to create static texture for caching");
+	}
+
+	setUseObjectPos(prevUseObjectPos);
+	SDL_SetRenderTarget(m_renderer, prevTarget);
+	SDL_DestroyTexture(tempTexture);
+
+	return texture != nullptr && staticTextureSuccess;
+}
+
 bool RZUF3_Renderer::isRectOnScreen(SDL_Rect& rect, bool fully) const
 {
 	int nodesOnScreen = 0;

@@ -369,38 +369,18 @@ void RZUF3_Checkbox::createCombinedTexture()
 	}
 
 	SDL_Rect rect = getRect();
-	SDL_Renderer* renderer = g_renderer->getSDLRenderer();
 
-	SDL_Texture* tempTexture = SDL_CreateTexture(
-		renderer,
-		SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-		rect.w, rect.h
-	);
+	g_renderer->createCacheTexture(m_combinedTexture, rect.w, rect.h, [this, rect]() {
+		int textW = m_textRenderer->getWidth();
+		int textH = m_textRenderer->getHeight();
+		int textX = m_options.style.rectSize + m_options.style.textOffset;
+		int textY = (rect.h - textH) / 2;
+		if (textY < 0) textY = 0;
 
-	SDL_Texture* prevTarget = SDL_GetRenderTarget(renderer);
-	SDL_SetRenderTarget(renderer, tempTexture);
-	bool prevUseObjectPos = g_renderer->getUseObjectPos();
-	g_renderer->setUseObjectPos(false);
-	g_renderer->setAlign(RZUF3_Align_TopLeft);
+		SDL_Texture* textTexture = m_textRenderer->getTexture();
+		g_renderer->drawTexture(nullptr, textTexture, nullptr, { textX, textY, textW, textH });
 
-	int textW = m_textRenderer->getWidth();
-	int textH = m_textRenderer->getHeight();
-	int textX = m_options.style.rectSize + m_options.style.textOffset;
-	int textY = (rect.h - textH) / 2;
-	if(textY < 0) textY = 0;
-
-	SDL_Texture* textTexture = m_textRenderer->getTexture();
-	g_renderer->drawTexture(nullptr, textTexture, nullptr, {textX, textY, textW, textH});
-
-	m_rectBorderBox->draw();
-	if(m_options.checked) m_checkBorderBox->draw();
-
-	if (!g_renderer->createStaticTexture(m_combinedTexture, rect.w, rect.h)) {
-		spdlog::error("Checkbox: Failed to create combined texture");
-	}
-
-	g_renderer->setUseObjectPos(prevUseObjectPos);
-	SDL_SetRenderTarget(renderer, prevTarget);
-
-	SDL_DestroyTexture(tempTexture);
+		m_rectBorderBox->draw();
+		if (m_options.checked) m_checkBorderBox->draw();
+	});
 }

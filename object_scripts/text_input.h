@@ -68,7 +68,6 @@ protected:
 
 	void removeTextRenderer();
 	void createTextRenderer();
-	void updateTextRenderer();
 	void removeBorderBox();
 	void createBorderBox();
 	void updateBorderBox();

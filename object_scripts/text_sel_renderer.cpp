@@ -648,35 +648,17 @@ void RZUF3_TextSelRenderer::createCombinedTexture()
 
 	if(m_origSize.w == 0 || m_origSize.h == 0) return;
 
-	SDL_Texture* tempTexture = SDL_CreateTexture(
-		g_renderer->getSDLRenderer(),
-		SDL_PIXELFORMAT_RGBA8888,
-		SDL_TEXTUREACCESS_TARGET,
-		m_origSize.w,
-		m_origSize.h
-	);
+	g_renderer->createCacheTexture(m_combinedTexture, m_origSize.w, m_origSize.h, [this]() {
+		m_textRenderer->draw();
 
-	SDL_Texture* prevTarget = SDL_GetRenderTarget(g_renderer->getSDLRenderer());
-	SDL_SetRenderTarget(g_renderer->getSDLRenderer(), tempTexture);
-	bool prevUseObjectPos = g_renderer->getUseObjectPos();
-	g_renderer->setUseObjectPos(false);
-
-	m_textRenderer->draw();
-
-	SDL_Texture* selTexture = m_textRendererSelected->getTexture();
-	for (SDL_Rect rect : m_selRects) {
-		if(rect.x + rect.w > m_origSize.w) rect.w = m_origSize.w - rect.x;
-		if(rect.y + rect.h > m_origSize.h) rect.h = m_origSize.h - rect.y;
-		SDL_RenderCopy(g_renderer->getSDLRenderer(), selTexture, &rect, &rect);
-	}
-
-	if (!g_renderer->createStaticTexture(m_combinedTexture, m_origSize.w, m_origSize.h)) {
-		spdlog::error("TextSelRenderer: Failed to create combined texture");
-	}
-
-	SDL_SetRenderTarget(g_renderer->getSDLRenderer(), prevTarget);
-	SDL_DestroyTexture(tempTexture);
-	g_renderer->setUseObjectPos(prevUseObjectPos);
+		SDL_Renderer* renderer = g_renderer->getSDLRenderer();
+		SDL_Texture* selTexture = m_textRendererSelected->getTexture();
+		for (SDL_Rect rect : m_selRects) {
+			if (rect.x + rect.w > m_origSize.w) rect.w = m_origSize.w - rect.x;
+			if (rect.y + rect.h > m_origSize.h) rect.h = m_origSize.h - rect.y;
+			SDL_RenderCopy(renderer, selTexture, &rect, &rect);
+		}
+	});
 }
 
 void RZUF3_TextSelRenderer::cacheLangFileText()
