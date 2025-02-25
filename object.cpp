@@ -39,7 +39,11 @@ RZUF3_Object::~RZUF3_Object()
 
 void RZUF3_Object::init()
 {
-	if(m_initialized) return;
+	if (m_initialized) {
+		spdlog::warn("Object {} is already initialized", getName());
+		return;
+	}
+
 	m_initialized = true;
 
 	std::vector<RZUF3_ObjectScript*> scriptsOnInit = m_scripts;
