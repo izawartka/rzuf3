@@ -35,6 +35,7 @@ public:
 	void fillCircle(RZUF3_Object* parentObject, SDL_Rect rect);
 	bool createStaticTexture(SDL_Texture* &texture, int width, int height);
 	bool createCacheTexture(SDL_Texture* &texture, int width, int height, std::function<void()> drawFunction);
+	bool getPixel(SDL_Texture* texture, int x, int y, uint32_t &pixel);
 	bool isRectOnScreen(SDL_Rect& rect, bool fully = false) const;
 
 	SDL_Renderer* getSDLRenderer() { return m_renderer; }

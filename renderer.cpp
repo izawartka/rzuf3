@@ -205,6 +205,47 @@ bool RZUF3_Renderer::createCacheTexture(SDL_Texture*& texture, int width, int he
 	return texture != nullptr && staticTextureSuccess;
 }
 
+bool RZUF3_Renderer::getPixel(SDL_Texture* texture, int x, int y, uint32_t& pixel)
+{
+	SDL_Texture* tempTexture = SDL_CreateTexture(
+		m_renderer,
+		SDL_PIXELFORMAT_RGBA8888,
+		SDL_TEXTUREACCESS_TARGET,
+		1,
+		1
+	);
+
+	if (tempTexture == nullptr)
+	{
+		spdlog::error("RZUF3_Renderer: Failed to create temporary texture for getPixel: {}", SDL_GetError());
+		return false;
+	}
+
+	SDL_Texture* prevTarget = SDL_GetRenderTarget(m_renderer);
+	SDL_SetRenderTarget(m_renderer, tempTexture);
+	bool prevUseObjectPos = getUseObjectPos();
+	setUseObjectPos(false);
+	setAlign(RZUF3_Align_TopLeft);
+
+	SDL_Rect dstRect = { 0, 0, 1, 1 };
+	SDL_Rect srcRect = { x, y, 1, 1 };
+	SDL_RenderCopy(m_renderer, texture, &srcRect, &dstRect);
+
+	SDL_RenderReadPixels(
+		m_renderer,
+		&dstRect,
+		SDL_PIXELFORMAT_RGBA8888,
+		&pixel,
+		sizeof(pixel)
+	);
+
+	setUseObjectPos(prevUseObjectPos);
+	SDL_SetRenderTarget(m_renderer, prevTarget);
+	SDL_DestroyTexture(tempTexture);
+
+	return true;
+}
+
 bool RZUF3_Renderer::isRectOnScreen(SDL_Rect& rect, bool fully) const
 {
 	int nodesOnScreen = 0;
