@@ -26,12 +26,13 @@ public:
 	void setAlign(RZUF3_Align alignment) { m_alignment = alignment; }
 	void setWindowSize(int width, int height) { m_winWidth = width; m_winHeight = height; }
 	void setUseObjectPos(bool useObjectPos) { m_useObjectPos = useObjectPos; }
+	void setOpacity(Uint8 opacity);
+	void resetOpacity();
 
 	void drawLine(RZUF3_Object* parentObject, int x1, int y1, int x2, int y2);
 	void fillRect(RZUF3_Object* parentObject, SDL_Rect rect);
 	void drawRect(RZUF3_Object* parentObject, SDL_Rect rect, unsigned int width);
 	void drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect);
-	void drawTextureOpaque(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect, Uint8 opacity);
 	void fillCircle(RZUF3_Object* parentObject, SDL_Rect rect);
 	bool createStaticTexture(SDL_Texture* &texture, int width, int height);
 	bool createCacheTexture(SDL_Texture* &texture, int width, int height, std::function<void()> drawFunction);
