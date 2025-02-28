@@ -377,8 +377,12 @@ void RZUF3_Checkbox::createCombinedTexture()
 		int textY = (rect.h - textH) / 2;
 		if (textY < 0) textY = 0;
 
+		SDL_Rect dstRect = {
+			textX, textY, textW, textH
+		};
+
 		SDL_Texture* textTexture = m_textRenderer->getTexture();
-		g_renderer->drawTexture(nullptr, textTexture, nullptr, { textX, textY, textW, textH });
+		g_renderer->drawTexture(nullptr, textTexture, nullptr, dstRect);
 
 		m_rectBorderBox->draw();
 		if (m_options.checked) m_checkBorderBox->draw();

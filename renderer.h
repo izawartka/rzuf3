@@ -33,6 +33,7 @@ public:
 	void fillRect(RZUF3_Object* parentObject, SDL_Rect rect);
 	void drawRect(RZUF3_Object* parentObject, SDL_Rect rect, unsigned int width);
 	void drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect dstRect);
+	void drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_FRect dstRect);
 	void fillCircle(RZUF3_Object* parentObject, SDL_Rect rect);
 	bool createStaticTexture(SDL_Texture* &texture, int width, int height);
 	bool createCacheTexture(SDL_Texture* &texture, int width, int height, std::function<void()> drawFunction);
@@ -43,11 +44,17 @@ public:
 	bool getUseObjectPos() const { return m_useObjectPos; }
 
 	static void screenToObjectXY(RZUF3_Object* parentObject, int& x, int& y);
+	static void screenToObjectXY(RZUF3_Object* parentObject, float& x, float& y);
 	static void objectToScreenXY(RZUF3_Object* parentObject, int& x, int& y);
+	static void objectToScreenXY(RZUF3_Object* parentObject, float& x, float& y);
 	static void objectToScreenRect(RZUF3_Object* parentObject, SDL_Rect& rect);
+	static void objectToScreenRect(RZUF3_Object* parentObject, SDL_FRect& rect);
 	static void screenToRectXY(RZUF3_Object* parentObject, SDL_Rect& rect, int& x, int& y);
+	static void screenToRectXY(RZUF3_Object* parentObject, SDL_FRect& rect, float& x, float& y);
 	static bool isXYInside(SDL_Rect& rect, int x, int y, bool ignoreRectXY = false);
+	static bool isXYInside(SDL_FRect& rect, float x, float y, bool ignoreRectXY = false);
 	static void alignRect(SDL_Rect& rect, RZUF3_Align alignment, SDL_Rect* refRect = nullptr);
+	static void alignRect(SDL_FRect& rect, RZUF3_Align alignment, SDL_FRect* refRect = nullptr);
 
 private:
 

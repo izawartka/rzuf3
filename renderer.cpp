@@ -1,7 +1,5 @@
 #include "renderer.h"
-#include "renderer.h"
-#include "renderer.h"
-#include "renderer.h"
+#include "renderer_static_impl.cpp"
 
 RZUF3_Renderer* g_renderer = nullptr;
 
@@ -101,6 +99,16 @@ void RZUF3_Renderer::drawTexture(RZUF3_Object* parentObject, SDL_Texture* textur
 	}
 	alignRect(dstRect, m_alignment);
 	SDL_RenderCopy(m_renderer, texture, srcRect, &dstRect);
+}
+
+void RZUF3_Renderer::drawTexture(RZUF3_Object* parentObject, SDL_Texture* texture, SDL_Rect* srcRect, SDL_FRect dstRect)
+{
+	if (m_useObjectPos && parentObject != nullptr)
+	{
+		objectToScreenRect(parentObject, dstRect);
+	}
+	alignRect(dstRect, m_alignment);
+	SDL_RenderCopyF(m_renderer, texture, srcRect, &dstRect);
 }
 
 void RZUF3_Renderer::fillCircle(RZUF3_Object* parentObject, SDL_Rect rect)
@@ -263,87 +271,60 @@ bool RZUF3_Renderer::isRectOnScreen(SDL_Rect& rect, bool fully) const
 
 void RZUF3_Renderer::screenToObjectXY(RZUF3_Object* parentObject, int& x, int& y)
 {
-	RZUF3_Pos objectPos = parentObject->getAbsolutePos();
-
-	x = (x - objectPos.x) / objectPos.scaleX;
-	y = (y - objectPos.y) / objectPos.scaleY;
+	RZUF3_RendererStaticImpl::screenToObjectXY(parentObject, x, y);
 }
 
-void RZUF3_Renderer::objectToScreenXY(RZUF3_Object* parentObject, int &x, int &y)
+void RZUF3_Renderer::screenToObjectXY(RZUF3_Object* parentObject, float& x, float& y)
 {
-	RZUF3_Pos parentPos = parentObject->getAbsolutePos();
+	RZUF3_RendererStaticImpl::screenToObjectXY(parentObject, x, y);
+}
 
-	x = parentPos.x + x * parentPos.scaleX;
-	y = parentPos.y + y * parentPos.scaleY;
+void RZUF3_Renderer::objectToScreenXY(RZUF3_Object* parentObject, int& x, int& y)
+{
+	RZUF3_RendererStaticImpl::objectToScreenXY(parentObject, x, y);
+}
+
+void RZUF3_Renderer::objectToScreenXY(RZUF3_Object* parentObject, float& x, float& y)
+{
+	RZUF3_RendererStaticImpl::objectToScreenXY(parentObject, x, y);
 }
 
 void RZUF3_Renderer::objectToScreenRect(RZUF3_Object* parentObject, SDL_Rect& rect)
 {
-	RZUF3_Pos pos = parentObject->getAbsolutePos();
+	RZUF3_RendererStaticImpl::objectToScreenRect(parentObject, rect);
+}
 
-	rect.x = pos.x + rect.x * pos.scaleX;
-	rect.y = pos.y + rect.y * pos.scaleY;
-	rect.w *= pos.scaleX;
-	rect.h *= pos.scaleY;
+void RZUF3_Renderer::objectToScreenRect(RZUF3_Object* parentObject, SDL_FRect& rect)
+{
+	RZUF3_RendererStaticImpl::objectToScreenRect(parentObject, rect);
 }
 
 void RZUF3_Renderer::screenToRectXY(RZUF3_Object* parentObject, SDL_Rect& rect, int& x, int& y)
 {
-	screenToObjectXY(parentObject, x, y);
+	RZUF3_RendererStaticImpl::screenToRectXY(parentObject, rect, x, y);
+}
 
-	x -= rect.x;
-	y -= rect.y;
+void RZUF3_Renderer::screenToRectXY(RZUF3_Object* parentObject, SDL_FRect& rect, float& x, float& y)
+{
+	RZUF3_RendererStaticImpl::screenToRectXY(parentObject, rect, x, y);
 }
 
 bool RZUF3_Renderer::isXYInside(SDL_Rect& rect, int x, int y, bool ignoreRectXY)
 {
-	if(!ignoreRectXY)
-	{
-		x -= rect.x;
-		y -= rect.y;
-	}
+	return RZUF3_RendererStaticImpl::isXYInside(rect, x, y, ignoreRectXY);
+}
 
-	if (x < 0 || x >= rect.w) return false;
-	if (y < 0 || y >= rect.h) return false;
-
-	return true;
+bool RZUF3_Renderer::isXYInside(SDL_FRect& rect, float x, float y, bool ignoreRectXY)
+{
+	return RZUF3_RendererStaticImpl::isXYInside(rect, x, y, ignoreRectXY);
 }
 
 void RZUF3_Renderer::alignRect(SDL_Rect& rect, RZUF3_Align alignment, SDL_Rect* refRect)
 {
-	if(refRect == nullptr) refRect = &rect;
+	RZUF3_RendererStaticImpl::alignRect(rect, alignment, refRect);
+}
 
-	switch (alignment)
-	{
-	case RZUF3_Align_TopLeft:
-		break;
-	case RZUF3_Align_Top:
-		rect.x -= refRect->w / 2;
-		break;
-	case RZUF3_Align_TopRight:
-		rect.x -= refRect->w;
-		break;
-	case RZUF3_Align_Left:
-		rect.y -= refRect->h / 2;
-		break;
-	case RZUF3_Align_Center:
-		rect.x -= refRect->w / 2;
-		rect.y -= refRect->h / 2;
-		break;
-	case RZUF3_Align_Right:
-		rect.x -= refRect->w;
-		rect.y -= refRect->h / 2;
-		break;
-	case RZUF3_Align_BottomLeft:
-		rect.y -= refRect->h;
-		break;
-	case RZUF3_Align_Bottom:
-		rect.x -= refRect->w / 2;
-		rect.y -= refRect->h;
-		break;
-	case RZUF3_Align_BottomRight:
-		rect.x -= refRect->w;
-		rect.y -= refRect->h;
-		break;
-	}
+void RZUF3_Renderer::alignRect(SDL_FRect& rect, RZUF3_Align alignment, SDL_FRect* refRect)
+{
+	RZUF3_RendererStaticImpl::alignRect(rect, alignment, refRect);
 }
