@@ -28,12 +28,14 @@ void RZUF3_Renderer::setOpacity(Uint8 opacity)
 {
 	SDL_SetRenderDrawBlendMode(m_renderer, opacity != 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, opacity);
+	m_opacity = opacity;
 }
 
 void RZUF3_Renderer::resetOpacity()
 {
 	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+	m_opacity = 255;
 }
 
 void RZUF3_Renderer::drawLine(RZUF3_Object* parentObject, int x1, int y1, int x2, int y2)
@@ -98,6 +100,7 @@ void RZUF3_Renderer::drawTexture(RZUF3_Object* parentObject, SDL_Texture* textur
 		objectToScreenRect(parentObject, dstRect);
 	}
 	alignRect(dstRect, m_alignment);
+	SDL_SetTextureAlphaMod(texture, m_opacity);
 	SDL_RenderCopy(m_renderer, texture, srcRect, &dstRect);
 }
 
@@ -108,6 +111,7 @@ void RZUF3_Renderer::drawTexture(RZUF3_Object* parentObject, SDL_Texture* textur
 		objectToScreenRect(parentObject, dstRect);
 	}
 	alignRect(dstRect, m_alignment);
+	SDL_SetTextureAlphaMod(texture, m_opacity);
 	SDL_RenderCopyF(m_renderer, texture, srcRect, &dstRect);
 }
 

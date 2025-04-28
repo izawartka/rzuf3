@@ -63,6 +63,7 @@ private:
 	bool m_useObjectPos = true;
 	int m_winWidth = 0;
 	int m_winHeight = 0;
+	uint8_t m_opacity = 255;
 };
 
 extern RZUF3_Renderer* g_renderer;
